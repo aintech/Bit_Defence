@@ -1,0 +1,98 @@
+﻿package 
+{
+	public class LauncherTurret extends Turret
+	{
+		public function LauncherTurret()
+		{
+			init();
+		}
+		
+		private function init():void
+		{
+			maxLevel = Variables.LAUNCHER_LEVEL;
+			base = new TurretBase();
+			gun = new LauncherTurret_Gun();
+			addChild(base);
+			addChild(gun);			
+			
+			abilityDescription 	= "Splash Damage";
+		}
+		
+		override public function updateLevel():void
+		{
+			switch(level)
+			{
+				case 1:
+				memoryUse = 100;
+				range = 200;
+				reloadTime = 20;
+				damage = 10;
+				upgradeCost = 30;
+				installingTime = 60;
+				upgradingTime = 60;
+				uninstallingTime = 60;
+				additionalDamage = 5;
+				additionalRange = 0;
+				additionalReloadTime = 0;
+				break;
+				
+				case 2:
+				memoryUse = 130;
+				range = 200;
+				reloadTime = 20;
+				damage = 15;
+				upgradeCost = 30;
+				upgradingTime = 90;
+				uninstallingTime = 90;
+				additionalDamage = 5;
+				additionalRange = 0;
+				additionalReloadTime = 0;
+				break;
+				
+				case 3:
+				memoryUse = 160;
+				range = 200;
+				reloadTime = 20;
+				damage = 20;
+				upgradeCost = 30;
+				upgradingTime = 120;
+				uninstallingTime = 120;
+				additionalDamage = 5;
+				additionalRange = 0;
+				additionalReloadTime = 0;
+				launcherPoisonChance = Variables.LAUNCHER_POISON_CHANCE;
+				launcherPoisonDuration = Variables.LAUNCHER_POISON_DURATION;
+				launcherPoisonDamage = Variables.LAUNCHER_POISON_DAMAGE;
+				break;
+				
+				case 4:
+				memoryUse = 180;
+				range = 200;
+				reloadTime = 20;
+				damage = 25;
+				upgradeCost = 30;
+				upgradingTime = 150;
+				uninstallingTime = 150;
+				additionalDamage = 5;
+				additionalRange = 0;
+				additionalReloadTime = 0;
+				launcherPoisonChance = Variables.LAUNCHER_POISON_CHANCE;
+				launcherPoisonDuration = Variables.LAUNCHER_POISON_DURATION;
+				launcherPoisonDamage = Variables.LAUNCHER_POISON_DAMAGE;
+				break;
+				
+				case 5:
+				memoryUse = 210;
+				range = 200;
+				reloadTime = 20;
+				damage = 30;
+				upgradeCost = 30;
+				uninstallingTime = 180;
+				launcherPoisonChance = Variables.LAUNCHER_POISON_CHANCE;
+				launcherPoisonDuration = Variables.LAUNCHER_POISON_DURATION;
+				launcherPoisonDamage = Variables.LAUNCHER_POISON_DAMAGE;
+				break;
+			}
+		}
+	}
+}
