@@ -13,7 +13,9 @@
 			base = new TurretBase();
 			gun = new LauncherTurret_Gun();
 			addChild(base);
-			addChild(gun);			
+			addChild(gun);
+			
+			type = Turret.TURRET_LAUNCHER;
 			
 			abilityDescription 	= "Splash Damage";
 		}
@@ -42,6 +44,7 @@
 				reloadTime = 20;
 				damage = 15;
 				upgradeCost = 30;
+				installingTime = 90;
 				upgradingTime = 90;
 				uninstallingTime = 90;
 				additionalDamage = 5;
@@ -55,6 +58,7 @@
 				reloadTime = 20;
 				damage = 20;
 				upgradeCost = 30;
+				installingTime = 120;
 				upgradingTime = 120;
 				uninstallingTime = 120;
 				additionalDamage = 5;
@@ -71,6 +75,7 @@
 				reloadTime = 20;
 				damage = 25;
 				upgradeCost = 30;
+				installingTime = 150;
 				upgradingTime = 150;
 				uninstallingTime = 150;
 				additionalDamage = 5;
@@ -87,6 +92,7 @@
 				reloadTime = 20;
 				damage = 30;
 				upgradeCost = 30;
+				installingTime = 180;
 				uninstallingTime = 180;
 				launcherPoisonChance = Variables.LAUNCHER_POISON_CHANCE;
 				launcherPoisonDuration = Variables.LAUNCHER_POISON_DURATION;

@@ -16,9 +16,7 @@
 //Подключение дополнительного маркера - можно создать новый маркер, на который можно установить турель
 
 
-//TODO: specialGauge уменьшается - когда устанавливается маркер, маркер устанавливается не мгновенно, гаджет тратиться когда маркер уже установлен
-//TODO: Flow stop останавливает не сразу, а постепенно(может и freeze будет так делать), и останавливает тех, кто еще не на дорожке а выйдетна нее через некоторое время 
-//TODO: У врагов разная скорость
+//TODO: Flow stop останавливает не сразу, а постепенно(может и freeze будет так делать), и останавливает тех, кто еще не на дорожке а выйдетна нее через некоторое время
 package 
 {
 	import flash.display.MovieClip;
@@ -121,6 +119,7 @@ package
 		public var specialToolsArray:Array				= [];
 		public var specialToolsGaugeArray:Array		= [];
 		public var specialToolsCooldownsArray:Array	= [];
+		public var addMarkerCounterArray:Array			= [];
 		
 		public var mapCols:int = 15;
 		public var mapRows:int = 10;
@@ -135,8 +134,16 @@ package
 		
 		public var specialToolsGauge:int = Variables.SPECIAL_TOOL_GAUGE;
 		public var addingMarker:Boolean = false;
-		public var cancelAddMarker:MovieClip;
 		public var specialToolCooldownClip:MovieClip;
+		
+		public var cancelToolClip:MovieClip;
+		
+		public var turretRelocatingON:Boolean = false;
+		public var relocatingTurretChoosen:Boolean = false;
+		public var relocationTurretClip:MovieClip;
+		
+		public var toolStunInAction:Boolean = false;
+		public var toolStunCounter:int;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -322,7 +329,7 @@ package
 					block = new GroundTile();
 					block.x = (i - row * cols) * block.width;
 					block.y = row * block.height;
-					block.addEventListener(MouseEvent.CLICK, addMarker, false, 0, true);
+					block.addEventListener(MouseEvent.CLICK, addMarkerCounter, false, 0, true);
 					groundHolder.addChild(block);
 				}
 				else if(levelMap[i] == M)
@@ -332,7 +339,7 @@ package
 					block.y = row * block.height;
 					block.addEventListener(MouseEvent.MOUSE_OVER, showRange, false, 0, true);
 					block.addEventListener(MouseEvent.MOUSE_OUT, hideRange, false, 0, true);
-					block.addEventListener(MouseEvent.CLICK, showBuyTurretInfo, false, 0, true);
+					block.addEventListener(MouseEvent.CLICK, clickMarker, false, 0, true);
 					markerArray.push(block);
 					markerHolder.addChild(block);
 				}
@@ -375,6 +382,7 @@ package
 			installTurrets();
 			upgradeTurrets();
 			uninstallTurrets();
+			checkMarkerCounter();
 			makeEnemies();
 			checkEnemies();
 			updateEnemies();
@@ -509,6 +517,20 @@ package
 					}
 				}
 				
+				if(toolStunInAction)
+				{
+					if(tempEnemy.xSpeed > 0)
+					{
+						tempEnemy.xSpeed--;
+						tempEnemy.ySpeed--;
+					}
+					toolStunCounter--;
+					if(toolStunCounter >= 0)
+					{
+						toolStunInAction = false;
+						CONTINIUM
+					}
+				}
 				if(tempEnemy.isStuned)
 				{
 					tempEnemy.x += 0;
@@ -694,7 +716,7 @@ package
 						if(stage.mouseX > marker.x && stage.mouseX < marker.x + marker.width &&
 						   stage.mouseY > marker.y && stage.mouseY < marker.y + marker.height)
 						{
-							startInstallTurret(dragCharIcon.charType, marker.x, marker.y);
+							startInstallTurret(dragCharIcon.charType, 1, marker.x, marker.y);
 							marker.free = false;
 						}
 					}
@@ -868,7 +890,7 @@ package
 			if(tempChar) tempChar = null;
 						
 			var marker:MovieClip = confirmTurretCircle.targetMarker;
-			startInstallTurret(confirmTurretCircle.turretType, marker.x, marker.y);
+			startInstallTurret(confirmTurretCircle.turretType, 1, marker.x, marker.y);
 			
 			for each(var mark:PlaceMarker in markerArray)
 			{
@@ -928,7 +950,7 @@ package
 			}
 		}
 		
-		private function startInstallTurret(turretType:String, xVal:int, yVal:int):void
+		private function startInstallTurret(turretType:String, turLevel:int, xVal:int, yVal:int):void
 		{
 			var turret:Turret;
 			switch(turretType)
@@ -956,6 +978,7 @@ package
 			counter.txtCount.text = "0 %";
 			counter.txtProcess.text = "install";
 			
+			turret.level = turLevel;
 			turret.updateLevel();
 			counter.turretInAction = turret;
 			counter.installTime = turret.installingTime;
@@ -1052,7 +1075,23 @@ package
 		
 		private function startUninstallTurret(e:MouseEvent):void
 		{
-			var turret:Turret = charMenu.target;
+			var turret:Turret;
+			
+			if(charMenu) turret = charMenu.target;
+			if(relocationTurretClip)
+			{
+				turret = relocationTurretClip.turretInAction;
+				turretHolder.removeChild(relocationTurretClip);
+				relocationTurretClip = null;
+				turretRelocatingON = false;
+				relocatingTurretChoosen = false;
+				if(cancelToolClip)
+				{
+					toolsScreen.removeChild(cancelToolClip);
+					cancelToolClip = null;
+					for each(var tool:SpecialTools in specialToolsArray) tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
+				}
+			}
 			for(var i:int = turretArray.length; --i >= 0;)
 			{
 				var tempTurret:Turret = turretArray[i];
@@ -1108,67 +1147,84 @@ package
 		
 		private function clickTurret(e:MouseEvent):void
 		{
-			if(charMenu) unClickTurret(e);
-			
-			var target:Object = e.currentTarget;
-			e.stopPropagation();
-			
-			target.updateLevel();
-			
-			charMenu = new CharMenu();
-			charMenu.x = target.x;
-			charMenu.y = target.y;
-			charMenu.target = target;
-			charMenu.txtSellCost.text = target.memoryUse;
-			charMenu.txtUpgradeCost.text = target.upgradeCost;
-			
-			if((target.level < target.maxLevel) && (memoryTotal >= memoryUsed + target.upgradeCost)) charMenu.upgradeBtn.addEventListener(MouseEvent.CLICK, startUpgradeTurret, false, 0, true);
-			else if(target.level == target.maxLevel)
+			if(turretRelocatingON)
 			{
-				charMenu.upgradeBtn.visible = false;
-				charMenu.upgradeBtn.mouseEnabled = false;
-				charMenu.txtUpgradeCost.text = "";
+				if(!relocatingTurretChoosen)
+				{
+					relocationTurretClip = new RelocationTurretClip();
+					relocationTurretClip.turretLevel = e.currentTarget.level;
+					relocationTurretClip.turretType = e.currentTarget.type;
+					relocationTurretClip.turretInAction = e.currentTarget;
+					relocationTurretClip.x = e.currentTarget.x;
+					relocationTurretClip.y = e.currentTarget.y;
+					turretHolder.addChild(relocationTurretClip);
+					relocatingTurretChoosen = true;
+				}
 			}
-			
-			charMenu.sellBtn.addEventListener(MouseEvent.CLICK, startUninstallTurret, false, 0, true);
-			turretHolder.addChild(charMenu);
-			
-			charInfo = new CharInfo();
-			
-			if(target is GunTurret) charInfo.txtCharType.text = "Gun";
-			else if(target is LauncherTurret) charInfo.txtCharType.text = "Launcher";
-			else if(target is MissileTurret) charInfo.txtCharType.text = "Swarm";
-			else if(target is FreezeTurret) charInfo.txtCharType.text = "Freeze";
-			
-			if(target.level < target.maxLevel)
+			else
 			{
-				charInfo.txtUpgradeCost.text	= "UpgradeCost $: " + target.upgradeCost;
+				if(charMenu) unClickTurret(e);
 				
-				if(target.additionalDamage != 0) charInfo.txtDamageUP.text 			= "+ " + target.additionalDamage;
-				else charInfo.txtDamageUP.text 												= "";
-				if(target.additionalRange != 0) charInfo.txtRangeUP.text 			= "+ " + target.additionalRange;
-				else charInfo.txtRangeUP.text 												= "";
-				if(target.additionalReloadTime != 0) charInfo.txtReloadUP.text		= "- " + target.additionalReloadTime;
-				else charInfo.txtReloadUP.text 												= "";
-			}
-			else 
-			{
-				charInfo.txtUpgradeCost.text	= "Upgrade Maximum";
-				charInfo.txtDamageUP.text		= "";
-				charInfo.txtRangeUP.text		= "";
-				charInfo.txtReloadUP.text		= "";
-			}
+				var target:Object = e.currentTarget;
+				e.stopPropagation();
 			
-			charInfo.txtCharLevel.text 	= " lvl " + target.level;
-			charInfo.txtDamage.text			= "Damage: " + target.damage;
-			charInfo.txtRange.text			= "Range: " + target.range;
-			charInfo.txtReloadTime.text	= "ReloadTime: " + target.reloadTime;
-			charInfo.txtSellCost.text		= "SellCost $: " + target.memoryUse;
-			charInfo.x = gameWidth;
-			charInfo.y = gameHeight;
-			charHolder.addChild(charInfo);
+				target.updateLevel();
 			
-			showTurretRange(target.range, target.x, target.y);
+				charMenu = new CharMenu();
+				charMenu.x = target.x;
+				charMenu.y = target.y;
+				charMenu.target = target;
+				charMenu.txtSellCost.text = target.memoryUse;
+				charMenu.txtUpgradeCost.text = target.upgradeCost;
+			
+				if((target.level < target.maxLevel) && (memoryTotal >= memoryUsed + target.upgradeCost)) charMenu.upgradeBtn.addEventListener(MouseEvent.CLICK, startUpgradeTurret, false, 0, true);
+				else if(target.level == target.maxLevel)
+				{
+					charMenu.upgradeBtn.visible = false;
+					charMenu.upgradeBtn.mouseEnabled = false;
+					charMenu.txtUpgradeCost.text = "";
+				}
+			
+				charMenu.sellBtn.addEventListener(MouseEvent.CLICK, startUninstallTurret, false, 0, true);
+				turretHolder.addChild(charMenu);
+			
+				charInfo = new CharInfo();
+			
+				if(target is GunTurret) charInfo.txtCharType.text = "Gun";
+				else if(target is LauncherTurret) charInfo.txtCharType.text = "Launcher";
+				else if(target is MissileTurret) charInfo.txtCharType.text = "Swarm";
+				else if(target is FreezeTurret) charInfo.txtCharType.text = "Freeze";
+			
+				if(target.level < target.maxLevel)
+				{
+					charInfo.txtUpgradeCost.text	= "UpgradeCost $: " + target.upgradeCost;
+				
+					if(target.additionalDamage != 0) charInfo.txtDamageUP.text 			= "+ " + target.additionalDamage;
+					else charInfo.txtDamageUP.text 												= "";
+					if(target.additionalRange != 0) charInfo.txtRangeUP.text 			= "+ " + target.additionalRange;
+					else charInfo.txtRangeUP.text 												= "";
+					if(target.additionalReloadTime != 0) charInfo.txtReloadUP.text		= "- " + target.additionalReloadTime;
+					else charInfo.txtReloadUP.text 												= "";
+				}
+				else 
+				{
+					charInfo.txtUpgradeCost.text	= "Upgrade Maximum";
+					charInfo.txtDamageUP.text		= "";
+					charInfo.txtRangeUP.text		= "";
+					charInfo.txtReloadUP.text		= "";
+				}
+			
+				charInfo.txtCharLevel.text 	= " lvl " + target.level;
+				charInfo.txtDamage.text			= "Damage: " + target.damage;
+				charInfo.txtRange.text			= "Range: " + target.range;
+				charInfo.txtReloadTime.text	= "ReloadTime: " + target.reloadTime;
+				charInfo.txtSellCost.text		= "SellCost $: " + target.memoryUse;
+				charInfo.x = gameWidth;
+				charInfo.y = gameHeight;
+				charHolder.addChild(charInfo);
+			
+				showTurretRange(target.range, target.x, target.y);
+			}
 		}
 		
 		private function showTurretRange(range:int, xVal:int, yVal:int):void
@@ -1275,7 +1331,7 @@ package
 						}
 						else if(turret is FreezeTurret)
 						{
-							if(!targetEnemy.underFreeze && !targetEnemy.isStuned)
+							if(!targetEnemy.underFreeze && !targetEnemy.isStuned && !toolStunInAction)
 							{
 								turret.gun.gotoAndStop("shot");
 								turret.gun.rotation = 0;
@@ -1555,6 +1611,8 @@ package
 			if(specialToolsGauge > 0)
 			{
 				var enemy:Enemy;
+				var cFrame:int = 1;
+				var gauge:MovieClip;
 			
 				switch(e.currentTarget.type)
 				{
@@ -1573,11 +1631,28 @@ package
 						specialToolCooldownClip.y = e.currentTarget.y;
 						toolsScreen.addChild(specialToolCooldownClip);
 						specialToolsCooldownsArray.push(specialToolCooldownClip);
+						
 						specialToolsGauge--;
+						for(var ghc:int = specialToolsGaugeArray.length; --ghc >= 0;)
+						{
+							gauge = specialToolsGaugeArray[ghc] as MovieClip;
+							if(gauge.currentFrame < gauge.totalFrames)
+							{
+								cFrame = gauge.currentFrame;
+								gauge.gotoAndStop(1);
+							}
+							else if(gauge.currentFrame >= gauge.totalFrames)
+							{
+								gauge.gotoAndStop(cFrame);
+								break;
+							}
+						}
 					break;
 				
 					case SpecialTools.FLOW_STOP:
-						for(var a:int = enemyArray.length; --a >= 0;)
+						toolStunInAction = true;
+						toolStunCounter = Variables.SPECIAL_FLOW_STOP_DURATION;
+						/*for(var a:int = enemyArray.length; --a >= 0;)
 						{
 							enemy = enemyArray[a];
 							enemy.isStuned = true;
@@ -1585,13 +1660,28 @@ package
 							var clip:* = enemy.getChildByName("clip");
 							clip.gotoAndStop(clip.currentFrame);
 							clip = null;
-						}
+						}*/
 						specialToolCooldownClip = new SpecialToolsCooldown();
 						specialToolCooldownClip.x = e.currentTarget.x;
 						specialToolCooldownClip.y = e.currentTarget.y;
 						toolsScreen.addChild(specialToolCooldownClip);
 						specialToolsCooldownsArray.push(specialToolCooldownClip);
+						
 						specialToolsGauge--;
+						for(var gfs:int = specialToolsGaugeArray.length; --gfs >= 0;)
+						{
+							gauge = specialToolsGaugeArray[gfs] as MovieClip;
+							if(gauge.currentFrame < gauge.totalFrames)
+							{
+								cFrame = gauge.currentFrame;
+								gauge.gotoAndStop(1);
+							}
+							else if(gauge.currentFrame >= gauge.totalFrames)
+							{
+								gauge.gotoAndStop(cFrame);
+								break;
+							}
+						}
 					break;
 				
 					case SpecialTools.FLOW_OVERLOAD:
@@ -1606,38 +1696,43 @@ package
 						specialToolCooldownClip.y = e.currentTarget.y;
 						toolsScreen.addChild(specialToolCooldownClip);
 						specialToolsCooldownsArray.push(specialToolCooldownClip);
+						
 						specialToolsGauge--;
+						for(var gfo:int = specialToolsGaugeArray.length; --gfo >= 0;)
+						{
+							gauge = specialToolsGaugeArray[gfo] as MovieClip;
+							if(gauge.currentFrame < gauge.totalFrames)
+							{
+								cFrame = gauge.currentFrame;
+								gauge.gotoAndStop(1);
+							}
+							else if(gauge.currentFrame >= gauge.totalFrames)
+							{
+								gauge.gotoAndStop(cFrame);
+								break;
+							}
+						}
 					break;
 				
 					case SpecialTools.RELOCATE_TURRET:
+						turretRelocatingON = true;
+						cancelToolClip = new CancelSpecialTool();
+						cancelToolClip.x = e.currentTarget.x;
+						cancelToolClip.y = e.currentTarget.y;
+						cancelToolClip.addEventListener(MouseEvent.CLICK, cancelTool, false, 0, true);
+						toolsScreen.addChild(cancelToolClip);
+						for each(var toolA:SpecialTools in specialToolsArray) toolA.removeEventListener(MouseEvent.CLICK, clickTool);
 					break;
 				
 					case SpecialTools.ADDITIONAL_MARKER:
 						addingMarker = true;
-						cancelAddMarker = new CancelSpecialTool();
-						cancelAddMarker.x = e.currentTarget.x;
-						cancelAddMarker.y = e.currentTarget.y;
-						cancelAddMarker.addEventListener(MouseEvent.CLICK, cancelTool, false, 0, true);
-						toolsScreen.addChild(cancelAddMarker);
-						for each(var tool:SpecialTools in specialToolsArray) tool.removeEventListener(MouseEvent.CLICK, clickTool);
+						cancelToolClip = new CancelSpecialTool();
+						cancelToolClip.x = e.currentTarget.x;
+						cancelToolClip.y = e.currentTarget.y;
+						cancelToolClip.addEventListener(MouseEvent.CLICK, cancelTool, false, 0, true);
+						toolsScreen.addChild(cancelToolClip);
+						for each(var toolB:SpecialTools in specialToolsArray) toolB.removeEventListener(MouseEvent.CLICK, clickTool);
 					break;
-				}
-			
-				var cFrame:int = 1;
-				
-				for(var g:int = specialToolsGaugeArray.length; --g >= 0;)
-				{
-					var gauge:MovieClip = specialToolsGaugeArray[g] as MovieClip;
-					if(gauge.currentFrame < gauge.totalFrames)
-					{
-						cFrame = gauge.currentFrame;
-						gauge.gotoAndStop(1);
-					}
-					else if(gauge.currentFrame >= gauge.totalFrames)
-					{
-						gauge.gotoAndStop(cFrame);
-						break;
-					}
 				}
 				enemy = null;
 			}
@@ -1648,32 +1743,139 @@ package
 			var cancel:MovieClip = e.currentTarget as MovieClip;
 			cancel.parent.removeChild(cancel);
 			cancel = null;
-			for each(var tool:SpecialTools in specialToolsArray) tool.addEventListener(MouseEvent.CLICK, clickTool, false ,0, true);
+			for each(var tool:SpecialTools in specialToolsArray) tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
+			addingMarker = false;
+			turretRelocatingON = false;
+			relocatingTurretChoosen = false;
+			if(relocationTurretClip)
+			{
+				relocationTurretClip.parent.removeChild(relocationTurretClip);
+				relocationTurretClip = null;
+			}
 		}
 		
-		private function addMarker(e:MouseEvent):void
+		private function addMarkerCounter(e:MouseEvent):void
 		{
 			var ground:GroundTile = e.currentTarget as GroundTile;
 			if(addingMarker)
 			{
-				var marker:PlaceMarker = new PlaceMarker();
-				marker.x = ground.x;
-				marker.y = ground.y;
-				marker.addEventListener(MouseEvent.MOUSE_OVER, showRange, false, 0, true);
-				marker.addEventListener(MouseEvent.MOUSE_OUT, hideRange, false, 0, true);
-				marker.addEventListener(MouseEvent.CLICK, showBuyTurretInfo, false, 0, true);
-				markerHolder.addChild(marker);
-				ground.removeEventListener(MouseEvent.CLICK, addMarker);
-				ground.parent.removeChild(ground);
-				ground = null;
+				var counter:MovieClip = new AddMarkerCounter();
+				counter.gotoAndStop(1);
+				counter.x = ground.x + ground.width * .5;
+				counter.y = ground.y + ground.height * .5;
+				counter.txtCount.text = "0 %";
+				counter.groundInAction = ground;
+				markerHolder.addChild(counter);
+				addMarkerCounterArray.push(counter);
+				for each(var tool:SpecialTools in specialToolsArray)
+				{ 
+					if(tool.type == SpecialTools.ADDITIONAL_MARKER)
+					{
+						specialToolCooldownClip = new SpecialToolsCooldown();
+						specialToolCooldownClip.x = tool.x;
+						specialToolCooldownClip.y = tool.y;
+						toolsScreen.addChild(specialToolCooldownClip);
+						specialToolsCooldownsArray.push(specialToolCooldownClip);
+					} 
+					tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
+				}
 				addingMarker = false;
-				for each(var tool:SpecialTools in specialToolsArray) tool.addEventListener(MouseEvent.CLICK, clickTool, false ,0, true);
-				if(cancelAddMarker)
+				ground.removeEventListener(MouseEvent.CLICK, addMarker);
+				if(cancelToolClip)
 				{
-					toolsScreen.removeChild(cancelAddMarker);
-					cancelAddMarker = null;
+					toolsScreen.removeChild(cancelToolClip);
+					cancelToolClip = null;
+				}
+				
+				specialToolsGauge--;
+				var frame:int = 1;
+				for(var g:int = specialToolsGaugeArray.length; --g >= 0;)
+				{
+					var gauge:MovieClip = specialToolsGaugeArray[g] as MovieClip;
+					if(gauge.currentFrame < gauge.totalFrames)
+					{
+						frame = gauge.currentFrame;
+						gauge.gotoAndStop(1);
+					}
+					else if(gauge.currentFrame >= gauge.totalFrames)
+					{
+						gauge.gotoAndStop(frame);
+						break;
+					}
 				}
 			}
+		}
+		
+		private function checkMarkerCounter():void
+		{
+			for(var i:int = addMarkerCounterArray.length; --i >= 0;)
+			{
+				var counter:MovieClip = addMarkerCounterArray[i] as MovieClip;
+				counter.passTime++;
+				var cTime:int = Math.floor(counter.passTime / counter.addingTime * 100)
+				counter.txtCount.text = String(cTime) + " %";
+				counter.gotoAndStop(cTime);
+				if(counter.currentFrame > 99)
+				{
+					addMarker(counter.groundInAction);
+					removeObject(i, addMarkerCounterArray);
+				}
+			}
+		}
+		
+		private function addMarker(targetGround:GroundTile):void
+		{
+			var ground:GroundTile = targetGround;
+			var marker:PlaceMarker = new PlaceMarker();
+			marker.x = ground.x;
+			marker.y = ground.y;
+			marker.addEventListener(MouseEvent.MOUSE_OVER, showRange, false, 0, true);
+			marker.addEventListener(MouseEvent.MOUSE_OUT, hideRange, false, 0, true);
+			marker.addEventListener(MouseEvent.CLICK, showBuyTurretInfo, false, 0, true);
+			markerHolder.addChild(marker);
+			markerArray.push(marker);
+			ground.parent.removeChild(ground);
+			ground = null;
+		}
+		
+		private function clickMarker(e:MouseEvent):void
+		{
+			if(turretRelocatingON && relocatingTurretChoosen)
+			{
+				startInstallTurret(relocationTurretClip.turretType, relocationTurretClip.turretLevel, e.currentTarget.x, e.currentTarget.y);
+				startUninstallTurret(e);
+				
+				specialToolsGauge--;
+				var frame:int = 1;
+				for(var g:int = specialToolsGaugeArray.length; --g >= 0;)
+				{
+					var gauge:MovieClip = specialToolsGaugeArray[g] as MovieClip;
+					if(gauge.currentFrame < gauge.totalFrames)
+					{
+						frame = gauge.currentFrame;
+						gauge.gotoAndStop(1);
+					}
+					else if(gauge.currentFrame >= gauge.totalFrames)
+					{
+						gauge.gotoAndStop(frame);
+						break;
+					}
+				}
+				
+				for each(var tool:SpecialTools in specialToolsArray)
+				{ 
+					if(tool.type == SpecialTools.RELOCATE_TURRET)
+					{
+						specialToolCooldownClip = new SpecialToolsCooldown();
+						specialToolCooldownClip.x = tool.x;
+						specialToolCooldownClip.y = tool.y;
+						toolsScreen.addChild(specialToolCooldownClip);
+						specialToolsCooldownsArray.push(specialToolCooldownClip);
+					} 
+					tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
+				}
+			}
+			else showBuyTurretInfo(e);
 		}
 		
 		private function removeObject(index:int, group:Array):void

@@ -2,12 +2,12 @@
 {
 	public class Variables
 	{
-		public static var SYMBOLS:int 						= 100;
+		public static var SYMBOLS:int 			= 100;
 		
-		public static var GUN_LEVEL:int = 5;
-		public static var SWARM_LEVEL:int = 5;
-		public static var FREEZE_LEVEL:int = 5;
-		public static var LAUNCHER_LEVEL:int = 5;
+		public static var GUN_LEVEL:int 			= 5;
+		public static var SWARM_LEVEL:int 		= 5;
+		public static var FREEZE_LEVEL:int 		= 5;
+		public static var LAUNCHER_LEVEL:int 	= 5;
 		
 		public static var DAMAGE_MULTIPLY:Number 			= 1;
 		public static var RANGE_MULTIPLY:Number 			= 1;
@@ -34,7 +34,7 @@
 		public static var LAUNCHER_POISON_DURATION:int 				= 30;
 		public static var LAUNCHER_POISON_DAMAGE:int					= 2;
 		
-		public static var SWARM_SPLASH_CHANCE:int						= 50;
+		public static var SWARM_SPLASH_CHANCE:int						= 10;
 		public static var SWARM_SPLASH_DAMAGE:int						= 10;
 		
 		public static var SPECIAL_TOOL_GAUGE:int						= 7;
@@ -47,6 +47,8 @@
 		
 		public static var SPECIAL_FLOW_OVERLOAD_DAMAGE:int					= 30;
 		public static var SPECIAL_HACK_CHANCE_REDUCE_MULTIPLY:Number	= .5;
+		public static var SPECIAL_FLOW_STOP_DURATION:int					= 50;
+		public static var SPECIAL_ADDITIONAL_MARKER_INSTALL_TIME:int 	= 50;
 		
 		public function Variables()
 		{

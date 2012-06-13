@@ -13,7 +13,9 @@
 			base = new TurretBase();
 			gun = new MissileTurret_Gun();
 			addChild(base);
-			addChild(gun);			
+			addChild(gun);
+			
+			type = Turret.TURRET_SWARM;
 			
 			abilityDescription 	= "Missile Swarm";
 		}
@@ -44,6 +46,7 @@
 				damage = 6;
 				upgradeCost = 50;
 				numMissiles = 4;
+				installingTime = 90;
 				upgradingTime = 90;
 				uninstallingTime = 90;
 				additionalDamage = 1;
@@ -58,6 +61,7 @@
 				damage = 7;
 				upgradeCost = 50;
 				numMissiles = 5;
+				installingTime = 120;
 				upgradingTime = 120;
 				uninstallingTime = 120;
 				additionalDamage = 1;
@@ -74,6 +78,7 @@
 				damage = 8;
 				upgradeCost = 50;
 				numMissiles = 6;
+				installingTime = 1500;
 				upgradingTime = 150;
 				uninstallingTime = 150;
 				additionalDamage = 2;
@@ -90,6 +95,7 @@
 				damage = 10;
 				upgradeCost = 50;
 				numMissiles = 7;
+				installingTime = 180;
 				uninstallingTime = 180;
 				swarmSplashChance = Variables.SWARM_SPLASH_CHANCE;
 				swarmSplashDamage = Variables.SWARM_SPLASH_DAMAGE;

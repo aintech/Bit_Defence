@@ -12,6 +12,8 @@
 		public static const TURRET_FREEZE:String 		= "turret_freeze";
 		public static const TURRET_MAX_LEVEL:int		= 5;
 		
+		public var type:String;
+		
 		public var base:Sprite;
 		public var gun:MovieClip;
 		

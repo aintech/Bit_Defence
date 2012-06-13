@@ -13,7 +13,9 @@
 			base = new TurretBase();
 			gun = new GunTurret_Gun();
 			addChild(base);
-			addChild(gun);			
+			addChild(gun);	
+			
+			type = Turret.TURRET_GUN;
 			
 			abilityDescription 	= "Cheap & Fast";
 		}
@@ -42,6 +44,7 @@
 				reloadTime = 10;
 				damage = 25;
 				upgradeCost = 25;
+				installingTime = 90;
 				upgradingTime = 90;
 				uninstallingTime = 90;
 				additionalDamage = 5;
@@ -55,6 +58,7 @@
 				reloadTime = 10;
 				damage = 30;
 				upgradeCost = 25;
+				installingTime = 120;
 				upgradingTime = 120;
 				uninstallingTime = 120;
 				additionalDamage = 5;
@@ -70,6 +74,7 @@
 				reloadTime = 10;
 				damage = 35;
 				upgradeCost = 25;
+				installingTime = 150;
 				upgradingTime = 150;
 				uninstallingTime = 150;
 				additionalDamage = 5;
@@ -85,6 +90,7 @@
 				reloadTime = 5;
 				damage = 40;
 				upgradeCost = 25;
+				installingTime = 180;
 				uninstallingTime = 180;
 				gunCritChance = Variables.GUN_CRIT_CHANCE;
 				gunCritMultiply = Variables.GUN_CRIT_DAMAGE_MULTIPLY;

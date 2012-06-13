@@ -13,7 +13,9 @@
 			base = new TurretBase();
 			gun = new FreezeTurret_Gun();
 			addChild(base);	
-			addChild(gun);			
+			addChild(gun);
+			
+			type = Turret.TURRET_FREEZE;
 			
 			abilityDescription 	= "Slowing NoDamage";
 			damage = 0;
@@ -41,6 +43,7 @@
 				range = 165;
 				reloadTime = 9;
 				upgradeCost = 25;
+				installingTime = 90;
 				upgradingTime = 90;
 				uninstallingTime = 90;
 				additionalDamage = 0;
@@ -53,6 +56,7 @@
 				range = 180;
 				reloadTime = 8;
 				upgradeCost = 25;
+				installingTime = 120;
 				upgradingTime = 120;
 				uninstallingTime = 120;
 				additionalDamage = 0;
@@ -67,6 +71,7 @@
 				range = 190;
 				reloadTime = 7;
 				upgradeCost = 25;
+				installingTime = 150;
 				upgradingTime = 150;
 				uninstallingTime = 150;
 				additionalDamage = 0;
@@ -81,6 +86,7 @@
 				range = 200;
 				reloadTime = 5;
 				upgradeCost = 25;
+				installingTime = 180;
 				uninstallingTime = 180;
 				freezeStunChance = Variables.FREEZE_STUN_CHANCE;
 				freezeStunDuration = Variables.FREEZE_STUN_DURATION;
