@@ -15,7 +15,7 @@
 //Переустановка - перестановка турели со всеми апгрейдами на другой маркер
 //Подключение дополнительного маркера - можно создать новый маркер, на который можно установить турель
 
-
+//TODO: турель типа рейлгана
 //TODO: Flow stop останавливает не сразу, а постепенно(может и freeze будет так делать), и останавливает тех, кто еще не на дорожке а выйдетна нее через некоторое время
 package 
 {
@@ -519,19 +519,47 @@ package
 				
 				if(toolStunInAction)
 				{
-					if(tempEnemy.xSpeed > 0)
-					{
-						tempEnemy.xSpeed--;
-						tempEnemy.ySpeed--;
-					}
+					Функия работает неправильно
+					if(tempEnemy.xSpeed > 0) tempEnemy.xSpeed--;
+					else if(tempEnemy.xSpeed < 0) tempEnemy.xSpeed++;
+					else if(tempEnemy.ySpeed > 0) tempEnemy.ySpeed--;
+					else if(tempEnemy.ySpeed < 0) tempEnemy.ySpeed++;
+					
+					tempEnemy.x += tempEnemy.xSpeed;
+					tempEnemy.y += tempEnemy.ySpeed;
+					
 					toolStunCounter--;
-					if(toolStunCounter >= 0)
+					if(toolStunCounter <= 0)
 					{
-						toolStunInAction = false;
-						CONTINIUM
+						switch(tempEnemy.rotation)
+						{
+							case 0:
+							tempEnemy.xSpeed = tempEnemy.speed;
+							tempEnemy.ySpeed = 0;
+							break;
+							
+							case 90:
+							tempEnemy.xSpeed = 0;
+							tempEnemy.ySpeed = tempEnemy.speed;
+							break;
+							
+							case -90:
+							tempEnemy.xSpeed = 0;
+							tempEnemy.ySpeed = -tempEnemy.speed;
+							break;
+							
+							case -180:
+							tempEnemy.xSpeed = -tempEnemy.speed;
+							tempEnemy.ySpeed = 0;
+							break;
+						}
 					}
 				}
-				if(tempEnemy.isStuned)
+				else if(tempEnemy.speedUP)
+				{
+					
+				}
+				else if(tempEnemy.isStuned)
 				{
 					tempEnemy.x += 0;
 					tempEnemy.y += 0;
@@ -558,7 +586,7 @@ package
 						tempEnemy.freezeCounter = 0;
 					}
 				}
-				else
+				else if(!tempEnemy.underFreeze && !tempEnemy.isStuned)
 				{
 					tempEnemy.x += tempEnemy.xSpeed;
 					tempEnemy.y += tempEnemy.ySpeed;
@@ -583,6 +611,7 @@ package
 					enemiesLeft--;
 				}
 			}
+			if(toolStunCounter <= 0) toolStunInAction = false;
 		}
 		
 		private function showBaseCharInfo(e:MouseEvent):void

@@ -45,6 +45,8 @@
 		public var lifeBarRIGHT:Point;
 		public var lifeBarLEFT:Point;
 		
+		public var speedUP:Boolean = false;
+		
 		public var hackChanceDecreased:Boolean = false;
 		
 		public function Enemy()
