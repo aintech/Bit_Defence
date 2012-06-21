@@ -15,7 +15,7 @@
 //Переустановка - перестановка турели со всеми апгрейдами на другой маркер
 //Подключение дополнительного маркера - можно создать новый маркер, на который можно установить турель
 
-//TODO: турель типа рейлгана
+//FIX: при flow stop если враг входит в поворот то его скорость восстанавливается сразу
 //TODO: Flow stop останавливает не сразу, а постепенно(может и freeze будет так делать), и останавливает тех, кто еще не на дорожке а выйдетна нее через некоторое время
 package 
 {
@@ -479,39 +479,40 @@ package
 						switch(dirTile.direct)
 						{
 							case "Up":
-							tempEnemy.rotation = -90;
-							tempEnemy.xSpeed = 0;
-							tempEnemy.ySpeed = -tempEnemy.speed;
-							tempEnemy.lifeBar.rotation = 90;
-							tempEnemy.lifeBar.x = tempEnemy.lifeBarUP.x;
-							tempEnemy.lifeBar.y = tempEnemy.lifeBarUP.y;
+								tempEnemy.rotation = -90;
+								tempEnemy.xSpeed = 0;
+								tempEnemy.ySpeed = -tempEnemy.speed;
+								tempEnemy.lifeBar.rotation = 90;
+								tempEnemy.lifeBar.x = tempEnemy.lifeBarUP.x;
+								tempEnemy.lifeBar.y = tempEnemy.lifeBarUP.y;
+								если при Стане враг заходит в поворот - его скорость восстанавливается......................................................................................
 							break;
 							
 							case "Down":
-							tempEnemy.rotation = 90;
-							tempEnemy.xSpeed = 0;
-							tempEnemy.ySpeed = tempEnemy.speed;
-							tempEnemy.lifeBar.rotation = -90;
-							tempEnemy.lifeBar.x = tempEnemy.lifeBarDOWN.x;
-							tempEnemy.lifeBar.y = tempEnemy.lifeBarDOWN.y;
+								tempEnemy.rotation = 90;
+								tempEnemy.xSpeed = 0;
+								tempEnemy.ySpeed = tempEnemy.speed;
+								tempEnemy.lifeBar.rotation = -90;
+								tempEnemy.lifeBar.x = tempEnemy.lifeBarDOWN.x;
+								tempEnemy.lifeBar.y = tempEnemy.lifeBarDOWN.y;
 							break;
 							
 							case "Right":
-							tempEnemy.rotation = 0;
-							tempEnemy.xSpeed = tempEnemy.speed;
-							tempEnemy.ySpeed = 0;
-							tempEnemy.lifeBar.rotation = 0;
-							tempEnemy.lifeBar.x = tempEnemy.lifeBarRIGHT.x;
-							tempEnemy.lifeBar.y = tempEnemy.lifeBarRIGHT.y;
+								tempEnemy.rotation = 0;
+								tempEnemy.xSpeed = tempEnemy.speed;
+								tempEnemy.ySpeed = 0;
+								tempEnemy.lifeBar.rotation = 0;
+								tempEnemy.lifeBar.x = tempEnemy.lifeBarRIGHT.x;
+								tempEnemy.lifeBar.y = tempEnemy.lifeBarRIGHT.y;
 							break;
 							
 							case "Left":
-							tempEnemy.rotation = -180;
-							tempEnemy.xSpeed = -tempEnemy.speed;
-							tempEnemy.ySpeed = 0;
-							tempEnemy.lifeBar.rotation = 180;
-							tempEnemy.lifeBar.x = tempEnemy.lifeBarLEFT.x;
-							tempEnemy.lifeBar.y = tempEnemy.lifeBarLEFT.y;
+								tempEnemy.rotation = -180;
+								tempEnemy.xSpeed = -tempEnemy.speed;
+								tempEnemy.ySpeed = 0;
+								tempEnemy.lifeBar.rotation = 180;
+								tempEnemy.lifeBar.x = tempEnemy.lifeBarLEFT.x;
+								tempEnemy.lifeBar.y = tempEnemy.lifeBarLEFT.y;
 							break;
 						}
 					}
@@ -519,45 +520,48 @@ package
 				
 				if(toolStunInAction)
 				{
-					Функия работает неправильно
-					if(tempEnemy.xSpeed > 0) tempEnemy.xSpeed--;
-					else if(tempEnemy.xSpeed < 0) tempEnemy.xSpeed++;
-					else if(tempEnemy.ySpeed > 0) tempEnemy.ySpeed--;
-					else if(tempEnemy.ySpeed < 0) tempEnemy.ySpeed++;
+					if(!tempEnemy.firstStun)
+					{
+						tempEnemy.previusXSpeed = tempEnemy.xSpeed;
+						tempEnemy.previusYSpeed = tempEnemy.ySpeed;
+						tempEnemy.firstStun = true;
+					}
+					if(tempEnemy.xSpeed > 0) tempEnemy.xSpeed -= .5;
+					else if(tempEnemy.xSpeed < 0) tempEnemy.xSpeed += .5;
+					else if(tempEnemy.ySpeed > 0) tempEnemy.ySpeed -= .5;
+					else if(tempEnemy.ySpeed < 0) tempEnemy.ySpeed += .5;
 					
 					tempEnemy.x += tempEnemy.xSpeed;
 					tempEnemy.y += tempEnemy.ySpeed;
-					
-					toolStunCounter--;
-					if(toolStunCounter <= 0)
-					{
-						switch(tempEnemy.rotation)
-						{
-							case 0:
-							tempEnemy.xSpeed = tempEnemy.speed;
-							tempEnemy.ySpeed = 0;
-							break;
-							
-							case 90:
-							tempEnemy.xSpeed = 0;
-							tempEnemy.ySpeed = tempEnemy.speed;
-							break;
-							
-							case -90:
-							tempEnemy.xSpeed = 0;
-							tempEnemy.ySpeed = -tempEnemy.speed;
-							break;
-							
-							case -180:
-							tempEnemy.xSpeed = -tempEnemy.speed;
-							tempEnemy.ySpeed = 0;
-							break;
-						}
-					}
 				}
 				else if(tempEnemy.speedUP)
 				{
+					switch(tempEnemy.rotation)
+					{
+						case 0://Right
+							if(tempEnemy.xSpeed < tempEnemy.speed) tempEnemy.xSpeed += .5;
+							tempEnemy.ySpeed = 0;
+						break;
+							
+						case 90://Down
+							tempEnemy.xSpeed = 0;
+							if(tempEnemy.ySpeed < tempEnemy.speed) tempEnemy.ySpeed += .5;
+						break;
+							
+						case -90://Up
+							tempEnemy.xSpeed = 0;
+							if(tempEnemy.ySpeed > -tempEnemy.speed) tempEnemy.ySpeed -= .5;
+						break;
+							
+						case -180://Left
+							if(tempEnemy.xSpeed > -tempEnemy.speed) tempEnemy.xSpeed -= .5;
+							tempEnemy.ySpeed = 0;
+						break;
+					}
+					tempEnemy.x += tempEnemy.xSpeed;
+					tempEnemy.y += tempEnemy.ySpeed;
 					
+					if(tempEnemy.xSpeed == tempEnemy.previusXSpeed && tempEnemy.ySpeed == tempEnemy.previusYSpeed) tempEnemy.speedUP = false;
 				}
 				else if(tempEnemy.isStuned)
 				{
@@ -586,7 +590,7 @@ package
 						tempEnemy.freezeCounter = 0;
 					}
 				}
-				else if(!tempEnemy.underFreeze && !tempEnemy.isStuned)
+				else/* if(!tempEnemy.underFreeze && !tempEnemy.isStuned && !tempEnemy.speedUP)*/
 				{
 					tempEnemy.x += tempEnemy.xSpeed;
 					tempEnemy.y += tempEnemy.ySpeed;
@@ -611,7 +615,39 @@ package
 					enemiesLeft--;
 				}
 			}
-			if(toolStunCounter <= 0) toolStunInAction = false;
+			if(toolStunInAction) toolStunCounter--;
+			if(toolStunCounter <= 0)
+			{
+				toolStunInAction = false;
+				for each(var enemy:Enemy in enemyArray)
+				{
+					/*switch(enemy.rotation)
+					{
+						case 0:
+							enemy.xSpeed = tempEnemy.speed;
+							enemy.ySpeed = 0;
+						break;
+							
+						case 90:
+							enemy.xSpeed = 0;
+							enemy.ySpeed = tempEnemy.speed;
+						break;
+							
+						case -90:
+							enemy.xSpeed = 0;
+							enemy.ySpeed = -tempEnemy.speed;
+						break;
+							
+						case -180:
+							enemy.xSpeed = -tempEnemy.speed;
+							enemy.ySpeed = 0;
+						break;
+					}*/
+					enemy.speedUP = true;
+					enemy.firstStun = false;
+				}
+				toolStunCounter = 1;
+			}
 		}
 		
 		private function showBaseCharInfo(e:MouseEvent):void

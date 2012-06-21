@@ -45,6 +45,9 @@
 		public var lifeBarRIGHT:Point;
 		public var lifeBarLEFT:Point;
 		
+		public var previusXSpeed:Number;
+		public var previusYSpeed:Number;		
+		public var firstStun:Boolean = false;
 		public var speedUP:Boolean = false;
 		
 		public var hackChanceDecreased:Boolean = false;
