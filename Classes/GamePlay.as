@@ -15,8 +15,6 @@
 //Переустановка - перестановка турели со всеми апгрейдами на другой маркер
 //Подключение дополнительного маркера - можно создать новый маркер, на который можно установить турель
 
-//FIX: при flow stop если враг входит в поворот то его скорость восстанавливается сразу
-//TODO: Flow stop останавливает не сразу, а постепенно(может и freeze будет так делать), и останавливает тех, кто еще не на дорожке а выйдетна нее через некоторое время
 package 
 {
 	import flash.display.MovieClip;
@@ -321,6 +319,7 @@ package
 			var rows:int = mapRows;
 			var row:int = 0;
 			var block:MovieClip;
+			var roadTileID:int = 1;
 			
 			for(var i:int = 0; i < levelMap.length; i++)
 			{
@@ -353,6 +352,8 @@ package
 				else
 				{
 					block = new RoadTile(levelMap[i], (i - row * cols) * block.width, row * block.height)
+					block.ID = roadTileID;
+					roadTileID++;
 					groundHolder.addChild(block);
 					directArray.push(block);
 					
@@ -474,24 +475,25 @@ package
 				{
 					var dirTile:MovieClip = directArray[j];
 					
-					if(tempEnemy.clip.hitPoint.hitTestObject(dirTile.hitPoint))
+					if(tempEnemy.clip.hitPoint.hitTestObject(dirTile.hitPoint) && tempEnemy.roadID != dirTile.ID)
 					{
 						switch(dirTile.direct)
 						{
 							case "Up":
 								tempEnemy.rotation = -90;
+								if(toolStunInAction || tempEnemy.speedUP) tempEnemy.ySpeed = -Math.abs(tempEnemy.xSpeed);
+								else tempEnemy.ySpeed = -tempEnemy.speed;
 								tempEnemy.xSpeed = 0;
-								tempEnemy.ySpeed = -tempEnemy.speed;
 								tempEnemy.lifeBar.rotation = 90;
 								tempEnemy.lifeBar.x = tempEnemy.lifeBarUP.x;
 								tempEnemy.lifeBar.y = tempEnemy.lifeBarUP.y;
-								если при Стане враг заходит в поворот - его скорость восстанавливается......................................................................................
 							break;
 							
 							case "Down":
 								tempEnemy.rotation = 90;
+								if(toolStunInAction || tempEnemy.speedUP) tempEnemy.ySpeed = Math.abs(tempEnemy.xSpeed);
+								else tempEnemy.ySpeed = tempEnemy.speed;
 								tempEnemy.xSpeed = 0;
-								tempEnemy.ySpeed = tempEnemy.speed;
 								tempEnemy.lifeBar.rotation = -90;
 								tempEnemy.lifeBar.x = tempEnemy.lifeBarDOWN.x;
 								tempEnemy.lifeBar.y = tempEnemy.lifeBarDOWN.y;
@@ -499,7 +501,8 @@ package
 							
 							case "Right":
 								tempEnemy.rotation = 0;
-								tempEnemy.xSpeed = tempEnemy.speed;
+								if(toolStunInAction || tempEnemy.speedUP) tempEnemy.xSpeed = Math.abs(tempEnemy.ySpeed);
+								else tempEnemy.xSpeed = tempEnemy.speed;
 								tempEnemy.ySpeed = 0;
 								tempEnemy.lifeBar.rotation = 0;
 								tempEnemy.lifeBar.x = tempEnemy.lifeBarRIGHT.x;
@@ -508,13 +511,15 @@ package
 							
 							case "Left":
 								tempEnemy.rotation = -180;
-								tempEnemy.xSpeed = -tempEnemy.speed;
+								if(toolStunInAction || tempEnemy.speedUP) tempEnemy.xSpeed = -Math.abs(tempEnemy.ySpeed);
+								else tempEnemy.xSpeed = -tempEnemy.speed;
 								tempEnemy.ySpeed = 0;
 								tempEnemy.lifeBar.rotation = 180;
 								tempEnemy.lifeBar.x = tempEnemy.lifeBarLEFT.x;
 								tempEnemy.lifeBar.y = tempEnemy.lifeBarLEFT.y;
 							break;
 						}
+						tempEnemy.roadID = dirTile.ID;
 					}
 				}
 				
@@ -616,37 +621,17 @@ package
 				}
 			}
 			if(toolStunInAction) toolStunCounter--;
-			if(toolStunCounter <= 0)
+			if(toolStunCounter <= 0  && toolStunInAction)
 			{
 				toolStunInAction = false;
 				for each(var enemy:Enemy in enemyArray)
 				{
-					/*switch(enemy.rotation)
-					{
-						case 0:
-							enemy.xSpeed = tempEnemy.speed;
-							enemy.ySpeed = 0;
-						break;
-							
-						case 90:
-							enemy.xSpeed = 0;
-							enemy.ySpeed = tempEnemy.speed;
-						break;
-							
-						case -90:
-							enemy.xSpeed = 0;
-							enemy.ySpeed = -tempEnemy.speed;
-						break;
-							
-						case -180:
-							enemy.xSpeed = -tempEnemy.speed;
-							enemy.ySpeed = 0;
-						break;
-					}*/
 					enemy.speedUP = true;
 					enemy.firstStun = false;
+					var eClip:* = enemy.getChildByName("clip");
+					eClip.gotoAndPlay(eClip.currentFrame);
+					eClip = null;
 				}
-				toolStunCounter = 1;
 			}
 		}
 		
@@ -1717,21 +1702,18 @@ package
 					case SpecialTools.FLOW_STOP:
 						toolStunInAction = true;
 						toolStunCounter = Variables.SPECIAL_FLOW_STOP_DURATION;
-						/*for(var a:int = enemyArray.length; --a >= 0;)
-						{
-							enemy = enemyArray[a];
-							enemy.isStuned = true;
-							enemy.stunCounter = 0;
-							var clip:* = enemy.getChildByName("clip");
-							clip.gotoAndStop(clip.currentFrame);
-							clip = null;
-						}*/
 						specialToolCooldownClip = new SpecialToolsCooldown();
 						specialToolCooldownClip.x = e.currentTarget.x;
 						specialToolCooldownClip.y = e.currentTarget.y;
 						toolsScreen.addChild(specialToolCooldownClip);
 						specialToolsCooldownsArray.push(specialToolCooldownClip);
 						
+						for each(enemy in enemyArray)
+						{
+							var clip:* = enemy.getChildByName("clip");
+							clip.gotoAndStop(clip.currentFrame);
+							clip = null;
+						}
 						specialToolsGauge--;
 						for(var gfs:int = specialToolsGaugeArray.length; --gfs >= 0;)
 						{

@@ -96,8 +96,8 @@
 			switch(level)
 			{
 				case 1:
-				levelEnemyWaves = [[1],
-										 [1, 1, 1, 1],
+				levelEnemyWaves = [
+										 [2, 2, 1, 1],
 								   [1, 2],
 								   [1, 2, 1, 2, 1, 1], 
 								   [1, 1, 1, 2, 1, 1, 2, 1],

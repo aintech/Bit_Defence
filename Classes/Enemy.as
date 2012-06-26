@@ -51,6 +51,7 @@
 		public var speedUP:Boolean = false;
 		
 		public var hackChanceDecreased:Boolean = false;
+		public var roadID:int;
 		
 		public function Enemy()
 		{
