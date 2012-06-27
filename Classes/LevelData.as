@@ -33,7 +33,7 @@
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 G, R, P, P, P, P, D, G, G, G, G, G, G, G, G,
 								 G, P, M, G, G, M, P, G, G, G, G, G, G, G, G,
-								 G, P, M, G, M, G, P, G, G, G, M, G, G, M, G,
+								 G, P, M, G, G, G, P, G, G, G, M, G, G, M, G,
 								 G, U, P, L, G, G, P, G, G, G, R, P, P, P, F,
 								 G, G, M, P, G, M, P, M, G, M, P, M, G, G, G,
 								 S, P, P, U, G, G, R, P, P, P, U, G, G, G, G,
@@ -97,8 +97,7 @@
 			{
 				case 1:
 				levelEnemyWaves = [
-										 [2, 2, 1, 1],
-								   [1, 2],
+								   [1, 1],
 								   [1, 2, 1, 2, 1, 1], 
 								   [1, 1, 1, 2, 1, 1, 2, 1],
 								   [1, 1, 1, 1, 1, 1, 1, 1]
