@@ -29,61 +29,69 @@
 			{
 				case 1:
 				levelMapArray = [
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, R, P, P, P, P, D, G, G, G, G, G, G, G, G,
-								 G, P, M, G, G, M, P, G, G, G, G, G, G, G, G,
-								 G, P, M, G, G, G, P, G, G, G, M, G, G, M, G,
-								 G, U, P, L, G, G, P, G, G, G, R, P, P, P, F,
-								 G, G, M, P, G, M, P, M, G, M, P, M, G, G, G,
-								 S, P, P, U, G, G, R, P, P, P, U, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, R, P, P, P, P, D, G, G, G, G, G, G, G, G, G, G,
+								 G, G, P, M, G, G, M, P, G, G, G, G, G, G, G, G, G, G,
+								 G, G, P, M, G, G, G, P, G, G, G, M, G, G, M, G, G, G,
+								 G, G, U, P, L, G, G, P, G, G, G, R, P, P, P, P, P, F,
+								 G, G, G, M, P, G, M, P, M, G, M, P, M, G, G, G, G, G,
+								 S, P, P, P, U, G, G, R, P, P, P, U, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G
 								 ];
 				break;
 				
 				case 2:
 				levelMapArray = [
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, R, P, P, D, G, G, G, G, G, G, G, G,
-								 G, G, G, P, G, M, P, G, G, G, G, G, G, G, G,
-								 G, G, M, P, M, G, P, G, G, G, M, G, G, M, G,
-								 S, P, P, U, G, G, P, G, G, G, R, P, P, P, F,
-								 G, M, G, G, G, M, P, M, G, M, P, M, G, G, G,
-								 G, G, G, G, G, G, R, P, P, P, U, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, R, P, P, D, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, P, G, M, P, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, M, P, M, G, P, G, G, G, M, G, G, M, G, G, G,
+								 S, P, P, P, U, G, G, P, G, G, G, R, P, P, P, P, P, F,
+								 G, G, M, G, G, G, M, P, M, G, M, P, M, G, G, G, G, G,
+								 G, G, G, G, G, G, G, R, P, P, P, U, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G
 								 ];
 				break;
 				
 				case 3:
 				levelMapArray = [
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, R, P, P, D, G, G, G, G, G, G, G, G,
-								 G, G, G, P, G, M, P, G, G, G, G, G, G, G, G,
-								 G, G, M, P, M, G, P, G, G, G, M, G, G, M, G,
-								 S, P, P, U, G, G, P, G, G, G, R, P, P, P, F,
-								 G, M, G, G, G, M, P, M, G, M, P, M, G, G, G,
-								 G, G, G, G, G, G, R, P, P, P, U, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, R, P, P, D, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, P, G, M, P, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, M, P, M, G, P, G, G, G, M, G, G, M, G, G, G,
+								 S, P, P, P, U, G, G, P, G, G, G, R, P, P, P, P, P, F,
+								 G, G, M, G, G, G, M, P, M, G, M, P, M, G, G, G, G, G,
+								 G, G, G, G, G, G, G, R, P, P, P, U, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G
 								 ];
 				break;		
 				
 				default:
 				levelMapArray = [
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, R, P, P, D, G, G, G, G, G, G, G, G,
-								 G, G, G, P, G, M, P, G, G, G, G, G, G, G, G,
-								 G, G, M, P, M, G, P, G, G, G, M, G, G, M, G,
-								 S, P, P, U, G, G, P, G, G, G, R, P, P, P, F,
-								 G, M, G, G, G, M, P, M, G, M, P, M, G, G, G,
-								 G, G, G, G, G, G, R, P, P, P, U, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, R, P, P, D, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, P, G, M, P, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, M, P, M, G, P, G, G, G, M, G, G, M, G, G, G,
+								 S, P, P, P, U, G, G, P, G, G, G, R, P, P, P, P, P, F,
+								 G, G, M, G, G, G, M, P, M, G, M, P, M, G, G, G, G, G,
+								 G, G, G, G, G, G, G, R, P, P, P, U, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G
 								 ];
 				break;
 			}

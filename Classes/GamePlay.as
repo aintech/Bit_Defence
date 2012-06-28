@@ -61,16 +61,19 @@ package
 		
 		public var scoreBoard:ScoreBoard = new ScoreBoard();
 		public var background:MovieClip;
+		public var road:MovieClip;
 		
 		public var backgroundHolder:Sprite 		= new Sprite();
 		public var blocksHolder:Sprite			= new Sprite();
 		public var groundHolder:Sprite 			= new Sprite();
+		public var roadHolder:Sprite				= new Sprite();
 		public var markerHolder:Sprite 			= new Sprite();
 		public var enemyHolder:Sprite 			= new Sprite();
 		public var turretHolder:Sprite 			= new Sprite();
 		public var bulletHolder:Sprite 			= new Sprite();
 		public var charHolder:Sprite 				= new Sprite();
 		public var userInterface:Sprite			= new Sprite();
+		public var world:Sprite 					= new Sprite();
 		
 		public var charScreen:MovieClip;
 		public var availableCharArray:Array = [];
@@ -129,8 +132,8 @@ package
 		public var addMarkerCounterArray:Array			= [];
 		public var availableActionFlagsArray:Array	= [];
 		
-		public var mapCols:int = 15;
-		public var mapRows:int = 10;
+		public var mapCols:int = 18;
+		public var mapRows:int = 12;
 		
 		public var memoryTotal:int = 300;
 		public var memoryUsed:int 	= 0;
@@ -158,6 +161,11 @@ package
 		public var levelStarted:Boolean = false;
 		
 		public var startBanner:Banner;
+		
+		public var bgXkoef:Number;
+		public var bgYkoef:Number;
+		public var roadXkoef:Number;
+		public var roadYkoef:Number;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -183,13 +191,15 @@ package
 			availableToolsArray = levelData.levelTools(currentLevel);
 			
 			addChild(backgroundHolder);
-			addChild(blocksHolder);
+			addChild(world);
+			world.addChild(blocksHolder);
 			blocksHolder.visible = false;
-			addChild(groundHolder);
-			addChild(markerHolder);
-			addChild(enemyHolder);
-			addChild(turretHolder);
-			addChild(bulletHolder);
+			world.addChild(roadHolder);
+			world.addChild(groundHolder);
+			world.addChild(markerHolder);
+			world.addChild(enemyHolder);
+			world.addChild(turretHolder);
+			world.addChild(bulletHolder);
 			addChild(charHolder);
 			addChild(scoreBoard);
 			addChild(userInterface);
@@ -201,9 +211,15 @@ package
 			
 			background = new LevelBackgrounds();
 			background.gotoAndStop(currentLevel);
-			background.x = -background.width * .5 + gameWidth * .5;
-			background.y = -background.height * .5 + gameHeight * .5;
+			bgXkoef = background.width / gameWidth;////////////////////////////////////////////////////////////////////////
+			bgYkoef = background.height / gameHeight;//////////////////////////////////////////////////////////////////////
 			backgroundHolder.addChild(background);
+			
+			road = new LevelRoads();
+			road.gotoAndStop(currentLevel);
+			roadXkoef = road.width / gameWidth;////////////////////////////////////////////////////////////////////////
+			roadYkoef = road.height / gameHeight;////////////////////////////////////////////////////////////////////////
+			roadHolder.addChild(road);
 			
 			charScreen = new CharScreen();
 			charScreen.x = 0;
@@ -359,10 +375,10 @@ package
 					block.addEventListener(MouseEvent.CLICK, addMarkerCounter, false, 0, true);
 					groundArray.push(block);
 					blocksHolder.addChild(block);
-					if(levelMap[i -1] == P || levelMap[i -1] == S || levelMap[i -1] == F || levelMap[i -1] == U || levelMap[i -1] == D || levelMap[i -1] == R || levelMap[i -1] == L ||
-					   levelMap[i +1] == P || levelMap[i +1] == S || levelMap[i +1] == F || levelMap[i +1] == U || levelMap[i +1] == D || levelMap[i +1] == R || levelMap[i +1] == L ||
-						levelMap[i-15] == P || levelMap[i-15] == S || levelMap[i-15] == F || levelMap[i-15] == U || levelMap[i-15] == D || levelMap[i-15] == R || levelMap[i-15] == L ||
-						levelMap[i+15] == P || levelMap[i+15] == S || levelMap[i+15] == F || levelMap[i+15] == U || levelMap[i+15] == D || levelMap[i+15] == R || levelMap[i+15] == L) block.nearRoad = true;
+					if(levelMap[i-1] == P || levelMap[i-1] == S || levelMap[i-1] == F || levelMap[i-1] == U || levelMap[i-1] == D || levelMap[i-1] == R || levelMap[i-1] == L ||
+					   levelMap[i+1] == P || levelMap[i+1] == S || levelMap[i+1] == F || levelMap[i+1] == U || levelMap[i+1] == D || levelMap[i+1] == R || levelMap[i+1] == L ||
+						levelMap[i-cols] == P || levelMap[i-cols] == S || levelMap[i-cols] == F || levelMap[i-cols] == U || levelMap[i-cols] == D || levelMap[i-cols] == R || levelMap[i-cols] == L ||
+						levelMap[i+cols] == P || levelMap[i+cols] == S || levelMap[i+cols] == F || levelMap[i+cols] == U || levelMap[i+cols] == D || levelMap[i+cols] == R || levelMap[i+cols] == L) block.nearRoad = true;
 				}
 				else if(levelMap[i] == M)
 				{
@@ -442,7 +458,12 @@ package
 		
 		private function moveWorld():void
 		{
-			CONTINIUM
+			var mouseXVel:Number = (stage.mouseX - gameWidth * .5) * .5;//here must bgXkoef
+			var mouseYVel:Number = (stage.mouseY - gameHeight * .5) * .5;
+			backgroundHolder.x = -(mouseXVel - gameWidth * .5);
+			backgroundHolder.y = -(mouseYVel - gameHeight * .5);
+			
+			CONTINIUM code for world spin
 		}
 		
 		private function checkBanners():void
