@@ -20,7 +20,7 @@
 		public function onAdd(e:Event):void
 		{
 			addEventListener(MouseEvent.CLICK, stageFocus, false, 0, true);
-			optionsBtn = new OptionsBtn();
+			optionsBtn = new OptionsGear();
 			optionsBtn.x = stage.stageWidth - optionsBtn.width;
 			optionsBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
 			addChild(optionsBtn);
@@ -35,7 +35,7 @@
 			levelBtn_3.levelText.text = "3";
 			levelBtn_4.levelText.text = "4";
 			levelBtn_5.levelText.text = "5";
-			
+						
 			switch(mapLevel)
 			{
 				case 1:

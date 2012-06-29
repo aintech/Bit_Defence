@@ -21,6 +21,8 @@
 
 //TODO: Сделать мир больше экрана и чтобы он двигался при движении мыши
 //TODO: ИЗ врагов должны выпадать символы
+//TODO: сделать - чтоьы можно было стартовать каждую волну, и таймер считающий время до следующей волны, когда предыдущая закончится
+CONTINIUM - враги игнорируют поворотные блоки
 package 
 {
 	import flash.display.MovieClip;
@@ -141,7 +143,7 @@ package
 		public var gameOver:Boolean = false;
 		public var gamePaused:Boolean = false;
 		
-		public var optionsBtn:SimpleButton;
+		public var optionsGearBtn:SimpleButton;
 		
 		public var specialToolsGauge:int = Variables.SPECIAL_TOOL_GAUGE;
 		public var addingMarker:Boolean = false;
@@ -164,8 +166,8 @@ package
 		
 		public var bgXkoef:Number;
 		public var bgYkoef:Number;
-		public var roadXkoef:Number;
-		public var roadYkoef:Number;
+		public var worldXkoef:Number;
+		public var worldYkoef:Number;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -201,25 +203,28 @@ package
 			world.addChild(turretHolder);
 			world.addChild(bulletHolder);
 			addChild(charHolder);
-			addChild(scoreBoard);
 			addChild(userInterface);
+			userInterface.addChild(scoreBoard);
 			
-			optionsBtn = new OptionsBtn();
-			userInterface.addChild(optionsBtn);
-			optionsBtn.x = gameWidth - optionsBtn.width;
-			optionsBtn.addEventListener(MouseEvent.CLICK, showOptions, false, 0, true);
+			optionsGearBtn = new OptionsGear();
+			userInterface.addChild(optionsGearBtn);
+			optionsGearBtn.x = gameWidth - optionsGearBtn.width;
+			optionsGearBtn.addEventListener(MouseEvent.CLICK, showOptions, false, 0, true);
 			
 			background = new LevelBackgrounds();
 			background.gotoAndStop(currentLevel);
-			bgXkoef = background.width / gameWidth;////////////////////////////////////////////////////////////////////////
-			bgYkoef = background.height / gameHeight;//////////////////////////////////////////////////////////////////////
+			bgXkoef = 1 / (gameWidth / (background.width - gameWidth));
+			bgYkoef = 1 / (gameHeight / (background.height - gameHeight));
 			backgroundHolder.addChild(background);
 			
 			road = new LevelRoads();
 			road.gotoAndStop(currentLevel);
-			roadXkoef = road.width / gameWidth;////////////////////////////////////////////////////////////////////////
-			roadYkoef = road.height / gameHeight;////////////////////////////////////////////////////////////////////////
 			roadHolder.addChild(road);
+			
+			worldXkoef = 1 / (gameWidth / (world.width - gameWidth));
+			worldYkoef = 1 / (gameHeight / (world.height - gameHeight));
+			roadHolder.x = groundHolder.x = markerHolder.x = enemyHolder.x = turretHolder.x = bulletHolder.x = -(world.width - gameWidth) * .5;
+			roadHolder.y = groundHolder.y = markerHolder.y = enemyHolder.y = turretHolder.y = bulletHolder.y = -(world.height - gameHeight) * .5;
 			
 			charScreen = new CharScreen();
 			charScreen.x = 0;
@@ -327,6 +332,17 @@ package
 				specialToolsGaugeArray.push(toolGauge);
 			}
 			
+			startLevelBtn = new StartLevelBtn();
+			startLevelBtn.addEventListener(MouseEvent.CLICK, startLevel, false, 0, true);
+			userInterface.addChild(startLevelBtn);
+			
+			startBanner = new Banner();
+			startBanner.x = startLevelBtn.x + startLevelBtn.width * .7;
+			startBanner.y = startLevelBtn.y + startLevelBtn.height * .7;
+			startBanner.gotoAndStop("start");
+			userInterface.addChild(startBanner);
+			
+			scoreBoard.x = startLevelBtn.width + 5;
 			scoreBoard.txtHackChance.text = "hack: */*";
 			
 			startWave();
@@ -340,7 +356,7 @@ package
 		public function startLevel(e:MouseEvent):void
 		{
 			startLevelBtn.removeEventListener(MouseEvent.CLICK, startLevel);
-			groundHolder.removeChild(startLevelBtn);
+			userInterface.removeChild(startLevelBtn);
 			startLevelBtn = null;
 				
 			levelStarted = true;
@@ -416,17 +432,6 @@ package
 					row++;
 				}
 			}
-			startLevelBtn = new StartLevelBtn();
-			startLevelBtn.addEventListener(MouseEvent.CLICK, startLevel, false, 0, true);
-			groundHolder.addChild(startLevelBtn);
-			startLevelBtn.x = roadStart.x + 60;
-			startLevelBtn.y = roadStart.y - 30;
-			
-			startBanner = new Banner();
-			startBanner.x = startLevelBtn.x + startLevelBtn.width * .7;
-			startBanner.y = startLevelBtn.y + startLevelBtn.height * .7;
-			startBanner.gotoAndStop("start");
-			userInterface.addChild(startBanner);
 		}
 		
 		private function showOptions(e:MouseEvent):void
@@ -458,12 +463,15 @@ package
 		
 		private function moveWorld():void
 		{
-			var mouseXVel:Number = (stage.mouseX - gameWidth * .5) * .5;//here must bgXkoef
-			var mouseYVel:Number = (stage.mouseY - gameHeight * .5) * .5;
+			var mouseXVel:Number = (stage.mouseX - gameWidth * .5) * bgXkoef;
+			var mouseYVel:Number = (stage.mouseY - gameHeight * .5) * bgYkoef;
 			backgroundHolder.x = -(mouseXVel - gameWidth * .5);
 			backgroundHolder.y = -(mouseYVel - gameHeight * .5);
 			
-			CONTINIUM code for world spin
+			var mouseXVel2:Number = (stage.mouseX - gameWidth * .5) * worldXkoef;
+			var mouseYVel2:Number = (stage.mouseY - gameHeight * .5) * worldYkoef;
+			world.x = -mouseXVel2;
+			world.y = -mouseYVel2;
 		}
 		
 		private function checkBanners():void
@@ -691,7 +699,7 @@ package
 						tempEnemy.freezeCounter = 0;
 					}
 				}
-				else/* if(!tempEnemy.underFreeze && !tempEnemy.isStuned && !tempEnemy.speedUP)*/
+				else
 				{
 					tempEnemy.x += tempEnemy.xSpeed;
 					tempEnemy.y += tempEnemy.ySpeed;
