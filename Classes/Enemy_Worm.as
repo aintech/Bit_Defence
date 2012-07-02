@@ -12,7 +12,7 @@
 		
 		private function init():void
 		{
-			clip.hitPoint.visible = false;
+			hitPoint.visible = false;
 			clip.filters = [blurFilter, glowFilter];
 			moneyDrop = 50;
 			baseSpeed = 3;

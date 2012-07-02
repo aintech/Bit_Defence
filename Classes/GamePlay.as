@@ -22,7 +22,7 @@
 //TODO: Сделать мир больше экрана и чтобы он двигался при движении мыши
 //TODO: ИЗ врагов должны выпадать символы
 //TODO: сделать - чтоьы можно было стартовать каждую волну, и таймер считающий время до следующей волны, когда предыдущая закончится
-CONTINIUM - враги игнорируют поворотные блоки
+//CONTINIUM - враги игнорируют поворотные блоки
 package 
 {
 	import flash.display.MovieClip;
@@ -223,8 +223,8 @@ package
 			
 			worldXkoef = 1 / (gameWidth / (world.width - gameWidth));
 			worldYkoef = 1 / (gameHeight / (world.height - gameHeight));
-			roadHolder.x = groundHolder.x = markerHolder.x = enemyHolder.x = turretHolder.x = bulletHolder.x = -(world.width - gameWidth) * .5;
-			roadHolder.y = groundHolder.y = markerHolder.y = enemyHolder.y = turretHolder.y = bulletHolder.y = -(world.height - gameHeight) * .5;
+			blocksHolder.x = roadHolder.x = groundHolder.x = markerHolder.x = enemyHolder.x = turretHolder.x = bulletHolder.x = -(world.width - gameWidth) * .5;
+			blocksHolder.y = roadHolder.y = groundHolder.y = markerHolder.y = enemyHolder.y = turretHolder.y = bulletHolder.y = -(world.height - gameHeight) * .5;
 			
 			charScreen = new CharScreen();
 			charScreen.x = 0;
@@ -578,8 +578,7 @@ package
 				for(var j:int = 0; j < directArray.length; j++)
 				{
 					var dirTile:MovieClip = directArray[j];
-					
-					if(tempEnemy.clip.hitPoint.hitTestObject(dirTile.hitPoint) && tempEnemy.roadID != dirTile.ID)
+					if(tempEnemy.hitPoint.hitTestObject(dirTile.hitPoint) && tempEnemy.roadID != dirTile.ID)
 					{
 						switch(dirTile.direct)
 						{
