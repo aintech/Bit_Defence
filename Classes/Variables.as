@@ -37,7 +37,7 @@
 		public static var SWARM_SPLASH_CHANCE:int						= 10;
 		public static var SWARM_SPLASH_DAMAGE:int						= 10;
 		
-		public static var SPECIAL_TOOL_GAUGE:int						= 7;
+		public static var SPECIAL_TOOL_GAUGE:int						= 4;
 		
 		public static var SPECIAL_ADDITIONAL_MARKER_COOLTIME:int		= 100;
 		public static var SPECIAL_FLOW_OVERLOAD_COOLTIME:int			= 100;
@@ -49,6 +49,8 @@
 		public static var SPECIAL_HACK_CHANCE_REDUCE_MULTIPLY:Number	= .5;
 		public static var SPECIAL_FLOW_STOP_DURATION:int					= 50;
 		public static var SPECIAL_ADDITIONAL_MARKER_INSTALL_TIME:int 	= 50;
+		
+		public static const WAVE_DELAY:int								= 20; //enemy delay time in sec
 		
 		public function Variables()
 		{

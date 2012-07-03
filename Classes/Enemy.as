@@ -65,7 +65,7 @@
 		
 		private function onAdd(e:Event):void
 		{
-			var _root = this.parent.parent.parent;
+			var _root = this.parent.parent;
 			x = _root.roadStart.x;
 			y = _root.roadStart.y;
 			

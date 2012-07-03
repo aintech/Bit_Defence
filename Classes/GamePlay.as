@@ -19,10 +19,9 @@
 //TODO: Сделать куллтаймы спецтехник в привязке к Variables
 //TODO: спецтехники работают только когда levelStarted
 
-//TODO: Сделать мир больше экрана и чтобы он двигался при движении мыши
 //TODO: ИЗ врагов должны выпадать символы
-//TODO: сделать - чтоьы можно было стартовать каждую волну, и таймер считающий время до следующей волны, когда предыдущая закончится
-//CONTINIUM - враги игнорируют поворотные блоки
+//TODO: сделать - чтоьы можно было стартовать каждую волну, и таймер считающий время до следующей волны, когда предыдущая закончится//
+//TODO: нажатии кнопки не исчезают, а уменьшаются - для создания анимации
 package 
 {
 	import flash.display.MovieClip;
@@ -75,7 +74,7 @@ package
 		public var bulletHolder:Sprite 			= new Sprite();
 		public var charHolder:Sprite 				= new Sprite();
 		public var userInterface:Sprite			= new Sprite();
-		public var world:Sprite 					= new Sprite();
+		public var toolGaugeScreen:Sprite		= new Sprite();
 		
 		public var charScreen:MovieClip;
 		public var availableCharArray:Array = [];
@@ -134,8 +133,8 @@ package
 		public var addMarkerCounterArray:Array			= [];
 		public var availableActionFlagsArray:Array	= [];
 		
-		public var mapCols:int = 18;
-		public var mapRows:int = 12;
+		public var mapCols:int = 15;
+		public var mapRows:int = 10;
 		
 		public var memoryTotal:int = 300;
 		public var memoryUsed:int 	= 0;
@@ -163,11 +162,9 @@ package
 		public var levelStarted:Boolean = false;
 		
 		public var startBanner:Banner;
-		
-		public var bgXkoef:Number;
-		public var bgYkoef:Number;
-		public var worldXkoef:Number;
-		public var worldYkoef:Number;
+		public var startWaveBtn:MovieClip;
+		public var nextWaveTimer:Timer;
+		public var waveTimerInAction:Boolean = false;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -185,23 +182,20 @@ package
 		
 		private function init():void
 		{
-			stage.quality = StageQuality.HIGH;
-			
 			levelMap = levelData.makeLevel(currentLevel);
 			enemyWaves = levelData.makeEnemies(currentLevel);
 			availableCharArray = levelData.levelChars(currentLevel);
 			availableToolsArray = levelData.levelTools(currentLevel);
 			
 			addChild(backgroundHolder);
-			addChild(world);
-			world.addChild(blocksHolder);
-			blocksHolder.visible = false;
-			world.addChild(roadHolder);
-			world.addChild(groundHolder);
-			world.addChild(markerHolder);
-			world.addChild(enemyHolder);
-			world.addChild(turretHolder);
-			world.addChild(bulletHolder);
+			addChild(roadHolder);
+			addChild(blocksHolder);
+			blocksHolder.alpha = 0;
+			addChild(groundHolder);
+			addChild(markerHolder);
+			addChild(enemyHolder);
+			addChild(turretHolder);
+			addChild(bulletHolder);
 			addChild(charHolder);
 			addChild(userInterface);
 			userInterface.addChild(scoreBoard);
@@ -213,18 +207,11 @@ package
 			
 			background = new LevelBackgrounds();
 			background.gotoAndStop(currentLevel);
-			bgXkoef = 1 / (gameWidth / (background.width - gameWidth));
-			bgYkoef = 1 / (gameHeight / (background.height - gameHeight));
 			backgroundHolder.addChild(background);
 			
 			road = new LevelRoads();
 			road.gotoAndStop(currentLevel);
 			roadHolder.addChild(road);
-			
-			worldXkoef = 1 / (gameWidth / (world.width - gameWidth));
-			worldYkoef = 1 / (gameHeight / (world.height - gameHeight));
-			blocksHolder.x = roadHolder.x = groundHolder.x = markerHolder.x = enemyHolder.x = turretHolder.x = bulletHolder.x = -(world.width - gameWidth) * .5;
-			blocksHolder.y = roadHolder.y = groundHolder.y = markerHolder.y = enemyHolder.y = turretHolder.y = bulletHolder.y = -(world.height - gameHeight) * .5;
 			
 			charScreen = new CharScreen();
 			charScreen.x = 0;
@@ -324,13 +311,16 @@ package
 			
 			for(var st:int = 0; st < int(Variables.SPECIAL_TOOL_GAUGE); st++)
 			{
+				
 				var toolGauge:SpecialToolsGauge = new SpecialToolsGauge();
-				toolsScreen.addChild(toolGauge);
+				toolGaugeScreen.addChild(toolGauge);
 				toolGauge.x = st * (toolGauge.width - 5) + 15;
 				toolGauge.y = -65 - toolGauge.height;
 				toolGauge.gotoAndStop(toolGauge.totalFrames);
 				specialToolsGaugeArray.push(toolGauge);
 			}
+			toolsScreen.addChild(toolGaugeScreen);
+			toolGaugeScreen.x = toolsScreen.width * .5 - toolGaugeScreen.width * .5;
 			
 			startLevelBtn = new StartLevelBtn();
 			startLevelBtn.addEventListener(MouseEvent.CLICK, startLevel, false, 0, true);
@@ -351,6 +341,10 @@ package
 			gameTimer = new Timer(50);
 			gameTimer.addEventListener(TimerEvent.TIMER, gameLoop, false, 0, true);
 			gameTimer.start();
+			
+			nextWaveTimer = new Timer(1000, int(Variables.WAVE_DELAY));
+			nextWaveTimer.addEventListener(TimerEvent.TIMER, countWaveDelay, false, 0, true);
+			nextWaveTimer.addEventListener(TimerEvent.TIMER_COMPLETE, waveDelayComplete, false, 0, true);
 		}
 		
 		public function startLevel(e:MouseEvent):void
@@ -442,7 +436,6 @@ package
 		private function gameLoop(e:TimerEvent):void
 		{
 			stage.focus = this;
-			moveWorld();
 			checkBanners();
 			checkForEndLevel();
 			checkSettings();
@@ -459,19 +452,6 @@ package
 			updateBullets();
 			checkForNextWave();
 			updateScoreBoard();
-		}
-		
-		private function moveWorld():void
-		{
-			var mouseXVel:Number = (stage.mouseX - gameWidth * .5) * bgXkoef;
-			var mouseYVel:Number = (stage.mouseY - gameHeight * .5) * bgYkoef;
-			backgroundHolder.x = -(mouseXVel - gameWidth * .5);
-			backgroundHolder.y = -(mouseYVel - gameHeight * .5);
-			
-			var mouseXVel2:Number = (stage.mouseX - gameWidth * .5) * worldXkoef;
-			var mouseYVel2:Number = (stage.mouseY - gameHeight * .5) * worldYkoef;
-			world.x = -mouseXVel2;
-			world.y = -mouseYVel2;
 		}
 		
 		private function checkBanners():void
@@ -1710,12 +1690,42 @@ package
 		
 		private function checkForNextWave():void
 		{
-			if(enemiesLeft == 0 && particleArray.length == 0)
+			if(enemiesLeft == 0 && !waveTimerInAction)
 			{
-				if(levelStarted) currentWave++;
-				currentEnemy = 0;
-				startWave();
+				startWaveBtn = new StartWaveBtn();
+				startWaveBtn.x = roadStart.x + 120;
+				startWaveBtn.y = roadStart.y;
+				//startWaveBtn.addEventListener();
+				startWaveBtn.timeCounter.text = Variables.WAVE_DELAY;
+				userInterface.addChild(startWaveBtn);
+			
+				waveTimerInAction = true;
+				nextWaveTimer.start();
 			}
+		}
+		
+		private function countWaveDelay(e:TimerEvent):void
+		{
+			startWaveBtn.timeCounter.text = int(nextWaveTimer.repeatCount) - int(nextWaveTimer.currentCount);
+		}
+		
+		private function waveDelayComplete(e:TimerEvent):void
+		{
+			CONTINIUM <-- продолжаем со стартами волн, надо сделать старт волны по клику мышки
+			nextWaveTimer.stop();
+			//nextWaveTimer.removeEventListener(TimerEvent.TIMER, countWaveDelay);
+			//nextWaveTimer.removeEventListener(TimerEvent.TIMER_COMPLETE, waveDelayComplete);
+			
+			nextWaveTimer.reset();
+			waveTimerInAction = false;
+			
+			//startWaveBtn.removeEventListener();
+			userInterface.removeChild(startWaveBtn);
+			startWaveBtn = null;
+			
+			currentWave++;
+			currentEnemy = 0;
+			startWave();
 		}
 		
 		private function checkForEndLevel():void
@@ -1731,7 +1741,7 @@ package
 				
 				dispatchEvent(new CustomEvents(CustomEvents.LEVEL_LOSE));
 			}
-			
+						
 			if(currentWave > enemyWaves.length)
 			{
 				if(dragging)
@@ -1766,7 +1776,6 @@ package
 		
 		private function updateScoreBoard():void
 		{
-			//scoreBoard.txtLevel.text 			= "Level: " + currentLevel;
 			scoreBoard.txtWave.text 			= "Wave: " + currentWave + "/" + int(enemyWaves.length);
 			scoreBoard.txtMemory.text 			= "Memory: " + memoryUsed + "/" + memoryTotal;
 			scoreBoard.txtEnemiesLeft.text 	= "Enemies Left: " + enemiesLeft;
