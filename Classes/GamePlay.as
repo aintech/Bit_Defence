@@ -110,7 +110,7 @@ package
 		
 		public var currentEnemy:int;
 		public var enemyTime:int;
-		public var enemyLimit:int = 12;//Время задержки появления врагов
+		public var enemyLimit:int = Variables.ENEMY_DELAY;//Время задержки появления врагов
 		public var enemiesLeft:int;
 		
 		public var enemyArray:Array 						= [];
@@ -311,7 +311,6 @@ package
 			
 			for(var st:int = 0; st < int(Variables.SPECIAL_TOOL_GAUGE); st++)
 			{
-				
 				var toolGauge:SpecialToolsGauge = new SpecialToolsGauge();
 				toolGaugeScreen.addChild(toolGauge);
 				toolGauge.x = st * (toolGauge.width - 5) + 15;
@@ -1690,12 +1689,12 @@ package
 		
 		private function checkForNextWave():void
 		{
-			if(enemiesLeft == 0 && !waveTimerInAction)
+			if(enemiesLeft == 0 && !waveTimerInAction && currentWave < enemyWaves.length)
 			{
 				startWaveBtn = new StartWaveBtn();
 				startWaveBtn.x = roadStart.x + 120;
 				startWaveBtn.y = roadStart.y;
-				//startWaveBtn.addEventListener();
+				startWaveBtn.addEventListener(MouseEvent.CLICK, onClickNextWave, false, 0, true);
 				startWaveBtn.timeCounter.text = Variables.WAVE_DELAY;
 				userInterface.addChild(startWaveBtn);
 			
@@ -1709,17 +1708,30 @@ package
 			startWaveBtn.timeCounter.text = int(nextWaveTimer.repeatCount) - int(nextWaveTimer.currentCount);
 		}
 		
-		private function waveDelayComplete(e:TimerEvent):void
+		private function onClickNextWave(e:MouseEvent):void
 		{
-			CONTINIUM <-- продолжаем со стартами волн, надо сделать старт волны по клику мышки
 			nextWaveTimer.stop();
-			//nextWaveTimer.removeEventListener(TimerEvent.TIMER, countWaveDelay);
-			//nextWaveTimer.removeEventListener(TimerEvent.TIMER_COMPLETE, waveDelayComplete);
 			
 			nextWaveTimer.reset();
 			waveTimerInAction = false;
 			
-			//startWaveBtn.removeEventListener();
+			startWaveBtn.removeEventListener(MouseEvent.CLICK, onClickNextWave);
+			userInterface.removeChild(startWaveBtn);
+			startWaveBtn = null;
+			
+			currentWave++;
+			currentEnemy = 0;
+			startWave();
+		}
+		
+		private function waveDelayComplete(e:TimerEvent):void
+		{
+			nextWaveTimer.stop();
+			
+			nextWaveTimer.reset();
+			waveTimerInAction = false;
+			
+			startWaveBtn.removeEventListener(MouseEvent.CLICK, onClickNextWave);
 			userInterface.removeChild(startWaveBtn);
 			startWaveBtn = null;
 			
@@ -1742,7 +1754,7 @@ package
 				dispatchEvent(new CustomEvents(CustomEvents.LEVEL_LOSE));
 			}
 						
-			if(currentWave > enemyWaves.length)
+			if(currentWave == enemyWaves.length && enemiesLeft == 0 && particleArray.length == 0)
 			{
 				if(dragging)
 				{

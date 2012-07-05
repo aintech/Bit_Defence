@@ -45,12 +45,13 @@
 		public static var SPECIAL_HACK_CHANCE_REDUCE_COOLTIME:int 	= 100;
 		public static var SPECIAL_RELOCATE_TURRET_COOLTIME:int		= 100;
 		
-		public static var SPECIAL_FLOW_OVERLOAD_DAMAGE:int					= 30;
+		public static var SPECIAL_FLOW_OVERLOAD_DAMAGE:int					= 100;
 		public static var SPECIAL_HACK_CHANCE_REDUCE_MULTIPLY:Number	= .5;
 		public static var SPECIAL_FLOW_STOP_DURATION:int					= 50;
 		public static var SPECIAL_ADDITIONAL_MARKER_INSTALL_TIME:int 	= 50;
 		
-		public static const WAVE_DELAY:int								= 20; //enemy delay time in sec
+		public static const WAVE_DELAY:int								= 20;//Wave delay in sec
+		public static const ENEMY_DELAY:int								= 12;//enemy appear delay
 		
 		public function Variables()
 		{
