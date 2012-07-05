@@ -158,11 +158,12 @@ package
 		public var toolStunInAction:Boolean = false;
 		public var toolStunCounter:int;
 		
-		public var startLevelBtn:StartLevelBtn;
+		public var startLevelBtn:MovieClip;
 		public var levelStarted:Boolean = false;
 		
 		public var startBanner:Banner;
 		public var startWaveBtn:MovieClip;
+		public var startWaveBtnArrow:MovieClip;
 		public var nextWaveTimer:Timer;
 		public var waveTimerInAction:Boolean = false;
 				
@@ -323,6 +324,8 @@ package
 			
 			startLevelBtn = new StartLevelBtn();
 			startLevelBtn.addEventListener(MouseEvent.CLICK, startLevel, false, 0, true);
+			startLevelBtn.gotoAndStop(1);
+			startLevelBtn.buttonMode = true;
 			userInterface.addChild(startLevelBtn);
 			
 			startBanner = new Banner();
@@ -349,9 +352,7 @@ package
 		public function startLevel(e:MouseEvent):void
 		{
 			startLevelBtn.removeEventListener(MouseEvent.CLICK, startLevel);
-			userInterface.removeChild(startLevelBtn);
-			startLevelBtn = null;
-				
+			startLevelBtn.gotoAndStop(2);				
 			levelStarted = true;
 		}
 		
@@ -1692,11 +1693,18 @@ package
 			if(enemiesLeft == 0 && !waveTimerInAction && currentWave < enemyWaves.length)
 			{
 				startWaveBtn = new StartWaveBtn();
-				startWaveBtn.x = roadStart.x + 120;
+				startWaveBtn.x = roadStart.x + 100;
 				startWaveBtn.y = roadStart.y;
+				startWaveBtn.buttonMode = true;
+				startWaveBtn.mouseChildren = false;
 				startWaveBtn.addEventListener(MouseEvent.CLICK, onClickNextWave, false, 0, true);
 				startWaveBtn.timeCounter.text = Variables.WAVE_DELAY;
 				userInterface.addChild(startWaveBtn);
+				
+				startWaveBtnArrow = new StartWaveBtnArrow();
+				startWaveBtnArrow.x = startWaveBtn.x - startWaveBtn.width + 5;
+				startWaveBtnArrow.y = startWaveBtn.y;
+				userInterface.addChild(startWaveBtnArrow);
 			
 				waveTimerInAction = true;
 				nextWaveTimer.start();
@@ -1719,6 +1727,9 @@ package
 			userInterface.removeChild(startWaveBtn);
 			startWaveBtn = null;
 			
+			userInterface.removeChild(startWaveBtnArrow);
+			startWaveBtnArrow = null;
+			
 			currentWave++;
 			currentEnemy = 0;
 			startWave();
@@ -1734,6 +1745,9 @@ package
 			startWaveBtn.removeEventListener(MouseEvent.CLICK, onClickNextWave);
 			userInterface.removeChild(startWaveBtn);
 			startWaveBtn = null;
+			
+			userInterface.removeChild(startWaveBtnArrow);
+			startWaveBtnArrow = null;
 			
 			currentWave++;
 			currentEnemy = 0;
