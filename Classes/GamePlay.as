@@ -1,5 +1,4 @@
 ﻿//TODO: Всем gotoAndStop пусть указывают на кадр с названием а не номером
-//TODO: Враги должны плавно входить в поворот, а не мгновенно разворачиваться, возможно вообще движение по вектору
 //TODO: Оптимизировать MapScreen, чтобы тамошний код не повторялся для каждого уровня
 //TODO: Каждый вид врага взрывается по-своему
 //TODO: MissileTurret - целью ракет желательно делать врага, который ближе всех к концу пути
@@ -14,14 +13,20 @@
 //Перегрузка потока - наносятся повреждения всем врагам
 //Переустановка - перестановка турели со всеми апгрейдами на другой маркер
 //Подключение дополнительного маркера - можно создать новый маркер, на который можно установить турель
-//Мина - устанавлвается на дороге
+//Мина - устанавлвается на дороге и наносит и взрывается при прикосновении противника
 
 //TODO: Сделать куллтаймы спецтехник в привязке к Variables
 //TODO: спецтехники работают только когда levelStarted
 
 //TODO: ИЗ врагов должны выпадать символы
-//TODO: сделать - чтоьы можно было стартовать каждую волну, и таймер считающий время до следующей волны, когда предыдущая закончится//
 //TODO: нажатии кнопки не исчезают, а уменьшаются - для создания анимации
+//TODO: проработать систему символов
+
+//TODO: Делаем апгрейды, в одном клипе собираем все иконки и выкладываем вручную на сцену, добавляем в массив
+//		все серое - апгрейд невозможен
+//		серая рамка, цветной символ - апгрейд возможен
+//		все цветное - апгрейд уже произведен
+//		при наведении - желтый shadowFilter, при нажатии - белый///////////////////////////////////////////////////////////////////////////////////
 package 
 {
 	import flash.display.MovieClip;
@@ -306,6 +311,12 @@ package
 				toolIcon.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
 				toolIcon.mouseEnabled = true;
 				specialToolsArray.push(toolIcon);
+				
+				specialToolDisableClip = new SpecialToolDisable();
+				specialToolDisableClip.x = toolIcon.x;
+				specialToolDisableClip.y = toolIcon.y;
+				specialToolsDisablesArray.push(specialToolDisableClip);
+				toolsScreen.addChild(specialToolDisableClip);
 			}
 			stage.addEventListener(MouseEvent.CLICK, unClickMarker, false, 0, true);					
 			stage.addEventListener(MouseEvent.CLICK, unClickTurret, false, 0, true);
@@ -354,6 +365,8 @@ package
 			startLevelBtn.removeEventListener(MouseEvent.CLICK, startLevel);
 			startLevelBtn.gotoAndStop(2);				
 			levelStarted = true;
+			
+			for(var i:int = specialToolsDisablesArray.length; --i >= 0;) removeObject(i, specialToolsDisablesArray);
 		}
 		
 		private function startWave():void
@@ -1696,7 +1709,7 @@ package
 				startWaveBtn.x = roadStart.x + 100;
 				startWaveBtn.y = roadStart.y;
 				startWaveBtn.buttonMode = true;
-				startWaveBtn.mouseChildren = false;
+				startWaveBtn.timeCounter.mouseEnabled = false;
 				startWaveBtn.addEventListener(MouseEvent.CLICK, onClickNextWave, false, 0, true);
 				startWaveBtn.timeCounter.text = Variables.WAVE_DELAY;
 				userInterface.addChild(startWaveBtn);
@@ -1811,7 +1824,7 @@ package
 		
 		private function clickTool(e:MouseEvent):void
 		{
-			if(specialToolsGauge > 0)
+			if(specialToolsGauge > 0 && levelStarted)
 			{
 				var enemy:Enemy;
 				var cFrame:int = 1;

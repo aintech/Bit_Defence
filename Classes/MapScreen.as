@@ -9,7 +9,7 @@
 	{
 		public var mapLevel:int;
 		public var optionsBtn:SimpleButton;
-		public var updatesBtn:SimpleButton;
+		public var upBtn:SimpleButton;
 		
 		public function MapScreen(openLevels:int)
 		{
@@ -25,10 +25,10 @@
 			optionsBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
 			addChild(optionsBtn);
 			
-			updatesBtn = new UpdatesBtn();
-			updatesBtn.x = stage.stageWidth - optionsBtn.width - updatesBtn.width;
-			updatesBtn.addEventListener(MouseEvent.CLICK, onClickUpdates, false, 0, true);
-			addChild(updatesBtn);
+			upBtn = new GotoUpgradesBtn();
+			upBtn.x = stage.stageWidth - optionsBtn.width - upBtn.width;
+			upBtn.addEventListener(MouseEvent.CLICK, onClickUpdates, false, 0, true);
+			addChild(upBtn);
 			
 			levelBtn_1.levelTxt.text = "1";
 			levelBtn_2.levelTxt.text = "2";
@@ -36,8 +36,12 @@
 			levelBtn_4.levelTxt.text = "4";
 			levelBtn_5.levelTxt.text = "5";
 			
-			levelBtn_1.mouseChildren = false;
-						
+			levelBtn_1.levelTxt.mouseEnabled = false;
+			levelBtn_2.levelTxt.mouseEnabled = false;
+			levelBtn_3.levelTxt.mouseEnabled = false;
+			levelBtn_4.levelTxt.mouseEnabled = false;
+			levelBtn_5.levelTxt.mouseEnabled = false;
+									
 			switch(mapLevel)
 			{
 				case 1:
@@ -172,29 +176,25 @@
 			{
 				case "levelBtn_1":
 				mapLevel = 1;
-				dispatchEvent(new CustomEvents(CustomEvents.NEW_LEVEL));
 				break;
 				
 				case "levelBtn_2":
 				mapLevel = 2;
-				dispatchEvent(new CustomEvents(CustomEvents.NEW_LEVEL));
 				break;
 				
 				case "levelBtn_3":
 				mapLevel = 3;
-				dispatchEvent(new CustomEvents(CustomEvents.NEW_LEVEL));
 				break;
 				
 				case "levelBtn_4":
 				mapLevel = 4;
-				dispatchEvent(new CustomEvents(CustomEvents.NEW_LEVEL));
 				break;
 				
 				case "levelBtn_5":
 				mapLevel = 5;
-				dispatchEvent(new CustomEvents(CustomEvents.NEW_LEVEL));
 				break;
 			}
+			dispatchEvent(new CustomEvents(CustomEvents.NEW_LEVEL));
 		}
 	}
 }
