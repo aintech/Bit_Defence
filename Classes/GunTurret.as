@@ -1,5 +1,7 @@
 ﻿package 
 {
+	import flash.display.MovieClip;
+
 	public class GunTurret extends Turret
 	{		
 		public function GunTurret()
@@ -11,7 +13,8 @@
 		{
 			maxLevel = Variables.GUN_LEVEL;
 			base = new TurretBase();
-			gun = new GunTurret_Gun();
+			//gun = new GunTurret_Gun_I();
+			gun = new MovieClip();
 			addChild(base);
 			addChild(gun);	
 			
@@ -36,6 +39,10 @@
 				additionalDamage = 5;
 				additionalRange = 10;
 				additionalReloadTime = 0;
+				removeChild(gun);
+				gun = null;
+				gun = new GunTurret_Gun_I();
+				addChild(gun);
 				break;
 				
 				case 2:
@@ -50,6 +57,10 @@
 				additionalDamage = 5;
 				additionalRange = 10;
 				additionalReloadTime = 0;
+				removeChild(gun);
+				gun = null;
+				gun = new GunTurret_Gun_II();
+				addChild(gun);
 				break;
 				
 				case 3:
@@ -66,6 +77,10 @@
 				additionalReloadTime = 0;
 				gunCritChance = Variables.GUN_CRIT_CHANCE;
 				gunCritMultiply = Variables.GUN_CRIT_DAMAGE_MULTIPLY;
+				removeChild(gun);
+				gun = null;
+				gun = new GunTurret_Gun_III();
+				addChild(gun);
 				break;
 				
 				case 4:
@@ -82,6 +97,10 @@
 				additionalReloadTime = 5;
 				gunCritChance = Variables.GUN_CRIT_CHANCE;
 				gunCritMultiply = Variables.GUN_CRIT_DAMAGE_MULTIPLY;
+				removeChild(gun);
+				gun = null;
+				gun = new GunTurret_Gun_IV();
+				addChild(gun);
 				break;
 				
 				case 5:
@@ -94,6 +113,10 @@
 				uninstallingTime = 180;
 				gunCritChance = Variables.GUN_CRIT_CHANCE;
 				gunCritMultiply = Variables.GUN_CRIT_DAMAGE_MULTIPLY;
+				removeChild(gun);
+				gun = null;
+				gun = new GunTurret_Gun_V();
+				addChild(gun);
 				break;
 			}
 		}

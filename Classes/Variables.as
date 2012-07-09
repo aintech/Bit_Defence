@@ -2,9 +2,9 @@
 {
 	public class Variables
 	{
-		public static var SYMBOLS:int 			= 100;
+		public static var SYMBOLS:int 			= 999999;
 		
-		public static var GUN_LEVEL:int 			= 1;
+		public static var GUN_LEVEL:int 			= 3;
 		public static var SWARM_LEVEL:int 		= 1;
 		public static var FREEZE_LEVEL:int 		= 1;
 		public static var LAUNCHER_LEVEL:int 	= 1;

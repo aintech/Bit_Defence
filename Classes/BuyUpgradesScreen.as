@@ -24,7 +24,7 @@
 		
 		private function init():void
 		{
-			CONTINIUM - сначала доделать иконки UpgradeBtn
+			CONTINIUM - нужна четкая идея апдейтов...
 			//turretBtnArray
 			matrix = [
 					  0.3086, 0.6094, 0.082, 0, 0,
@@ -33,6 +33,28 @@
 					       0,	   0,	  0, 1, 0
 					  ];
 			
+			switch(Variables.GUN_LEVEL)
+			{
+				case 1:
+					gunBtn.gotoAndStop("Gun_I");
+				break;
+				
+				case 2:
+					gunBtn.gotoAndStop("Gun_II");
+				break;
+				
+				case 3:
+					gunBtn.gotoAndStop("Gun_III");
+				break;
+				
+				case 4:
+					gunBtn.gotoAndStop("Gun_IV");
+				break;
+				
+				case 5:
+					gunBtn.gotoAndStop("Gun_V");
+				break;
+			}
 			/*gunLevel.mouseEnabled = false;
 			swarmLevel.mouseEnabled = false;
 			freezeLevel.mouseEnabled = false;
