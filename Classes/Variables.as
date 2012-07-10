@@ -7,7 +7,7 @@
 		public static var GUN_LEVEL:int 			= 3;
 		public static var SWARM_LEVEL:int 		= 1;
 		public static var FREEZE_LEVEL:int 		= 1;
-		public static var LAUNCHER_LEVEL:int 	= 1;
+		public static var LAUNCHER_LEVEL:int 	= 5;
 		
 		public static var DAMAGE_MULTIPLY:Number 			= 1;
 		public static var RANGE_MULTIPLY:Number 			= 1;
