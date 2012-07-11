@@ -4,10 +4,10 @@
 	{
 		public static var SYMBOLS:int 			= 999999;
 		
-		public static var GUN_LEVEL:int 			= 3;
+		public static var GUN_LEVEL:int 			= 5;
 		public static var SWARM_LEVEL:int 		= 1;
 		public static var FREEZE_LEVEL:int 		= 1;
-		public static var LAUNCHER_LEVEL:int 	= 5;
+		public static var LAUNCHER_LEVEL:int 	= 3;
 		
 		public static var DAMAGE_MULTIPLY:Number 			= 1;
 		public static var RANGE_MULTIPLY:Number 			= 1;
@@ -53,10 +53,18 @@
 		public static const WAVE_DELAY:int										= 20;//Wave delay in sec
 		public static const ENEMY_DELAY:int										= 12;//enemy appear delay
 		
-		public static var UPGRADE_GUN_SYMBOLS_COST:int						= 250;
-		public static var UPGRADE_SWARM_SYMBOLS_COST:int					= 50;
-		public static var UPGRADE_FREEZE_SYMBOLS_COST:int					= 50;
-		public static var UPGRADE_LAUNCHER_SYMBOLS_COST:int				= 50;
+		public static var UPGRADE_GUN_III_SYMBOLS_COST:int						= 50;
+		public static var UPGRADE_GUN_V_SYMBOLS_COST:int						= 100;
+		
+		public static var UPGRADE_SWARM_III_SYMBOLS_COST:int					= 50;
+		public static var UPGRADE_SWARM_V_SYMBOLS_COST:int						= 100;
+		
+		public static var UPGRADE_FREEZE_III_SYMBOLS_COST:int					= 50;
+		public static var UPGRADE_FREEZE_V_SYMBOLS_COST:int						= 100000000;
+		
+		public static var UPGRADE_LAUNCHER_III_SYMBOLS_COST:int					= 50;
+		public static var UPGRADE_LAUNCHER_V_SYMBOLS_COST:int					= 100000000;
+		
 		
 		public function Variables()
 		{

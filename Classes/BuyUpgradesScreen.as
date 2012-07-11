@@ -4,11 +4,14 @@
 	import flash.events.MouseEvent;
 	import flash.filters.ColorMatrixFilter;
 	import flash.display.MovieClip;
+	import flash.filters.GlowFilter;
 
 	public class BuyUpgradesScreen extends MovieClip
 	{
 		public var matrix:Array;
 		public var buttonsArray:Array = [];
+		public var descript:MovieClip;
+		public var targetBtn:*;
 		
 		public function BuyUpgradesScreen()
 		{
@@ -23,7 +26,6 @@
 		private function init():void
 		{
 			//CONTINIUM - нужна четкая идея апдейтов...//////////////////////////////////////////////////////////////////////////////
-			//turretBtnArray
 			matrix = [
 					  0.3086, 0.6094, 0.082, 0, 0,
 					  0.3086, 0.6094, 0.082, 0, 0,
@@ -44,17 +46,24 @@
 			buttonsArray.push(gun_III, swarm_III, launcher_III, freeze_III, gun_V, swarm_V, launcher_V, freeze_V);
 			
 			if(Variables.GUN_LEVEL >= 3) gun_III.achieved = true;
-			else if(Variables.SYMBOLS)araba
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_GUN_III_SYMBOLS_COST) gun_III.canBeAchieved = true;
 			if(Variables.GUN_LEVEL == 5) gun_V.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_GUN_V_SYMBOLS_COST) gun_V.canBeAchieved = true;
 			
 			if(Variables.SWARM_LEVEL >= 3) swarm_III.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_SWARM_III_SYMBOLS_COST) swarm_III.canBeAchieved = true;
 			if(Variables.SWARM_LEVEL == 5) swarm_V.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_SWARM_V_SYMBOLS_COST) swarm_V.canBeAchieved = true;
 			
 			if(Variables.LAUNCHER_LEVEL >= 3) launcher_III.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_LAUNCHER_III_SYMBOLS_COST) launcher_III.canBeAchieved = true;
 			if(Variables.LAUNCHER_LEVEL == 5) launcher_V.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_LAUNCHER_V_SYMBOLS_COST) launcher_V.canBeAchieved = true;
 			
 			if(Variables.FREEZE_LEVEL >= 3) freeze_III.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_FREEZE_III_SYMBOLS_COST) freeze_III.canBeAchieved = true;
 			if(Variables.FREEZE_LEVEL == 5) freeze_V.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_FREEZE_V_SYMBOLS_COST) freeze_V.canBeAchieved = true;
 			
 			for each(var btn:MovieClip in buttonsArray)
 			{
@@ -66,37 +75,40 @@
 				{
 					btn.btnFrame.filters = [new ColorMatrixFilter(matrix)];
 					btn.addEventListener(MouseEvent.CLICK, onClickBtn, false, 0, true);
+					btn.mouseEnabled = true;
+					btn.useHandCursor = true;
+					CONTINIUM
 				}
 				btn.addEventListener(MouseEvent.MOUSE_OVER, overBtn, false, 0, true);
+				btn.addEventListener(MouseEvent.MOUSE_OUT, outBtn, false, 0, true);
+				btn.addEventListener(MouseEvent.MOUSE_MOVE, moveOnBtn, false, 0, true);
 			}
 			
 			txtSymbols.text 		= "Symbols: " + String(Variables.SYMBOLS);
 			
-			/*gunLevel.mouseEnabled = false;
-			swarmLevel.mouseEnabled = false;
-			freezeLevel.mouseEnabled = false;
-			launcherLevel.mouseEnabled = false;
-			buttons.push(gunLevel, swarmLevel, freezeLevel, launcherLevel);
-			
-			gunLevel.text 			= "lvl "+ String(Variables.GUN_LEVEL);
-			swarmLevel.text 		= "lvl "+ String(Variables.SWARM_LEVEL);
-			freezeLevel.text 		= "lvl "+ String(Variables.FREEZE_LEVEL);
-			launcherLevel.text 	= "lvl "+ String(Variables.LAUNCHER_LEVEL);
-			
-			if(Variables.SYMBOLS >= Variables.UPGRADE_GUN_SYMBOLS_COST) gunBtn.addEventListener(MouseEvent.CLICK, onClickBtn, false, 0, true);
-			else
-			{
-				gunBtn.filters = [new ColorMatrixFilter(matrix)];
-				gunBtn.mouseEnabled = false;
-			}
-			if(Variables.SYMBOLS >= Variables.UPGRADE_SWARM_SYMBOLS_COST) swarmBtn.addEventListener(MouseEvent.CLICK, onClickBtn, false, 0, true);
-			if(Variables.SYMBOLS >= Variables.UPGRADE_FREEZE_SYMBOLS_COST) freezeBtn.addEventListener(MouseEvent.CLICK, onClickBtn, false, 0, true);
-			if(Variables.SYMBOLS >= Variables.UPGRADE_LAUNCHER_SYMBOLS_COST) launchBtn.addEventListener(MouseEvent.CLICK, onClickBtn, false, 0, true);*/
+			descript = new UpgradeDescription();
+			descript.visible = false;
+			descript.mouseEnabled = false;
+			addChild(descript);
 		}
 		
 		private function overBtn(e:MouseEvent):void
 		{
-			
+			descript.visible = true;
+			if(e.currentTarget.canBeAchieved == true) e.currentTarget.filters = [new GlowFilter(0x00FF00, 1, 10, 10)];
+		}
+		
+		private function outBtn(e:MouseEvent):void
+		{
+			descript.visible = false;
+			if(e.currentTarget.canBeAchieved) e.currentTarget.filters = [];
+		}
+		
+		private function moveOnBtn(e:MouseEvent):void
+		{
+			descript.x = e.stageX;
+			descript.y = e.stageY;
+			e.updateAfterEvent();
 		}
 		
 		private function onClickBtn(e:MouseEvent):void
