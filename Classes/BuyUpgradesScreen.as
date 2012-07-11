@@ -44,6 +44,7 @@
 			buttonsArray.push(gun_III, swarm_III, launcher_III, freeze_III, gun_V, swarm_V, launcher_V, freeze_V);
 			
 			if(Variables.GUN_LEVEL >= 3) gun_III.achieved = true;
+			else if(Variables.SYMBOLS)araba
 			if(Variables.GUN_LEVEL == 5) gun_V.achieved = true;
 			
 			if(Variables.SWARM_LEVEL >= 3) swarm_III.achieved = true;
@@ -57,9 +58,13 @@
 			
 			for each(var btn:MovieClip in buttonsArray)
 			{
-				if(btn.achieved == false)
+				if(btn.achieved == false && btn.canBeAchieved == false)
 				{
 					btn.filters = [new ColorMatrixFilter(matrix)];
+				}
+				else if(btn.achieved == false && btn.canBeAchieved == true)
+				{
+					btn.btnFrame.filters = [new ColorMatrixFilter(matrix)];
 					btn.addEventListener(MouseEvent.CLICK, onClickBtn, false, 0, true);
 				}
 				btn.addEventListener(MouseEvent.MOUSE_OVER, overBtn, false, 0, true);

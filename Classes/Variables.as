@@ -50,12 +50,12 @@
 		public static var SPECIAL_FLOW_STOP_DURATION:int					= 50;
 		public static var SPECIAL_ADDITIONAL_MARKER_INSTALL_TIME:int 	= 50;
 		
-		public static const WAVE_DELAY:int								= 20;//Wave delay in sec
-		public static const ENEMY_DELAY:int								= 12;//enemy appear delay
+		public static const WAVE_DELAY:int										= 20;//Wave delay in sec
+		public static const ENEMY_DELAY:int										= 12;//enemy appear delay
 		
-		public static var UPGRADE_GUN_SYMBOLS_COST:int					= 250;
-		public static var UPGRADE_SWARM_SYMBOLS_COST:int				= 50;
-		public static var UPGRADE_FREEZE_SYMBOLS_COST:int				= 50;
+		public static var UPGRADE_GUN_SYMBOLS_COST:int						= 250;
+		public static var UPGRADE_SWARM_SYMBOLS_COST:int					= 50;
+		public static var UPGRADE_FREEZE_SYMBOLS_COST:int					= 50;
 		public static var UPGRADE_LAUNCHER_SYMBOLS_COST:int				= 50;
 		
 		public function Variables()
