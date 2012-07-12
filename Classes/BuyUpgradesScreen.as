@@ -8,10 +8,9 @@
 
 	public class BuyUpgradesScreen extends MovieClip
 	{
-		public var matrix:Array;
+		public var grayMatrix:Array;
 		public var buttonsArray:Array = [];
 		public var descript:MovieClip;
-		public var targetBtn:*;
 		
 		public function BuyUpgradesScreen()
 		{
@@ -25,8 +24,8 @@
 		
 		private function init():void
 		{
-			//CONTINIUM - нужна четкая идея апдейтов...//////////////////////////////////////////////////////////////////////////////
-			matrix = [
+			txtSymbols.text = "Symbols: " + String(Variables.SYMBOLS);
+			grayMatrix = [
 					  0.3086, 0.6094, 0.082, 0, 0,
 					  0.3086, 0.6094, 0.082, 0, 0,
 					  0.3086, 0.6094, 0.082, 0, 0,
@@ -43,53 +42,72 @@
 			launcher_V.gotoAndStop("Launcher_V");
 			freeze_V.gotoAndStop("Freeze_V");
 			
-			buttonsArray.push(gun_III, swarm_III, launcher_III, freeze_III, gun_V, swarm_V, launcher_V, freeze_V);
-			
-			if(Variables.GUN_LEVEL >= 3) gun_III.achieved = true;
-			else if(Variables.SYMBOLS >= Variables.UPGRADE_GUN_III_SYMBOLS_COST) gun_III.canBeAchieved = true;
-			if(Variables.GUN_LEVEL == 5) gun_V.achieved = true;
-			else if(Variables.SYMBOLS >= Variables.UPGRADE_GUN_V_SYMBOLS_COST) gun_V.canBeAchieved = true;
-			
-			if(Variables.SWARM_LEVEL >= 3) swarm_III.achieved = true;
-			else if(Variables.SYMBOLS >= Variables.UPGRADE_SWARM_III_SYMBOLS_COST) swarm_III.canBeAchieved = true;
-			if(Variables.SWARM_LEVEL == 5) swarm_V.achieved = true;
-			else if(Variables.SYMBOLS >= Variables.UPGRADE_SWARM_V_SYMBOLS_COST) swarm_V.canBeAchieved = true;
-			
-			if(Variables.LAUNCHER_LEVEL >= 3) launcher_III.achieved = true;
-			else if(Variables.SYMBOLS >= Variables.UPGRADE_LAUNCHER_III_SYMBOLS_COST) launcher_III.canBeAchieved = true;
-			if(Variables.LAUNCHER_LEVEL == 5) launcher_V.achieved = true;
-			else if(Variables.SYMBOLS >= Variables.UPGRADE_LAUNCHER_V_SYMBOLS_COST) launcher_V.canBeAchieved = true;
-			
-			if(Variables.FREEZE_LEVEL >= 3) freeze_III.achieved = true;
-			else if(Variables.SYMBOLS >= Variables.UPGRADE_FREEZE_III_SYMBOLS_COST) freeze_III.canBeAchieved = true;
-			if(Variables.FREEZE_LEVEL == 5) freeze_V.achieved = true;
-			else if(Variables.SYMBOLS >= Variables.UPGRADE_FREEZE_V_SYMBOLS_COST) freeze_V.canBeAchieved = true;
-			
-			for each(var btn:MovieClip in buttonsArray)
-			{
-				if(btn.achieved == false && btn.canBeAchieved == false)
-				{
-					btn.filters = [new ColorMatrixFilter(matrix)];
-				}
-				else if(btn.achieved == false && btn.canBeAchieved == true)
-				{
-					btn.btnFrame.filters = [new ColorMatrixFilter(matrix)];
-					btn.addEventListener(MouseEvent.CLICK, onClickBtn, false, 0, true);
-					btn.mouseEnabled = true;
-					btn.useHandCursor = true;
-					CONTINIUM
-				}
-				btn.addEventListener(MouseEvent.MOUSE_OVER, overBtn, false, 0, true);
-				btn.addEventListener(MouseEvent.MOUSE_OUT, outBtn, false, 0, true);
-				btn.addEventListener(MouseEvent.MOUSE_MOVE, moveOnBtn, false, 0, true);
-			}
-			
-			txtSymbols.text 		= "Symbols: " + String(Variables.SYMBOLS);
+			criticalX3.gotoAndStop("criticalX3");
+			critChance.gotoAndStop("critChance");
 			
 			descript = new UpgradeDescription();
 			descript.visible = false;
 			descript.mouseEnabled = false;
 			addChild(descript);
+			
+			buttonsArray.push(gun_III, 		criticalX3, 	gun_V, 		critChance, 	additionalTool,
+							  swarm_III, 					swarm_V,
+							  launcher_III, 				launcher_V,
+							  freeze_III, 					freeze_V);
+			checkBtns();
+		}
+		
+		private function checkBtns():void
+		{
+			//Gun branch
+			if(Variables.GUN_LEVEL >= 3) gun_III.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_COST_GUN_III) gun_III.canBeAchieved = true;
+			if(Variables.GUN_CRIT_DAMAGE_MULTIPLY == 3) criticalX3.achieved = true;
+			else if((Variables.SYMBOLS >= Variables.UPGRADE_COST_CRIT_X3) && (gun_III.achieved)) criticalX3.canBeAchieved = true;
+			if(Variables.GUN_LEVEL == 5) gun_V.achieved = true;
+			else if((Variables.SYMBOLS >= Variables.UPGRADE_COST_GUN_V) && criticalX3.achieved) gun_V.canBeAchieved = true;
+			if(Variables.GUN_CRIT_CHANCE == 20) critChance.achieved = true;
+			else if((Variables.SYMBOLS >= Variables.UPGRADE_COST_CRIT_CHANCE) && (gun_V.achieved)) critChance.canBeAchieved = true;
+			CONTINIUM --> additional tool (gun)
+			
+			//Swarm branch
+			if(Variables.SWARM_LEVEL >= 3) swarm_III.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_COST_SWARM_III) swarm_III.canBeAchieved = true;
+			if(Variables.SWARM_LEVEL == 5) swarm_V.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_COST_SWARM_V) swarm_V.canBeAchieved = true;
+			
+			//Launcher branch
+			if(Variables.LAUNCHER_LEVEL >= 3) launcher_III.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_COST_LAUNCHER_III) launcher_III.canBeAchieved = true;
+			if(Variables.LAUNCHER_LEVEL == 5) launcher_V.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_COST_LAUNCHER_V) launcher_V.canBeAchieved = true;
+			
+			//Freeze branch
+			if(Variables.FREEZE_LEVEL >= 3) freeze_III.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_COST_FREEZE_III) freeze_III.canBeAchieved = true;
+			if(Variables.FREEZE_LEVEL == 5) freeze_V.achieved = true;
+			else if(Variables.SYMBOLS >= Variables.UPGRADE_COST_FREEZE_V) freeze_V.canBeAchieved = true;
+			
+			
+			for each(var btn:UpgradeBtn in buttonsArray)
+			{
+				if(btn.hasEventListener(MouseEvent.MOUSE_DOWN)) btn.removeEventListener(MouseEvent.MOUSE_DOWN, onPressBtn);
+				if(btn.hasEventListener(MouseEvent.MOUSE_OVER)) btn.removeEventListener(MouseEvent.MOUSE_OVER, overBtn);
+				if(btn.hasEventListener(MouseEvent.MOUSE_OUT )) btn.removeEventListener(MouseEvent.MOUSE_OUT, outBtn);
+				if(btn.hasEventListener(MouseEvent.MOUSE_MOVE)) btn.removeEventListener(MouseEvent.MOUSE_MOVE, moveOnBtn);
+				
+				if(btn.achieved == false && btn.canBeAchieved == false)	btn.filters = [new ColorMatrixFilter(grayMatrix)];
+				else if(btn.achieved == false && btn.canBeAchieved == true)
+				{
+					btn.btnFrame.filters = [new ColorMatrixFilter(grayMatrix)];
+					btn.addEventListener(MouseEvent.MOUSE_DOWN, onPressBtn, false, 0, true);
+					btn.buttonMode = true;
+					//CONTINIUM
+				}
+				btn.addEventListener(MouseEvent.MOUSE_OVER, overBtn, false, 0, true);
+				btn.addEventListener(MouseEvent.MOUSE_OUT, outBtn, false, 0, true);
+				btn.addEventListener(MouseEvent.MOUSE_MOVE, moveOnBtn, false, 0, true);
+			}
 		}
 		
 		private function overBtn(e:MouseEvent):void
@@ -111,22 +129,41 @@
 			e.updateAfterEvent();
 		}
 		
-		private function onClickBtn(e:MouseEvent):void
+		private function onPressBtn(e:MouseEvent):void
 		{
-			/*switch(e.target.name)
+			switch(e.target.name)
 			{
-				case "gunBtn":
+				case "gun_III":
 				break;
 				
-				case "swarmBtn":
+				case "gun_V":
 				break;
 				
-				case "freezeBtn":
+				case "criticalX3":
 				break;
 				
-				case "launchBtn":
+				case "critChance":
 				break;
-			}*/
+				
+				case "swarm_III":
+				break;
+				
+				case "swarm_V":
+				break;
+				
+				case "freeze_III":
+				break;
+				
+				case "freeze_V":
+				break;
+				
+				case "launcher_III":
+				break;
+				
+				case "launcher_V":
+				break;
+			}
+			checkBtns();
 			stage.focus = this;
 		}
 	}
