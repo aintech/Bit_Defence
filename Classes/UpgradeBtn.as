@@ -7,6 +7,8 @@
 		public var achieved:Boolean 		= false;
 		public var canBeAchieved:Boolean = false;
 		
+		public var mouseIsOver:Boolean	= false;
+		
 		public function UpgradeBtn()
 		{
 			// constructor code
