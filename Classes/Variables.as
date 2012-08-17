@@ -2,7 +2,7 @@
 {
 	public class Variables
 	{
-		public static var SYMBOLS:int 						= 999999;
+		public static var SYMBOLS:int 						= 10000;
 		
 		public static var GUN_LEVEL:int 						= 1;
 		public static var SWARM_LEVEL:int 					= 1;
@@ -68,11 +68,6 @@
 		public static var UPGRADE_COST_LAUNCHER_III:int					= 50;
 		public static var UPGRADE_COST_LAUNCHER_V:int					= 100;
 		
-		public static var ADDITIONAL_TOOL_GUN_ACHIEVED:Boolean			= false;
-		
-		public function Variables()
-		{
-			// constructor code
-		}
+		public static var ADDITIONAL_TOOL_GUN_ACHIEVED:Boolean		= false;
 	}
 }

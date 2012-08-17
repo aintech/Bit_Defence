@@ -30,33 +30,25 @@
 					  			0.3086, 0.6094, 0.082, 0, 0,
 					  			0.3086, 0.6094, 0.082, 0, 0,
 									  0,		 0,	  0, 1, 0
-					  			];
-						
-			gun_III.gotoAndStop("Gun_III");
-			gun_V.gotoAndStop("Gun_V");
-			criticalX3.gotoAndStop("criticalX3");
-			critChance.gotoAndStop("critChance");
-			additionalTool_Gun.gotoAndStop("additionalTool");
-			
-			swarm_III.gotoAndStop("Swarm_III");
-			launcher_III.gotoAndStop("Launcher_III");
-			freeze_III.gotoAndStop("Freeze_III");
-			
-			swarm_V.gotoAndStop("Swarm_V");
-			launcher_V.gotoAndStop("Launcher_V");
-			freeze_V.gotoAndStop("Freeze_V");
-			
+					  			];			
 			
 			descript = new UpgradeDescription();
 			descript.visible = false;
 			descript.mouseEnabled = false;
 			addChild(descript);
 			
-			buttonsArray.push(gun_III, 		criticalX3, 	gun_V, 		critChance, 	additionalTool_Gun,
-							  		swarm_III, 							swarm_V,
-							  		launcher_III, 						launcher_V,
-							  		freeze_III, 						freeze_V);
+			buttonsArray.push(gun_III, 		criticalX3, 	gun_V, 		critChance, 	additionalTools, 	criticalX6,		gunMastered,
+							  		swarm_III, 		wideSplash,		swarm_V,		splashChance,	moreSymbols,		bombCascade,	swarmMastered,
+							  		launcher_III, 	poisonDamage,	launcher_V,	poisonChance,	memoryChance,		poisonCloud,	launcherMastered,
+							  		freeze_III, 	longerStun,		freeze_V,	stunChance,		hackProtect,		multyStun,		freezeMastered);
 			checkBtns();
+			
+			for(var i:int = 0; i < buttonsArray.length; i++)
+			{
+				var btn:MovieClip = buttonsArray[i];
+				var n:String = btn.name;
+				btn.gotoAndStop(n);
+			}
 		}
 		
 		private function checkBtns():void
@@ -70,8 +62,8 @@
 			else if((Variables.SYMBOLS >= Variables.UPGRADE_COST_GUN_V) && criticalX3.achieved) gun_V.canBeAchieved = true;
 			if(Variables.GUN_CRIT_CHANCE == 20) critChance.achieved = true;
 			else if((Variables.SYMBOLS >= Variables.UPGRADE_COST_CRIT_CHANCE) && gun_V.achieved) critChance.canBeAchieved = true;
-			if(Variables.ADDITIONAL_TOOL_GUN_ACHIEVED) additionalTool_Gun.achieved = true;
-			else if((Variables.SYMBOLS >= Variables.UPGRADE_COST_GUN_ADD_TOOL) && critChance.achieved) additionalTool_Gun.canBeAchieved = true;
+			if(Variables.ADDITIONAL_TOOL_GUN_ACHIEVED) additionalTools.achieved = true;
+			else if((Variables.SYMBOLS >= Variables.UPGRADE_COST_GUN_ADD_TOOL) && critChance.achieved) additionalTools.canBeAchieved = true;
 						
 			//Swarm branch
 			if(Variables.SWARM_LEVEL >= 3) swarm_III.achieved = true;
@@ -119,7 +111,10 @@
 			(criticalX3.achieved)? 				gunLadder_I.gotoAndStop(2): gunLadder_I.gotoAndStop(1);
 			(gun_V.achieved)? 					gunLadder_II.gotoAndStop(2): gunLadder_II.gotoAndStop(1);
 			(critChance.achieved)?				gunLadder_III.gotoAndStop(2): gunLadder_III.gotoAndStop(1);
-			(additionalTool_Gun.achieved)?	gunLadder_IV.gotoAndStop(2): gunLadder_IV.gotoAndStop(1);
+			(additionalTools.achieved)?		gunLadder_IV.gotoAndStop(2): gunLadder_IV.gotoAndStop(1);
+			
+			CONTINIUM добавить окончание _link в кнопки фриза и лаунчера и собрать мостики в массив
+			
 		}
 		
 		private function overBtn(e:MouseEvent):void
@@ -145,7 +140,6 @@
 		
 		private function onPressBtn(e:MouseEvent):void
 		{
-			CONTINIUM правим UpgradeBtn в BuyUpgradeScreen
 			switch(e.currentTarget.name)
 			{
 				case "gun_III":
@@ -195,10 +189,11 @@
 				case "additionalTool_Gun":
 					if(Variables.SYMBOLS >= Variables.UPGRADE_COST_GUN_ADD_TOOL)
 					{
+						Variables.SPECIAL_TOOL_GAUGE += 2;
 						Variables.ADDITIONAL_TOOL_GUN_ACHIEVED = true;
 						Variables.SYMBOLS -= Variables.UPGRADE_COST_GUN_ADD_TOOL;
-						additionalTool_Gun.achieved = true;
-						additionalTool_Gun.canBeAchieved = false;
+						additionalTools.achieved = true;
+						additionalTools.canBeAchieved = false;
 					}
 					else trace("low Symbols");
 				break;
