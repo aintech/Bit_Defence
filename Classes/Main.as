@@ -95,6 +95,7 @@
 			mapScreen.addEventListener(CustomEvents.SHOW_UPDATES, onShowUpgrades, false, 0, true);
 			mapScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
 			addChild(mapScreen);
+			Variables.setToDefault();
 		}
 		
 		private function onShowUpgrades(e:CustomEvents):void
@@ -460,47 +461,7 @@
 			menuScreen.addEventListener(CustomEvents.SHOW_SETTINGS, showSettingsScreen, false, 0, true);
 			menuScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
 			addChild(menuScreen);
+			Variables.setToDefault();
 		}
 	}
 }
-
-/*
-
-		private function onShowLevelOptions(e:CustomEvents):void
-		{
-			playScreen.gameTimer.stop();
-			playScreen.filters = [new BlurFilter(10, 10)];
-			
-			optionsScreen = new OptionsScreen();
-			stage.focus = optionsScreen;
-			optionsScreen.resumeBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
-			optionsScreen.restartBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
-			optionsScreen.settingsBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
-			optionsScreen.mainMenuBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
-			optionsScreen.mapBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
-			optionsScreen.saveBtn.visible = false;
-			optionsScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
-			addChild(optionsScreen);
-		}
-		
-		private function onShowMapOptions(e:CustomEvents):void
-		{
-			if(!optionsScreen)
-			{
-				mapScreen.filters = [new BlurFilter(10, 10)];
-			
-				optionsScreen = new OptionsScreen();
-				optionsScreen.resumeBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
-				optionsScreen.restartBtn.visible = false;
-				optionsScreen.settingsBtn.y = optionsScreen.resumeBtn.y + optionsScreen.resumeBtn.height + 20;
-				optionsScreen.settingsBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
-				optionsScreen.mainMenuBtn.y = optionsScreen.settingsBtn.y + optionsScreen.settingsBtn.height + 20;
-				optionsScreen.mainMenuBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
-				optionsScreen.mapBtn.visible = false;
-				optionsScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
-				addChild(optionsScreen);
-			}
-			stage.focus = optionsScreen;
-		}
-		
-*/

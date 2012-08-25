@@ -11,7 +11,7 @@
 		
 		private function init():void
 		{
-			maxLevel = Variables.GUN_LEVEL;
+			maxLevel = Variables.GUN_MAX_LEVEL;
 			base = new TurretBase();
 			//gun = new GunTurret_Gun_I();
 			gun = new MovieClip();
@@ -21,6 +21,10 @@
 			type = Turret.TURRET_GUN;
 			
 			abilityDescription 	= "Cheap & Fast";
+			
+			gunAccDamage = 0;
+			gunEnemyID = 33333;
+			gunEnemyPrevID = 22222;
 		}
 		
 		override public function updateLevel():void
@@ -29,7 +33,7 @@
 			{
 				case 1:
 				memoryUse = 50;
-				range = 100;
+				range = 120;
 				reloadTime = 10;
 				damage = 20;
 				upgradeCost = 25;
@@ -47,7 +51,7 @@
 				
 				case 2:
 				memoryUse = 75;
-				range = 110;
+				range = 130;
 				reloadTime = 10;
 				damage = 25;
 				upgradeCost = 25;
@@ -65,7 +69,7 @@
 				
 				case 3:
 				memoryUse = 100;
-				range = 120;
+				range = 140;
 				reloadTime = 10;
 				damage = 30;
 				upgradeCost = 25;
@@ -75,8 +79,6 @@
 				additionalDamage = 5;
 				additionalRange = 10;
 				additionalReloadTime = 0;
-				gunCritChance = Variables.GUN_CRIT_CHANCE;
-				gunCritMultiply = Variables.GUN_CRIT_DAMAGE_MULTIPLY;
 				removeChild(gun);
 				gun = null;
 				gun = new GunTurret_Gun_III();
@@ -85,7 +87,7 @@
 				
 				case 4:
 				memoryUse = 125;
-				range = 130;
+				range = 150;
 				reloadTime = 10;
 				damage = 35;
 				upgradeCost = 25;
@@ -95,8 +97,6 @@
 				additionalDamage = 5;
 				additionalRange = 10;
 				additionalReloadTime = 5;
-				gunCritChance = Variables.GUN_CRIT_CHANCE;
-				gunCritMultiply = Variables.GUN_CRIT_DAMAGE_MULTIPLY;
 				removeChild(gun);
 				gun = null;
 				gun = new GunTurret_Gun_IV();
@@ -105,14 +105,12 @@
 				
 				case 5:
 				memoryUse = 150;
-				range = 140;
+				range = 160;
 				reloadTime = 5;
 				damage = 40;
 				upgradeCost = 25;
 				installingTime = 180;
 				uninstallingTime = 180;
-				gunCritChance = Variables.GUN_CRIT_CHANCE;
-				gunCritMultiply = Variables.GUN_CRIT_DAMAGE_MULTIPLY;
 				removeChild(gun);
 				gun = null;
 				gun = new GunTurret_Gun_V();

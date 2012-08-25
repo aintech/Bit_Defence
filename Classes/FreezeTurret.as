@@ -9,7 +9,7 @@
 		
 		private function init():void
 		{
-			maxLevel = Variables.FREEZE_LEVEL;
+			maxLevel = Variables.FREEZE_MAX_LEVEL;
 			base = new TurretBase();
 			gun = new FreezeTurret_Gun();
 			addChild(base);	
@@ -62,8 +62,6 @@
 				additionalDamage = 0;
 				additionalRange = 15;
 				additionalReloadTime = 1;
-				freezeStunChance = Variables.FREEZE_STUN_CHANCE;
-				freezeStunDuration = Variables.FREEZE_STUN_DURATION;
 				break;
 				
 				case 4:
@@ -77,8 +75,6 @@
 				additionalDamage = 0;
 				additionalRange = 15;
 				additionalReloadTime = 2;
-				freezeStunChance = Variables.FREEZE_STUN_CHANCE;
-				freezeStunDuration = Variables.FREEZE_STUN_DURATION;
 				break;
 				
 				case 5:
@@ -88,8 +84,6 @@
 				upgradeCost = 25;
 				installingTime = 180;
 				uninstallingTime = 180;
-				freezeStunChance = Variables.FREEZE_STUN_CHANCE;
-				freezeStunDuration = Variables.FREEZE_STUN_DURATION;
 				break;
 			}
 		}

@@ -1,13 +1,15 @@
 ﻿//TODO: Всем gotoAndStop пусть указывают на кадр с названием а не номером
 //TODO: Оптимизировать MapScreen, чтобы тамошний код не повторялся для каждого уровня
 //TODO: Каждый вид врага взрывается по-своему
-//TODO: MissileTurret - целью ракет желательно делать врага, который ближе всех к концу пути
+//TODO: Анимация взлома со всякими полосками бегущими по enemyFinalTarget
 //TODO: сделать прелоадер
 //TODO: Экраны должны плавно переходить друг в друга
 //TODO: Графические обозначения того, что враг отравлен или заторможен или по нему нанесен крит
 //HELP: ||
+//TODO: всплывающие подсказки над иконками specialTools, nextWave и т.д.
+//TODO: tutorScreen - всплывает экран туториал - иконка сбоку - рассказывающая о новых врагах или возможностях - держиться какое-то время
 
-//TODO: СпецТехника:
+//СпецТехника:
 //Дополнительный контур защиты - снижает вероятность взлома системы
 //Остановка потока - все враги на время замирают
 //Перегрузка потока - наносятся повреждения всем врагам
@@ -18,15 +20,19 @@
 //TODO: Сделать куллтаймы спецтехник в привязке к Variables
 //TODO: спецтехники работают только когда levelStarted
 
-//TODO: ИЗ врагов должны выпадать символы
-//TODO: нажатии кнопки не исчезают, а уменьшаются - для создания анимации
-//TODO: проработать систему символов
+//FIX: freeze неправильно работает при использовании flowStop + стреляют по тем, кого не должны доставать
+//FIX: при создании турелей 3-го уровня неправильно указываются из начальные характеристики
+//FIX: при паузе должна остановиться анимация и отсчет времени до следующей волны
 
-//TODO: На апгрейд срине нужны кнопки "принять" и "отменить"
+//TODO: нажатии кнопки не исчезают, а уменьшаются - для создания анимации
+
+//TODO: при невозможности апгрейда турели - её кнопка апгрейда должна быть серой и реагировать на клик - "нехватает памяти"
+//TODO: из врагов выпадают бусты - типа защиты от взлома
+//TODO: при клике на бусте или когда он дойдет до скорборда должна быть анимация исчезновения иконки буста
+//TODO: можно настроить, чтобы турели били ближайшего, сильнейшего и т.д.
+
 
 //BALANCE: разные типы врагов устойчивые к разным турелям заставять игрока применять разные тактики
-
-//FIX: Swarm глючит
 package 
 {
 	import flash.display.MovieClip;
@@ -41,6 +47,7 @@ package
 	import flash.display.SimpleButton;
 	import flash.filters.GlowFilter;
 	import flash.filters.BlurFilter;
+	import flash.filters.ColorMatrixFilter;
 
 	public class GamePlay extends MovieClip
 	{
@@ -62,12 +69,10 @@ package
 		public var levelMap:Array = [];
 		public var enemyWaves:Array = [];
 		
-		public var roadStart:Point = new Point();
-		public var roadEnd:Point 	= new Point();
-		
 		public var scoreBoard:ScoreBoard = new ScoreBoard();
 		public var background:MovieClip;
 		public var road:MovieClip;
+		public var roadStart:Point;
 		
 		public var backgroundHolder:Sprite 		= new Sprite();
 		public var blocksHolder:Sprite			= new Sprite();
@@ -118,30 +123,37 @@ package
 		public var enemyLimit:int = Variables.ENEMY_DELAY;//Время задержки появления врагов
 		public var enemiesLeft:int;
 		
-		public var enemyArray:Array 						= [];
-		public var groundArray:Array						= [];
-		public var directArray:Array 						= [];
-		public var markerArray:Array 						= [];
-		public var turretArray:Array 						= [];
-		public var rocketArray:Array 						= [];
-		public var splashArray:Array 						= [];
-		public var swarmSplashArray:Array				= [];
-		public var missileArray:Array 					= [];
-		public var particleArray:Array 					= [];
-		public var installingArray:Array					= [];
-		public var upgradingArray:Array					= [];
-		public var uninstallingArray:Array				= [];
-		public var specialToolsArray:Array				= [];
+		public var enemyArray:Array 				= [];
+		public var groundArray:Array				= [];
+		public var directArray:Array 				= [];
+		public var markerArray:Array 				= [];
+		public var turretArray:Array 				= [];
+		public var rocketArray:Array 				= [];
+		public var splashArray:Array 				= [];
+		public var swarmSplashArray:Array			= [];
+		public var swarmBombsArray:Array			= [];
+		public var bombSplashArray:Array			= [];
+		public var missileArray:Array 				= [];
+		public var particleArray:Array 				= [];
+		public var installingArray:Array			= [];
+		public var upgradingArray:Array				= [];
+		public var uninstallingArray:Array			= [];
+		public var specialToolsArray:Array			= [];
 		public var specialToolsGaugeArray:Array		= [];
 		public var specialToolsCooldownsArray:Array	= [];
 		public var specialToolsDisablesArray:Array	= [];
-		public var addMarkerCounterArray:Array			= [];
+		public var addMarkerCounterArray:Array		= [];
 		public var availableActionFlagsArray:Array	= [];
+		public var poisonCloudsArray:Array			= [];
+		public var dropArray:Array					= [];
+		public var roadArray:Array					= [];
+		public var distEnemyArray:Array				= [];
+		public var hackingEnemies:Array				= [];
 		
 		public var mapCols:int = 15;
 		public var mapRows:int = 10;
 		
-		public var memoryTotal:int = 300;
+		public var memoryTotal:int;
 		public var memoryUsed:int 	= 0;
 		
 		public var gameOver:Boolean = false;
@@ -171,6 +183,13 @@ package
 		public var startWaveBtnArrow:MovieClip;
 		public var nextWaveTimer:Timer;
 		public var waveTimerInAction:Boolean = false;
+		
+		public var scoreMemoryPoint:Point;
+		public var scoreSymbolsPoint:Point;
+		
+		public var roadCounter:int = 2;
+		
+		public var enemyFinalTarget:EnemyFinalTarget;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -192,14 +211,17 @@ package
 			enemyWaves = levelData.makeEnemies(currentLevel);
 			availableCharArray = levelData.levelChars(currentLevel);
 			availableToolsArray = levelData.levelTools(currentLevel);
+			memoryTotal = levelData.levelMemory(currentLevel);			
 			
 			addChild(backgroundHolder);
 			addChild(roadHolder);
 			addChild(blocksHolder);
 			blocksHolder.alpha = 0;
 			addChild(groundHolder);
+			//groundHolder.alpha = 0;
 			addChild(markerHolder);
 			addChild(enemyHolder);
+			enemyFinalTarget = new EnemyFinalTarget(); addChild(enemyFinalTarget);
 			addChild(turretHolder);
 			addChild(bulletHolder);
 			addChild(charHolder);
@@ -244,9 +266,9 @@ package
 					break;
 					
 					case Turret.TURRET_SWARM:
-					character = new MissileTurret();
+					character = new SwarmTurret();
 					charIcon = new CharIcon(Turret.TURRET_SWARM);
-					charIcon.gotoAndStop("missileTurret");
+					charIcon.gotoAndStop("swarmTurret");
 					break;
 					
 					case Turret.TURRET_FREEZE:
@@ -348,6 +370,9 @@ package
 			scoreBoard.x = startLevelBtn.width + 5;
 			scoreBoard.txtHackChance.text = "hack: */*";
 			
+			scoreSymbolsPoint = new Point(scoreBoard.txtSymbols.x + startLevelBtn.width + scoreBoard.txtSymbols.width * .5, scoreBoard.y - 20); 
+			scoreMemoryPoint = new Point(scoreBoard.txtMemory.x + startLevelBtn.width + scoreBoard.txtMemory.width * .5, scoreBoard.y - 20); 
+			
 			startWave();
 			makeLevel();
 			
@@ -398,8 +423,8 @@ package
 					block.addEventListener(MouseEvent.CLICK, addMarkerCounter, false, 0, true);
 					groundArray.push(block);
 					blocksHolder.addChild(block);
-					if(levelMap[i-1] == P || levelMap[i-1] == S || levelMap[i-1] == F || levelMap[i-1] == U || levelMap[i-1] == D || levelMap[i-1] == R || levelMap[i-1] == L ||
-					   levelMap[i+1] == P || levelMap[i+1] == S || levelMap[i+1] == F || levelMap[i+1] == U || levelMap[i+1] == D || levelMap[i+1] == R || levelMap[i+1] == L ||
+					if(	levelMap[i-1] == P || levelMap[i-1] == S || levelMap[i-1] == F || levelMap[i-1] == U || levelMap[i-1] == D || levelMap[i-1] == R || levelMap[i-1] == L ||
+					   	levelMap[i+1] == P || levelMap[i+1] == S || levelMap[i+1] == F || levelMap[i+1] == U || levelMap[i+1] == D || levelMap[i+1] == R || levelMap[i+1] == L ||
 						levelMap[i-cols] == P || levelMap[i-cols] == S || levelMap[i-cols] == F || levelMap[i-cols] == U || levelMap[i-cols] == D || levelMap[i-cols] == R || levelMap[i-cols] == L ||
 						levelMap[i+cols] == P || levelMap[i+cols] == S || levelMap[i+cols] == F || levelMap[i+cols] == U || levelMap[i+cols] == D || levelMap[i+cols] == R || levelMap[i+cols] == L) block.nearRoad = true;
 				}
@@ -416,10 +441,9 @@ package
 				}
 				else if(levelMap[i] == P)
 				{
-					block = new EmptyRoadTile();
-					block.x = (i - row * cols) * block.width;
-					block.y = row * block.height;
+					block = new RoadTile("empty", (i - row * cols) * block.width, row * block.height);
 					blocksHolder.addChild(block);
+					roadArray.push(block);
 				}
 				else
 				{
@@ -428,9 +452,58 @@ package
 					roadTileID++;
 					blocksHolder.addChild(block);
 					directArray.push(block);
+					roadArray.push(block);
 					
-					if(levelMap[i] == S) roadStart = new Point(((i - row * cols) * block.width) - block.width, row * block.height + block.height * .5);
-					else if(levelMap[i] == F) roadEnd = new Point(((i - row * cols) * block.width) + block.width, row * block.height + block.height * .5);
+					if(levelMap[i] == S)
+					{
+						if(block.x == 0)//starting from left of screen(direct to right)
+						{
+							roadStart = new Point(block.x, block.y + block.height * .5);
+							Enemy.STARTING_DIRECTION = Enemy.DIR_RIGHT;
+						}
+						else if(block.x == (gameWidth - block.width))//starting from right(direct to left)
+						{
+							roadStart = new Point(block.x + block.width, block.y + block.height * .5);
+							Enemy.STARTING_DIRECTION = Enemy.DIR_LEFT;
+						}
+						else if(block.y == 0)//starting from top(direct to down)
+						{
+							roadStart = new Point(block.x + block.width * .5, block.y);
+							Enemy.STARTING_DIRECTION = Enemy.DIR_DOWN;
+						}
+						else if(block.y == (gameHeight - block.height))//starting from bottom(direct to up)
+						{
+							roadStart = new Point(block.x + block.width * .5, block.y + block.height);
+							Enemy.STARTING_DIRECTION = Enemy.DIR_UP;
+						}
+						//block.startRoadTile = true;
+					}
+					else if(levelMap[i] == F)
+					{
+						block.endRoadTile = true;
+						block.tileNumber = 1;
+						//block.txtNum.text = String(block.tileNumber);
+						
+						enemyFinalTarget.x = block.x + block.width * .5;
+						enemyFinalTarget.y = block.y + block.height * .5; 
+						
+						if(block.x == 0)//road ends at left
+						{
+							enemyFinalTarget.rotation = 0;
+						}
+						else if(block.x == (gameWidth - block.width))//road ends at right
+						{
+							enemyFinalTarget.rotation = 180;
+						}
+						else if(block.y == 0)//road ends at top
+						{
+							enemyFinalTarget.rotation = 90;
+						}
+						else if(block.y == (gameHeight - block.height))//road ends at bottom
+						{
+							enemyFinalTarget.rotation = -90;
+						}
+					}
 				}
 				
 				for(var c:int = 1; c <= rows; c++)
@@ -439,6 +512,39 @@ package
 					row++;
 				}
 			}
+			giveNumbersToRoad();
+		}
+		
+		private function giveNumbersToRoad():void
+		{
+			var checkRoad:RoadTile;
+			
+			for each(var road:RoadTile in roadArray)
+			{
+				if(!road.tileNumber)
+				{
+					for(var r:int = 0; r <= roadArray.length; r++)
+					{
+						if(roadArray[r] != null)
+						{
+							checkRoad = roadArray[r] as RoadTile;
+							if(checkRoad.tileNumber)
+							{
+								if 	(checkRoad.hitTestPoint(road.x + road.width * 1.5, road.y + road.height *  .5) || 
+									 checkRoad.hitTestPoint(road.x - road.width *  .5, road.y + road.height *  .5) ||
+									 checkRoad.hitTestPoint(road.x + road.width *  .5, road.y - road.height *  .5) ||
+									 checkRoad.hitTestPoint(road.x + road.width *  .5, road.y + road.height * 1.5))
+								{
+									road.tileNumber = roadCounter;
+									//road.txtNum.text = String(road.tileNumber);
+									roadCounter++;
+								}
+							}
+						}
+					}
+				}
+			}
+			if(roadCounter <= roadArray.length) giveNumbersToRoad();
 		}
 		
 		private function showOptions(e:MouseEvent):void
@@ -464,6 +570,7 @@ package
 			checkTurrets();
 			updateBullets();
 			checkForNextWave();
+			checkDrop();
 			updateScoreBoard();
 		}
 		
@@ -536,25 +643,29 @@ package
 				else
 				{
 					var id:int = enemyWaves[currentWave - 1][currentEnemy];
-					var tempEnemy:MovieClip;
+					var enemy:Enemy;
 					switch(id)
 					{
 						case 1:
-						tempEnemy = new Enemy_Speeder();
+						enemy = new Enemy_Speeder();
 						break;
 						
 						case 2:
-						tempEnemy = new Enemy_Worm();
+						enemy = new Enemy_Worm();
 						break;
 						
 						default:
-						tempEnemy = null;
+						enemy = null;
 						break;
 					}
-					if(tempEnemy)
+					if(enemy)
 					{
-						enemyArray.push(tempEnemy);
-						enemyHolder.addChild(tempEnemy);
+						enemy.x = roadStart.x;
+						enemy.y = roadStart.y;
+						CONTINIUM враги при появлении должны правильно ориентироваться и иметь соответствующую скорость в стороны, скорость и поворот можно указать в Enemy а место появление в зависимости от поворота, движение врага переложить на speed
+						enemy.direction = Enemy.STARTING_DIRECTION;
+						enemyArray.push(enemy);
+						enemyHolder.addChild(enemy);
 						currentEnemy++;
 						enemyTime = 0;
 					}
@@ -564,170 +675,220 @@ package
 		
 		private function updateEnemies():void
 		{
+			var enemy:Enemy;
+			var road:RoadTile;
+			var clip:MovieClip;
+			
 			var enemyLength:int = enemyArray.length;
+			
 			for(var i:int = enemyLength; --i >= 0;)
 			{
-				var tempEnemy:MovieClip = enemyArray[i];
+				enemy = enemyArray[i];
+				enemy.graphPoint.graphics.clear();
+				
+				for(var r:int = 0; r < roadArray.length; r++)
+				{
+					road = roadArray[r];
+					if(enemy.tileNumPoint.hitTestObject(road) && (road.tileNumber != enemy.tileNum)) enemy.tileNum = road.tileNumber;
+				}
+				
 				for(var j:int = 0; j < directArray.length; j++)
 				{
 					var dirTile:MovieClip = directArray[j];
-					if(tempEnemy.hitPoint.hitTestObject(dirTile.hitPoint) && tempEnemy.roadID != dirTile.ID)
+					if(enemy.hitPoint.hitTestObject(dirTile.hitPoint) && enemy.roadID != dirTile.ID)
 					{
 						switch(dirTile.direct)
 						{
 							case "Up":
-								tempEnemy.rotation = -90;
-								if(toolStunInAction || tempEnemy.speedUP) tempEnemy.ySpeed = -Math.abs(tempEnemy.xSpeed);
-								else tempEnemy.ySpeed = -tempEnemy.speed;
-								tempEnemy.xSpeed = 0;
-								tempEnemy.lifeBar.rotation = 90;
-								tempEnemy.lifeBar.x = tempEnemy.lifeBarUP.x;
-								tempEnemy.lifeBar.y = tempEnemy.lifeBarUP.y;
+								enemy.rotation = -90;
+								enemy
+								if(toolStunInAction || enemy.speedUP) enemy.ySpeed = -Math.abs(enemy.xSpeed);
+								else enemy.ySpeed = -enemy.speed;
+								enemy.xSpeed = 0;
+								enemy.lifeBar.rotation = 90;
+								enemy.lifeBar.x = enemy.lifeBarUP.x;
+								enemy.lifeBar.y = enemy.lifeBarUP.y;
 							break;
 							
 							case "Down":
-								tempEnemy.rotation = 90;
-								if(toolStunInAction || tempEnemy.speedUP) tempEnemy.ySpeed = Math.abs(tempEnemy.xSpeed);
-								else tempEnemy.ySpeed = tempEnemy.speed;
-								tempEnemy.xSpeed = 0;
-								tempEnemy.lifeBar.rotation = -90;
-								tempEnemy.lifeBar.x = tempEnemy.lifeBarDOWN.x;
-								tempEnemy.lifeBar.y = tempEnemy.lifeBarDOWN.y;
+								enemy.rotation = 90;
+								if(toolStunInAction || enemy.speedUP) enemy.ySpeed = Math.abs(enemy.xSpeed);
+								else enemy.ySpeed = enemy.speed;
+								enemy.xSpeed = 0;
+								enemy.lifeBar.rotation = -90;
+								enemy.lifeBar.x = enemy.lifeBarDOWN.x;
+								enemy.lifeBar.y = enemy.lifeBarDOWN.y;
 							break;
 							
 							case "Right":
-								tempEnemy.rotation = 0;
-								if(toolStunInAction || tempEnemy.speedUP) tempEnemy.xSpeed = Math.abs(tempEnemy.ySpeed);
-								else tempEnemy.xSpeed = tempEnemy.speed;
-								tempEnemy.ySpeed = 0;
-								tempEnemy.lifeBar.rotation = 0;
-								tempEnemy.lifeBar.x = tempEnemy.lifeBarRIGHT.x;
-								tempEnemy.lifeBar.y = tempEnemy.lifeBarRIGHT.y;
+								enemy.rotation = 0;
+								if(toolStunInAction || enemy.speedUP) enemy.xSpeed = Math.abs(enemy.ySpeed);
+								else enemy.xSpeed = enemy.speed;
+								enemy.ySpeed = 0;
+								enemy.lifeBar.rotation = 0;
+								enemy.lifeBar.x = enemy.lifeBarRIGHT.x;
+								enemy.lifeBar.y = enemy.lifeBarRIGHT.y;
 							break;
 							
 							case "Left":
-								tempEnemy.rotation = -180;
-								if(toolStunInAction || tempEnemy.speedUP) tempEnemy.xSpeed = -Math.abs(tempEnemy.ySpeed);
-								else tempEnemy.xSpeed = -tempEnemy.speed;
-								tempEnemy.ySpeed = 0;
-								tempEnemy.lifeBar.rotation = 180;
-								tempEnemy.lifeBar.x = tempEnemy.lifeBarLEFT.x;
-								tempEnemy.lifeBar.y = tempEnemy.lifeBarLEFT.y;
+								enemy.rotation = -180;
+								if(toolStunInAction || enemy.speedUP) enemy.xSpeed = -Math.abs(enemy.ySpeed);
+								else enemy.xSpeed = -enemy.speed;
+								enemy.ySpeed = 0;
+								enemy.lifeBar.rotation = 180;
+								enemy.lifeBar.x = enemy.lifeBarLEFT.x;
+								enemy.lifeBar.y = enemy.lifeBarLEFT.y;
 							break;
 						}
-						tempEnemy.roadID = dirTile.ID;
+						enemy.roadID = dirTile.ID;
 					}
+				}
+								
+				if(enemy.stunProlonger)
+				{
+					for(var e:int = enemyArray.length; --e >= 0;)
+					{
+						var tempEnemy:Enemy = enemyArray[e];
+						if(tempEnemy != enemy)
+						{
+							var xDest:Number = tempEnemy.x - enemy.x;
+							var yDest:Number = tempEnemy.y - enemy.y;
+							var dist:Number = Math.sqrt(xDest*xDest + yDest*yDest);
+							if(dist <= Variables.FREEZE_MULTY_STUN_DISTANCE)
+							{
+								tempEnemy.underFreeze = false;
+								tempEnemy.freezeCounter = 0;
+								tempEnemy.isStuned = true;
+								tempEnemy.stunCounter = 0;
+								
+								enemy.graphPoint.rotation = -enemy.rotation;
+								with(enemy.graphPoint.graphics)
+								{
+									lineStyle(2, 0xFF00FF);
+									moveTo(0, 0);
+									lineTo(tempEnemy.x - enemy.x, tempEnemy.y - enemy.y);
+								}
+								clip = tempEnemy.getChildByName("clip") as MovieClip;
+								clip.gotoAndStop(clip.currentFrame);
+								clip = null;
+							}
+						}
+					}
+					enemy.stunProlonger = false;
 				}
 				
 				if(toolStunInAction)
 				{
-					if(!tempEnemy.firstStun)
+					if(!enemy.firstStun)
 					{
-						tempEnemy.previusXSpeed = tempEnemy.xSpeed;
-						tempEnemy.previusYSpeed = tempEnemy.ySpeed;
-						tempEnemy.firstStun = true;
+						enemy.previusXSpeed = enemy.xSpeed;
+						enemy.previusYSpeed = enemy.ySpeed;
+						enemy.firstStun = true;
 					}
-					if(tempEnemy.xSpeed > 0) tempEnemy.xSpeed -= .5;
-					else if(tempEnemy.xSpeed < 0) tempEnemy.xSpeed += .5;
-					else if(tempEnemy.ySpeed > 0) tempEnemy.ySpeed -= .5;
-					else if(tempEnemy.ySpeed < 0) tempEnemy.ySpeed += .5;
+					if(enemy.xSpeed > 0) enemy.xSpeed -= .5;
+					else if(enemy.xSpeed < 0) enemy.xSpeed += .5;
+					else if(enemy.ySpeed > 0) enemy.ySpeed -= .5;
+					else if(enemy.ySpeed < 0) enemy.ySpeed += .5;
 					
-					tempEnemy.x += tempEnemy.xSpeed;
-					tempEnemy.y += tempEnemy.ySpeed;
+					enemy.x += enemy.xSpeed;
+					enemy.y += enemy.ySpeed;
 				}
-				else if(tempEnemy.speedUP)
+				else if(enemy.speedUP)
 				{
-					switch(tempEnemy.rotation)
+					switch(enemy.rotation)
 					{
 						case 0://Right
-							if(tempEnemy.xSpeed < tempEnemy.speed) tempEnemy.xSpeed += .5;
-							tempEnemy.ySpeed = 0;
+							if(enemy.xSpeed < enemy.speed) enemy.xSpeed += .5;
+							enemy.ySpeed = 0;
 						break;
 							
 						case 90://Down
-							tempEnemy.xSpeed = 0;
-							if(tempEnemy.ySpeed < tempEnemy.speed) tempEnemy.ySpeed += .5;
+							enemy.xSpeed = 0;
+							if(enemy.ySpeed < enemy.speed) enemy.ySpeed += .5;
 						break;
 							
 						case -90://Up
-							tempEnemy.xSpeed = 0;
-							if(tempEnemy.ySpeed > -tempEnemy.speed) tempEnemy.ySpeed -= .5;
+							enemy.xSpeed = 0;
+							if(enemy.ySpeed > -enemy.speed) enemy.ySpeed -= .5;
 						break;
 							
 						case -180://Left
-							if(tempEnemy.xSpeed > -tempEnemy.speed) tempEnemy.xSpeed -= .5;
-							tempEnemy.ySpeed = 0;
+							if(enemy.xSpeed > -enemy.speed) enemy.xSpeed -= .5;
+							enemy.ySpeed = 0;
 						break;
 					}
-					tempEnemy.x += tempEnemy.xSpeed;
-					tempEnemy.y += tempEnemy.ySpeed;
+					enemy.x += enemy.xSpeed;
+					enemy.y += enemy.ySpeed;
 					
-					if(tempEnemy.xSpeed == tempEnemy.previusXSpeed && tempEnemy.ySpeed == tempEnemy.previusYSpeed) tempEnemy.speedUP = false;
+					if(enemy.xSpeed == enemy.previusXSpeed && enemy.ySpeed == enemy.previusYSpeed) enemy.speedUP = false;
 				}
-				else if(tempEnemy.isStuned)
+				else if(enemy.isStuned)
 				{
-					tempEnemy.x += 0;
-					tempEnemy.y += 0;
+					enemy.x += 0;
+					enemy.y += 0;
 					
-					tempEnemy.stunCounter++;
-					if(tempEnemy.stunCounter > tempEnemy.maxTimeStuned)
+					enemy.underFreeze = false;
+					enemy.stunCounter++;
+					if(enemy.stunCounter > enemy.maxTimeStuned)
 					{
-						tempEnemy.isStuned = false;
-						tempEnemy.stunCounter = 0;
-						var clip:* = tempEnemy.getChildByName("clip");
+						enemy.isStuned = false;
+						enemy.stunCounter = 0;
+						clip = enemy.getChildByName("clip") as MovieClip;
 						clip.gotoAndPlay(clip.currentFrame);
 						clip = null;
 					}
 				}
-				else if(tempEnemy.underFreeze)
+				else if(enemy.underFreeze)
 				{
-					tempEnemy.x += tempEnemy.xSpeed * Variables.FREEZE_SPEED_REDUCE_MULTIPLY;
-					tempEnemy.y += tempEnemy.ySpeed * Variables.FREEZE_SPEED_REDUCE_MULTIPLY;
+					enemy.x += enemy.xSpeed * Variables.FREEZE_SPEED_REDUCE_MULTIPLY;
+					enemy.y += enemy.ySpeed * Variables.FREEZE_SPEED_REDUCE_MULTIPLY;
 					
-					tempEnemy.freezeCounter++;
-					if(tempEnemy.freezeCounter > tempEnemy.maxTimeFreeze) 
+					enemy.freezeCounter++;
+					if(enemy.freezeCounter > enemy.maxTimeFreeze) 
 					{
-						tempEnemy.underFreeze = false;
-						tempEnemy.freezeCounter = 0;
+						enemy.underFreeze = false;
+						enemy.freezeCounter = 0;
 					}
 				}
 				else
 				{
-					tempEnemy.x += tempEnemy.xSpeed;
-					tempEnemy.y += tempEnemy.ySpeed;
+					enemy.x += enemy.xSpeed;
+					enemy.y += enemy.ySpeed;
 				}
 				
-				if(tempEnemy.isPoisoned)
+				if(enemy.isPoisoned)
 				{
-					tempEnemy.health -= Variables.LAUNCHER_POISON_DAMAGE;
-					tempEnemy.lifeBar.gotoAndStop(Math.floor(tempEnemy.health / tempEnemy.maxHealth * 100));
-					tempEnemy.poisonCounter++;
-					if(tempEnemy.poisonCounter > tempEnemy.maxPoisonCounter)
+					enemy.health -= Variables.LAUNCHER_POISON_DAMAGE;
+					enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
+					enemy.poisonCounter++;
+					if(enemy.poisonCounter > enemy.maxPoisonCounter)
 					{
-						tempEnemy.isPoisoned = false;
-						tempEnemy.poisonCounter = 0;
+						enemy.isPoisoned = false;
+						enemy.poisonCounter = 0;
 					}
 				}
 				
-				if(tempEnemy.x >= roadEnd.x)
-				{
-					checkForHack(tempEnemy.hackChance);
-					removeObject(i, enemyArray);
-					enemiesLeft--;
-				}
+				if(enemy.hitTestObject(enemyFinalTarget)) checkForHack(enemy, i);
 			}
 			if(toolStunInAction) toolStunCounter--;
 			if(toolStunCounter <= 0  && toolStunInAction)
 			{
 				toolStunInAction = false;
-				for each(var enemy:Enemy in enemyArray)
+				for each(enemy in enemyArray)
 				{
 					enemy.speedUP = true;
 					enemy.firstStun = false;
-					var eClip:* = enemy.getChildByName("clip");
-					eClip.gotoAndPlay(eClip.currentFrame);
-					eClip = null;
+					clip = enemy.getChildByName("clip") as MovieClip;
+					clip.gotoAndPlay(clip.currentFrame);
+					clip = null;
 				}
+			}
+			
+			for(var h:int = hackingEnemies.length; --h >= 0;)
+			{
+				enemy = hackingEnemies[h];
+				enemy.alpha -= .2;
+				if(enemy.alpha <= 0) removeObject(h, hackingEnemies);
 			}
 		}
 		
@@ -746,7 +907,7 @@ package
 					break;
 					
 					case Turret.TURRET_SWARM:
-					tempChar = new MissileTurret();
+					tempChar = new SwarmTurret();
 					break;
 					
 					case Turret.TURRET_FREEZE:
@@ -832,7 +993,7 @@ package
 					break;
 					
 					case Turret.TURRET_SWARM:
-					dragCharIcon.gotoAndStop("missileTurret");
+					dragCharIcon.gotoAndStop("swarmTurret");
 					break;
 					
 					case Turret.TURRET_FREEZE:
@@ -862,7 +1023,13 @@ package
 						if(stage.mouseX > marker.x && stage.mouseX < marker.x + marker.width &&
 						   stage.mouseY > marker.y && stage.mouseY < marker.y + marker.height)
 						{
-							startInstallTurret(dragCharIcon.charType, 1, marker.x, marker.y);
+							switch(dragCharIcon.charType)
+							{
+								case "turret_gun": 		startInstallTurret(dragCharIcon.charType, Variables.GUN_START_LEVEL, marker.x, marker.y); 		break;
+								case "turret_launcher": startInstallTurret(dragCharIcon.charType, Variables.LAUNCHER_START_LEVEL, marker.x, marker.y); 	break;
+								case "turret_swarm": 	startInstallTurret(dragCharIcon.charType, Variables.SWARM_START_LEVEL, marker.x, marker.y); 	break;
+								case "turret_freeze": 	startInstallTurret(dragCharIcon.charType, Variables.FREEZE_START_LEVEL, marker.x, marker.y); 	break;
+							}
 							marker.free = false;
 						}
 					}
@@ -1006,7 +1173,7 @@ package
 				break;
 				
 				case "swarmBtn":
-				tempChar = new MissileTurret();
+				tempChar = new SwarmTurret();
 				confirmTurretCircle.abilityTxt.text = "Missiles";
 				confirmTurretCircle.turretType = Turret.TURRET_SWARM;
 				break;
@@ -1036,7 +1203,13 @@ package
 			if(tempChar) tempChar = null;
 						
 			var marker:MovieClip = confirmTurretCircle.targetMarker;
-			startInstallTurret(confirmTurretCircle.turretType, 1, marker.x, marker.y);
+			switch(confirmTurretCircle.turretType)
+			{
+				case "turret_gun":		startInstallTurret(confirmTurretCircle.turretType, Variables.GUN_START_LEVEL, marker.x, marker.y); 		break;
+				case "turret_launcher":	startInstallTurret(confirmTurretCircle.turretType, Variables.LAUNCHER_START_LEVEL, marker.x, marker.y);	break;
+				case "turret_swarm":	startInstallTurret(confirmTurretCircle.turretType, Variables.SWARM_START_LEVEL, marker.x, marker.y);	break;
+				case "turret_freeze":	startInstallTurret(confirmTurretCircle.turretType, Variables.FREEZE_START_LEVEL, marker.x, marker.y);	break;
+			}
 			
 			for each(var mark:PlaceMarker in markerArray)
 			{
@@ -1111,7 +1284,7 @@ package
 				break;
 				
 				case Turret.TURRET_SWARM:
-				turret = new MissileTurret();
+				turret = new SwarmTurret();
 				break;
 				
 				case Turret.TURRET_FREEZE:
@@ -1344,6 +1517,11 @@ package
 					charMenu.upgradeBtn.mouseEnabled = false;
 					charMenu.txtUpgradeCost.text = "";
 				}
+				else if(memoryTotal < memoryUsed + target.upgradeCost)
+				{
+					charMenu.upgradeBtn.filters = [new ColorMatrixFilter(Variables.GRAY_MATRIX)];
+					charMenu.upgradeBtn.mouseEnabled = false;
+				}
 			
 				charMenu.sellBtn.addEventListener(MouseEvent.CLICK, startUninstallTurret, false, 0, true);
 				turretHolder.addChild(charMenu);
@@ -1352,7 +1530,7 @@ package
 			
 				if(target is GunTurret) charInfo.txtCharType.text = "Gun";
 				else if(target is LauncherTurret) charInfo.txtCharType.text = "Launcher";
-				else if(target is MissileTurret) charInfo.txtCharType.text = "Swarm";
+				else if(target is SwarmTurret) charInfo.txtCharType.text = "Swarm";
 				else if(target is FreezeTurret) charInfo.txtCharType.text = "Freeze";
 			
 				if(target.level < target.maxLevel)
@@ -1418,8 +1596,21 @@ package
 			}
 		}
 				
-		private function checkTurrets():void
+		private function checkTurrets():void///////////////////////////////////////////////////////////////////
 		{
+			var enemy:Enemy;
+			
+			if(charMenu)
+			{
+				var target:MovieClip = charMenu.target as MovieClip;
+				if((target.level < target.maxLevel) && (memoryTotal >= memoryUsed + target.upgradeCost) && !charMenu.upgradeBtn.mouseEnabled)
+				{
+					charMenu.upgradeBtn.filters = [];
+					charMenu.upgradeBtn.mouseEnabled = true;
+					if(!charMenu.upgradeBtn.hasEventListener(MouseEvent.CLICK)) charMenu.upgradeBtn.addEventListener(MouseEvent.CLICK, startUpgradeTurret, false, 0, true);
+				}
+			}
+			
 			for(var i:int = turretArray.length; --i >= 0;)
 			{
 				var turret:Turret = turretArray[i];
@@ -1434,15 +1625,24 @@ package
 				
 				for(var j:int = enemyArray.length; --j >= 0;)
 				{
-					var tempEnemy:Enemy = enemyArray[j];
-					var targetDistance:Number = Math.sqrt((turret.x - tempEnemy.x) * (turret.x - tempEnemy.x) + (turret.y - tempEnemy.y) * (turret.y - tempEnemy.y));
+					enemy = enemyArray[j];
+					var targetDistance:Number = Math.sqrt((turret.x - enemy.x) * (turret.x - enemy.x) + (turret.y - enemy.y) * (turret.y - enemy.y));
 					
 					if(targetDistance < distance)
 					{
-						if(turret is FreezeTurret && (tempEnemy.underFreeze || tempEnemy.isStuned)){/*freezeTurret skip this enemy*/}
-						else targetEnemy = tempEnemy;
+						if(turret is FreezeTurret && (enemy.underFreeze || enemy.isStuned)){/*freezeTurret skip this enemy*/}
+						else distEnemyArray.push(enemy);
 					}
 				}
+								
+				if(distEnemyArray.length > 1)
+				{
+					distEnemyArray.sort(sortEnemies);
+					targetEnemy = distEnemyArray[0];
+				}
+				else if(distEnemyArray[0]) targetEnemy = distEnemyArray[0];
+				
+				for(var a:int = distEnemyArray.length; --a >= 0;) distEnemyArray.splice(a, 1);
 				
 				if(targetEnemy)
 				{
@@ -1456,8 +1656,19 @@ package
 						{
 							turret.gun.gotoAndPlay("shot");
 							
-							if(turret.level >= 3  && (Math.random() * 100 < turret.gunCritChance)) targetEnemy.health -= turret.damage * turret.gunCritMultiply;
-							else targetEnemy.health -= turret.damage;
+							if(Variables.UPGRADE_ACC_DAMAGE)
+							{
+								if(turret.gunEnemyID == targetEnemy.ID) turret.gunAccDamage += Variables.GUN_ACC_DAMAGE;
+								else
+								{
+									turret.gunEnemyID = targetEnemy.ID;
+									turret.gunAccDamage = 0;
+								}
+							}
+							if(turret.level >= 3  && (Math.random() * 100 < Variables.GUN_CRIT_CHANCE)) {targetEnemy.health -= turret.damage * Variables.GUN_CRIT_DAMAGE_MULTIPLY + turret.gunAccDamage; trace("crit");}
+							else targetEnemy.health -= turret.damage + turret.gunAccDamage;
+							
+							trace(turret.gunAccDamage, " / ", turret.damage + turret.gunAccDamage, " / ", enemy.health, " / ", enemy.ID);
 							
 							targetEnemy.lifeBar.gotoAndStop(Math.floor(targetEnemy.health / targetEnemy.maxHealth * 100));
 						}
@@ -1473,7 +1684,7 @@ package
 							rocketArray.push(rocket);
 							bulletHolder.addChild(rocket);
 						}
-						else if(turret is MissileTurret)
+						else if(turret is SwarmTurret)
 						{
 							turret.gun.gotoAndPlay("shot");
 							for(var t:int = 0; t < turret.numMissiles; t++)
@@ -1481,8 +1692,10 @@ package
 								var missile:Missile = new Missile();
 								missile.turretLevel = turret.level;
 								missile.damage = turret.damage;
+								missile.numBombs = turret.numSwarmBombs;
 								missile.x = turret.x;
 								missile.y = turret.y;
+								missile.orbiterPoint = new Point(turret.x, turret.y);
 								var minAngle:int = -(turret.numMissiles - 1) * 25;
 								missile.rotation = turret.gun.rotation + minAngle + (t * 50);
 								missile.target = targetEnemy;
@@ -1501,8 +1714,9 @@ package
 								turret.gun.graphics.lineStyle(2, 0xFF0000);
 								turret.gun.graphics.moveTo(0, 0);
 								turret.gun.graphics.lineTo(targetEnemy.x - turret.x, targetEnemy.y - turret.y);
-								if(turret.level >= 3 && (Math.random() * 100 < turret.freezeStunChance))
+								if(turret.level >= 3 && (Math.random() * 100 < Variables.FREEZE_STUN_CHANCE))
 								{
+									if(Variables.UPGRADE_MULTY_STUN) targetEnemy.stunProlonger = true;
 									targetEnemy.isStuned = true;
 									var clip:* = targetEnemy.getChildByName("clip");
 									clip.gotoAndStop(clip.currentFrame);
@@ -1525,24 +1739,38 @@ package
 			}
 		}
 		
+		private function sortEnemies(a, b):int
+		{
+			var enemy1:int = a.tileNum;
+			var enemy2:int = b.tileNum;
+			
+			if(enemy1 < enemy2) return -1;
+			else if(enemy1 > enemy2) return 1;
+			else return 0;
+		}
+		
 		private function updateBullets():void
 		{
+			var enemy:Enemy;
+			var xDest:Number;
+			var yDest:Number;
+			var angle:Number;
+			var radian:Number;
+			var distance:Number;
+			
 			for(var i:int = rocketArray.length; --i >= 0;)
 			{
 				var rocket:Rocket = rocketArray[i];
-				var xDist:Number = rocket.destX - rocket.x;
-				var yDist:Number = rocket.destY - rocket.y;
-				var rocketAngle:Number = Math.atan2(yDist, xDist);
-				rocket.xSpeed = Math.cos(rocketAngle) * rocket.speed;
-				rocket.ySpeed = Math.sin(rocketAngle) * rocket.speed;
+				xDest = rocket.destX - rocket.x;
+				yDest = rocket.destY - rocket.y;
+				radian = Math.atan2(yDest, xDest);
+				rocket.xSpeed = Math.cos(radian) * rocket.speed;
+				rocket.ySpeed = Math.sin(radian) * rocket.speed;
 				
 				rocket.x += rocket.xSpeed;
 				rocket.y += rocket.ySpeed;
 				
-				if(rocket.hitTestPoint(rocket.destX, rocket.destY))
-				{
-					createRocketSplash(i, rocket.damage, rocket.turretLevel, rocket.destX, rocket.destY);
-				}
+				if(rocket.hitTestPoint(rocket.destX, rocket.destY))	createRocketSplash(i, rocket.damage, rocket.turretLevel, rocket.destX, rocket.destY);
 			}
 			
 			for(var s:int = splashArray.length; --s >= 0;)
@@ -1551,13 +1779,21 @@ package
 				
 				for(var e:int = enemyArray.length; --e >= 0;)
 				{
-					var enemy:Enemy = enemyArray[e];
+					enemy = enemyArray[e];
 					
 					if(splash.splashHitZone)
 					{
 						if(splash.splashHitZone.hitTestObject(enemy))
 						{
-							if(splash.turretLevel >= 3 && (Math.random() * 100 < Variables.LAUNCHER_POISON_CHANCE)) enemy.isPoisoned = true;
+							if(splash.turretLevel >= 3 && (Math.random() * 100 < Variables.LAUNCHER_POISON_CHANCE))
+							{
+								if(Variables.UPGRADE_POISON_CLOUD && !enemy.poisonCloudOnBoard)
+								{
+									createPoisonCloud(enemy);
+									enemy.poisonCloudOnBoard = true;
+								}
+								else enemy.isPoisoned = true;
+							}
 							enemy.health -= splash.damage;
 							enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 						}
@@ -1569,29 +1805,40 @@ package
 			for(var m:int = missileArray.length; --m >= 0;)
 			{
 				var missile:Missile = missileArray[m];
+				missile.lifeTime++;
 				
-				if(missile.target.health < 0 && enemyArray.length > 0)
+				if(missile.target.health <= 0 && enemyArray.length > 0)
 				{
+					if(missile.lostTarget) !missile.lostTarget;
 					for(var ne:int = enemyArray.length; --ne >= 0;)
 					{
-						var newEnemy:Enemy = enemyArray[ne];
-						missile.target = newEnemy;
+						enemy = enemyArray[ne];
+						distance = Math.sqrt(Math.pow(enemy.x - missile.x,2) + Math.pow(enemy.y - missile.y, 2));
+						enemy.distToMissile = distance;
+						distEnemyArray.push(enemy);
+						if(distEnemyArray.length > 1)
+						{
+							distEnemyArray.sort(sortForMissiles);
+							missile.target = distEnemyArray[0];
+						}
+						else missile.target = distEnemyArray[0];
 					}
 				}
 				if(missile.target.health > 0)
 				{
+					if(missile.lostTarget) !missile.lostTarget;
 					var target:MovieClip = missile.target;
 				
-					var targetX:int = target.x - missile.x;
-					var targetY:int = target.y - missile.y;					
-					var rotation:int = Math.atan2(targetY, targetX) * 180 / Math.PI;
-					if(Math.abs(rotation - missile.rotation) > 180)
+					xDest = target.x - missile.x;
+					yDest = target.y - missile.y;					
+					angle = Math.atan2(yDest, xDest) * 180 / Math.PI;
+					if(Math.abs(angle - missile.rotation) > 180)
 					{
-						if(rotation > 0 && missile.rotation < 0) missile.rotation -= (360 - rotation + missile.rotation) / missile.ease;
-						else if(rotation < 0 && missile.rotation > 0) missile.rotation += (360 - rotation + missile.rotation) / missile.ease;
+						if(angle > 0 && missile.rotation < 0) missile.rotation -= (360 - angle + missile.rotation) / missile.ease;
+						else if(angle < 0 && missile.rotation > 0) missile.rotation += (360 - angle + missile.rotation) / missile.ease;
 					}
-					else if(rotation < missile.rotation) missile.rotation -= Math.abs(missile.rotation - rotation) / missile.ease;
-					else missile.rotation += Math.abs(rotation - missile.rotation) / missile.ease;
+					else if(angle < missile.rotation) missile.rotation -= Math.abs(missile.rotation - angle) / missile.ease;
+					else missile.rotation += Math.abs(angle - missile.rotation) / missile.ease;
 				
 					missile.xSpeed = missile.speed * (90 - Math.abs(missile.rotation)) / 90;
 				
@@ -1600,48 +1847,199 @@ package
 				
 					missile.x += missile.xSpeed;
 					missile.y += missile.ySpeed;
-				
-					if(missile.hitTestObject(target.clip.hitPoint)) 
+					
+					if(missile.hitTestObject(target.hitPoint)) 
 					{
-						if(missile.turretLevel >= 3 && (Math.random() * 100 < Variables.SWARM_SPLASH_CHANCE)) createSwarmSplash(missile.x, missile.y);
-						target.health -= missile.damage;
-						target.lifeBar.gotoAndStop(Math.floor(target.health / target.maxHealth * 100));
+						if(missile.turretLevel >= 3 && (Math.random() * 100 < Variables.SWARM_SPLASH_CHANCE))
+						{
+							if(Variables.UPGRADE_BOMB_CASCADE) createCascadeBombs(missile.x, missile.y, missile.rotation, missile.numBombs);
+							else createSwarmSplash(missile.x, missile.y, "swarmSplash", Variables.SWARM_SPLASH_DAMAGE);
+						}
+						else
+						{
+							target.health -= missile.damage;
+							target.lifeBar.gotoAndStop(Math.floor(target.health / target.maxHealth * 100));
+						}
 						removeObject(m, missileArray);
 					}
-					
 					if(missile.ease > 1) missile.ease--;
-					
 				}
-				else 
+				else if(missile.target.health <= 0)
 				{
-					removeObject(m, missileArray);
+					if(!missile.lostTarget)
+					{
+						missile.lostTarget = true;
+						missile.ease = 10;
+					}
+					
+					xDest = missile.orbiterPoint.x - missile.x;
+					yDest = missile.orbiterPoint.y - missile.y;
+					
+					distance = Math.sqrt(xDest*xDest + yDest*yDest);
+					if(distance > 30)
+					{
+						radian = Math.atan2(yDest, xDest);
+						angle = radian * 180 / Math.PI;
+						missile.xSpeed = Math.cos(radian) * missile.speed;
+						missile.ySpeed = Math.sin(radian) * missile.speed;
+						missile.rotation  = angle;
+						
+						missile.x += missile.xSpeed;
+						missile.y += missile.ySpeed;
+					}
+					else if(missile.lifeTime > 10)
+					{
+						missile.orbiterAngle += missile.orbiterSpeed;
+						radian = missile.orbiterAngle * (Math.PI / 180);
+						missile.rotation = (Math.atan2(yDest, xDest) * 180 / Math.PI) - 90;
+						missile.x = missile.orbiterPoint.x + missile.orbiterRadius * Math.cos(radian);
+						missile.y = missile.orbiterPoint.y + missile.orbiterRadius * Math.sin(radian);
+					}
+					else
+					{				
+						angle = Math.atan2(yDest, xDest) * 180 / Math.PI;
+						if(Math.abs(angle - missile.rotation) > 180)
+						{
+							if(angle > 0 && missile.rotation < 0) missile.rotation -= (360 - angle + missile.rotation) / missile.ease;
+							else if(angle < 0 && missile.rotation > 0) missile.rotation += (360 - angle + missile.rotation) / missile.ease;
+						}
+						else if(angle < missile.rotation) missile.rotation -= Math.abs(missile.rotation - angle) / missile.ease;
+						else missile.rotation += Math.abs(angle - missile.rotation) / missile.ease;
+				
+						missile.xSpeed = missile.speed * (90 - Math.abs(missile.rotation)) / 90;
+					
+						if(missile.rotation < 0) missile.ySpeed = -missile.speed + Math.abs(missile.xSpeed);
+						else missile.ySpeed = missile.speed - Math.abs(missile.xSpeed);
+				
+						missile.x += missile.xSpeed;
+						missile.y += missile.ySpeed;
+					}
 				}
+				else removeObject(m, missileArray);
+				for(var a:int = distEnemyArray.length; --a >= 0;) distEnemyArray.splice(a, 1);
 			}
 			
 			for(var k:int = swarmSplashArray.length; --k >= 0;)
 			{
 				var swSplash:SwarmSplash = swarmSplashArray[k];
+				if(swSplash.firstRun)
+				{
+					swSplash.gotoAndPlay(1);
+					swSplash.firstRun = false;
+				}
 				for(var n:int = enemyArray.length; --n >= 0;)
 				{
-					var sEnemy:Enemy = enemyArray[n];
+					enemy = enemyArray[n];
 					if(swSplash.hitZone)
 					{
-						if(swSplash.hitZone.hitTestObject(sEnemy))
+						if(swSplash.hitZone.hitTestObject(enemy))
 						{
-							sEnemy.health -= Variables.SWARM_SPLASH_DAMAGE;
-							sEnemy.lifeBar.gotoAndStop(Math.floor(sEnemy.health / sEnemy.maxHealth * 100));
+							enemy.health -= swSplash.damage;
+							enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 						}
 					}
 				}
 				if(swSplash.currentFrame >= 10) removeObject(k, swarmSplashArray);
 			}
+			
+			for(var b:int = swarmBombsArray.length; --b >= 0;)
+			{
+				var bomb:SwarmBomb = swarmBombsArray[b];
+				xDest = bomb.destX - bomb.x;
+				yDest = bomb.destY - bomb.y;
+				angle = Math.atan2(yDest, xDest);
+				bomb.xSpeed = Math.cos(angle) * bomb.speed;
+				bomb.ySpeed = Math.sin(angle) * bomb.speed;
+				
+				bomb.x += bomb.xSpeed;
+				bomb.y += bomb.ySpeed;
+				
+				if(bomb.hitTestPoint(bomb.destX, bomb.destY))
+				{
+					createSwarmSplash(bomb.x, bomb.y, "bombSplash", SwarmBomb.DAMAGE);
+					removeObject(b, swarmBombsArray);
+				}
+			}
+			
+			for(var c:int = poisonCloudsArray.length; --c >= 0;)
+			{
+				var cloud:PoisonCloud = poisonCloudsArray[c];
+				
+				if(cloud.target.health > 0)
+				{
+					cloud.x = cloud.target.x;
+					cloud.y = cloud.target.y;
+				}
+				for(var ee:int = enemyArray.length; --ee >= 0;)
+				{
+					enemy = enemyArray[ee];
+					if(cloud.hitTestObject(enemy))
+					{
+						enemy.health -= Variables.LAUNCHER_POISON_CLOUD_DAMAGE;
+						enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
+					}
+				}
+				cloud.lifeTime--;
+				if(cloud.lifeTime <= 0)
+				{
+					if(cloud.target.health > 0) cloud.target.poisonCloudOnBoard = false;
+					removeObject(c, poisonCloudsArray);
+				}
+			}
 		}
 		
-		private function createSwarmSplash(xVal:int, yVal:int):void
+		private function sortForMissiles(a, b):int
+		{
+			var numA:Number = a.distToMissile;
+			var numB:Number = b.distToMissile;
+			if(numA < numB) return -1;
+			else if(numA > numB) return  1;
+			else return  0;
+		}
+		
+		private function createPoisonCloud(target:MovieClip):void
+		{
+			var cloud:PoisonCloud = new PoisonCloud();
+			cloud.x = target.x;
+			cloud.y = target.y;
+			cloud.target = target;
+			poisonCloudsArray.push(cloud);
+			bulletHolder.addChild(cloud);
+		}
+		
+		private function createCascadeBombs(xVal:int, yVal:int, rotate:Number, numBombs:int)
+		{
+			for(var i:int = 0; i < numBombs; i++)
+			{
+				var bomb:SwarmBomb = new SwarmBomb();
+				bomb.x = xVal;
+				bomb.y = yVal;
+				bomb.rotation = rotate;
+				bomb.angle = (360/numBombs * i);
+				bomb.rads = bomb.angle * Math.PI / 180;
+				bomb.destX = bomb.x - (Math.cos(bomb.rads) * bomb.flyDist);
+				bomb.destY = bomb.y - (Math.sin(bomb.rads) * bomb.flyDist);
+				swarmBombsArray.push(bomb);
+				bulletHolder.addChild(bomb);
+			}
+		}
+		
+		private function createSwarmSplash(xVal:int, yVal:int, splashType:String, dam:int):void
 		{
 			var splash:SwarmSplash = new SwarmSplash();
 			splash.x = xVal;
 			splash.y = yVal;
+			splash.damage = dam;
+			if(Variables.UPGRADE_WIDE_SPLASH && splashType == "swarmSplash")
+			{
+				splash.scaleX *= 1.5;
+				splash.scaleY *= 1.5;
+			}
+			if(splashType == "bombSplash")
+			{
+				splash.scaleX *= .6;
+				splash.scaleY *= .6;
+			}
 			swarmSplashArray.push(splash);
 			addChild(splash);
 		}
@@ -1667,9 +2065,121 @@ package
 				if(enemy.health <= 0)
 				{
 					createExplosion(enemy.x, enemy.y, enemy.levelColor);
+					if((Math.random() * 100) <= Variables.SYMBOLS_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.rotation, enemy.symbolsDrop, enemy.memoryDrop, Drop.DROP_SYMBOLS);
+					if((Math.random() * 100) <= Variables.MEMORY_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.rotation, enemy.symbolsDrop, enemy.memoryDrop, Drop.DROP_MEMORY);
 					removeObject(i, enemyArray);
 					enemiesLeft--;
 				}
+			}
+		}
+		
+		private function drop(xVal:int, yVal:int, rotate:Number, symbolsAmount:int, memoryAmount:int, dropType:String):void
+		{
+			var drop:Drop = new Drop();
+			drop.x = drop.destX = xVal;
+			drop.y = drop.destY = yVal;
+			drop.dropType = dropType;
+			drop.addEventListener(MouseEvent.CLICK, pickUpDrop, false, 0, true);
+			dropArray.push(drop);
+			userInterface.addChild(drop);
+			
+			if(drop.dropType == Drop.DROP_SYMBOLS)
+			{
+				drop.gotoScorePoint = scoreSymbolsPoint;
+				drop.dropAmaunt = symbolsAmount;
+				drop.gotoAndStop("symbols");
+			}
+			if(drop.dropType == Drop.DROP_MEMORY)
+			{
+				drop.gotoScorePoint = scoreMemoryPoint;
+				drop.dropAmaunt = memoryAmount;
+				drop.gotoAndStop("memory");
+			}
+			
+			switch(rotate)
+			{
+				case -90://up
+				case 90://down
+				if(dropType == Drop.DROP_SYMBOLS) 	drop.destX -= Drop.DROP_DISTANCE;
+				if(dropType == Drop.DROP_MEMORY)	drop.destX += Drop.DROP_DISTANCE;
+				break;
+				
+				case 0://right
+				case -180://left
+				if(dropType == Drop.DROP_SYMBOLS) 	drop.destY -= Drop.DROP_DISTANCE;
+				if(dropType == Drop.DROP_MEMORY)	drop.destY += Drop.DROP_DISTANCE;
+				break;
+			}
+		}
+		
+		private function checkDrop():void
+		{
+			for each(var drop:Drop in dropArray)
+			{
+				var xDist:Number;
+				var yDist:Number;
+				var dist:Number;
+				var angle:Number;
+				
+				if(!drop.gotoScoreBoard)
+				{
+					xDist = drop.destX - drop.x;
+					yDist = drop.destY - drop.y;
+					dist = Math.sqrt(xDist*xDist + yDist*yDist);
+					if(dist > 3)
+					{
+						angle = Math.atan2(yDist, xDist);
+						drop.xSpeed = Math.cos(angle) * drop.speed;
+						drop.ySpeed = Math.sin(angle) * drop.speed;
+				
+						drop.x += drop.xSpeed;
+						drop.y += drop.ySpeed;
+					}
+					else drop.gotoScoreBoard = true;
+				}
+				if(drop.gotoScoreBoard && drop.waitCounter >= drop.waitTime)
+				{
+					xDist = drop.gotoScorePoint.x - drop.x;
+					yDist = drop.gotoScorePoint.y - drop.y;
+					dist = Math.sqrt(xDist*xDist + yDist*yDist);
+						
+					angle = Math.atan2(yDist, xDist);
+					drop.xSpeed = Math.cos(angle) * drop.gotoScoreSpeed;
+					drop.ySpeed = Math.sin(angle) * drop.gotoScoreSpeed;
+				
+					drop.x += drop.xSpeed;
+					drop.y += drop.ySpeed;
+				}
+				else if(drop.gotoScoreBoard && drop.waitCounter < drop.waitTime) drop.waitCounter++;
+				if(drop.y < scoreBoard.y) getDrop(drop);
+			}
+		}
+		
+		private function pickUpDrop(e:MouseEvent):void
+		{
+			var drop:Drop = e.currentTarget as Drop;
+			getDrop(drop);
+		}
+		
+		private function getDrop(drop:Drop):void
+		{
+			if(drop.hasEventListener(MouseEvent.CLICK)) drop.removeEventListener(MouseEvent.CLICK, pickUpDrop);
+			
+			switch(drop.dropType)
+			{
+				case Drop.DROP_SYMBOLS:
+					Variables.SYMBOLS += drop.dropAmaunt;
+				break;
+				
+				case Drop.DROP_MEMORY:
+					memoryTotal += drop.dropAmaunt;
+				break;
+			}
+			drop.parent.removeChild(drop);
+			for(var d:int = dropArray.length; --d >= 0;)
+			{
+				var disposeDrop:Drop = dropArray[d];
+				if(disposeDrop == drop) dropArray.splice(d, 1);
 			}
 		}
 		
@@ -1781,7 +2291,7 @@ package
 				dispatchEvent(new CustomEvents(CustomEvents.LEVEL_LOSE));
 			}
 						
-			if(currentWave == enemyWaves.length && enemiesLeft == 0 && particleArray.length == 0)
+			if(currentWave == enemyWaves.length && enemiesLeft == 0 && particleArray.length == 0 && dropArray.length == 0)
 			{
 				if(dragging)
 				{
@@ -1805,12 +2315,19 @@ package
 			}
 		}
 		
-		private function checkForHack(hackChance:int):void
+		private function checkForHack(enemy:Enemy, i:int):void
 		{
-			var res:Number = Math.floor(Math.random() * 100);
+			enemiesLeft--;
+			enemyArray.splice(i, 1);
+			hackingEnemies.push(enemy);
+			var clip:MovieClip = enemy.getChildByName("clip") as MovieClip;
+			clip.gotoAndStop(currentFrame);
+			clip = null;
 			
-			if(res < hackChance) gameOver = true;
-			else scoreBoard.txtHackChance.text = "hack: " + hackChance + "/" + res;
+			var res:Number = Math.round(Math.random() * 100);
+			
+			if(res < enemy.hackChance) gameOver = true;
+			else scoreBoard.txtHackChance.text = "hack: " + enemy.hackChance + "/" + res;
 		}
 		
 		private function updateScoreBoard():void
@@ -1819,7 +2336,6 @@ package
 			scoreBoard.txtMemory.text 			= "Memory: " + memoryUsed + "/" + memoryTotal;
 			scoreBoard.txtEnemiesLeft.text 	= "Enemies Left: " + enemiesLeft;
 			scoreBoard.txtSymbols.text			= "Symbols: " + String(Variables.SYMBOLS);
-			scoreBoard.txtSpecialTools.text	= "Special: " + specialToolsGauge;
 		}
 		
 		private function clickTool(e:MouseEvent):void

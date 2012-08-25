@@ -7,7 +7,7 @@
 	public class Turret extends MovieClip
 	{
 		public static const TURRET_GUN:String 			= "turret_gun";
-		public static const TURRET_LAUNCHER:String 	= "turret_launcher";
+		public static const TURRET_LAUNCHER:String 		= "turret_launcher";
 		public static const TURRET_SWARM:String 		= "turret_swarm";
 		public static const TURRET_FREEZE:String 		= "turret_freeze";
 		public static const TURRET_MAX_LEVEL:int		= 5;
@@ -29,9 +29,7 @@
 		public var memoryUse:int;
 		public var upgradeCost:int;
 		public var numMissiles:int;
-		
-		//public var dropSymbolsChance:int;
-		//public var dropMemmoryChance:int;
+		public var numSwarmBombs:int;
 		
 		public var additionalDamage:int = 0;
 		public var additionalRange:int = 0;
@@ -44,15 +42,9 @@
 		public var cTime:int = 0;
 		public var loaded:Boolean = true;
 		
-		public var gunCritChance:int;
-		public var gunCritMultiply:int;
-		public var freezeStunChance:int;
-		public var freezeStunDuration:int;
-		public var launcherPoisonChance:int;
-		public var launcherPoisonDuration:int;
-		public var launcherPoisonDamage:int;
-		public var swarmSplashChance:int;
-		public var swarmSplashDamage:int;
+		public var gunAccDamage:int;
+		public var gunEnemyID:int;
+		public var gunEnemyPrevID:int;
 		
 		public function Turret()
 		{

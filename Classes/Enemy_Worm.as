@@ -12,17 +12,20 @@
 		
 		private function init():void
 		{
-			hitPoint.visible = false;
+			HitingPoint.visible = false;
+			TileNumPoint.visible = false;
 			clip.filters = [blurFilter, glowFilter];
-			moneyDrop = 50;
+			symbolsDrop = 40 * Variables.SYMBOLS_DROP_MULTIPLE;
+			memoryDrop = 30;
 			baseSpeed = 3;
-			xSpeed = baseSpeed;
-			ySpeed = 0;
+			//xSpeed = baseSpeed;
+			//ySpeed = 0;
 			
 			health = maxHealth = 300;
 			speed = baseSpeed;
 			
-			hackChance = 20;
+			baseHackChance = 20;
+			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);
 			
 			lifeBarUP 		= new Point(40, 0);
 			lifeBarDOWN 	= new Point(-50, 0);
@@ -41,6 +44,9 @@
 				lifeBar.y = lifeBarRIGHT.y;
 				lifeBar.gotoAndStop(100);
 			}
+			hitPoint = this.HitingPoint;
+			graphPoint = this.GraphPoint;
+			tileNumPoint = this.TileNumPoint;
 		}
 	}
 }

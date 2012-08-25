@@ -26,7 +26,8 @@
 			addChild(optionsBtn);
 			
 			upBtn = new GotoUpgradesBtn();
-			upBtn.x = stage.stageWidth - optionsBtn.width - upBtn.width;
+			upBtn.x = 15;//stage.stageWidth - optionsBtn.width - upBtn.width;
+			upBtn.y = 15;
 			upBtn.addEventListener(MouseEvent.CLICK, onClickUpdates, false, 0, true);
 			addChild(upBtn);
 			

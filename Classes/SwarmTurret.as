@@ -1,23 +1,25 @@
 ﻿package 
 {
-	public class LauncherTurret extends Turret
+	public class SwarmTurret extends Turret
 	{
-		public function LauncherTurret()
+		public function SwarmTurret()
 		{
 			init();
 		}
 		
 		private function init():void
 		{
-			maxLevel = Variables.LAUNCHER_MAX_LEVEL;
+			maxLevel = Variables.SWARM_MAX_LEVEL;
 			base = new TurretBase();
-			gun = new LauncherTurret_Gun();
+			gun = new MissileTurret_Gun();
 			addChild(base);
 			addChild(gun);
 			
-			type = Turret.TURRET_LAUNCHER;
+			numSwarmBombs = 6;
 			
-			abilityDescription 	= "Splash Damage";
+			type = Turret.TURRET_SWARM;
+			
+			abilityDescription 	= "Missile Swarm";
 		}
 		
 		override public function updateLevel():void
@@ -25,67 +27,72 @@
 			switch(level)
 			{
 				case 1:
-				memoryUse = 100;
-				range = 200;
+				memoryUse = 150;
+				range = 300;
 				reloadTime = 20;
-				damage = 10;
-				upgradeCost = 30;
+				damage = 5;
+				upgradeCost = 50;
+				numMissiles = 3;
 				installingTime = 60;
 				upgradingTime = 60;
 				uninstallingTime = 60;
-				additionalDamage = 5;
+				additionalDamage = 1;
 				additionalRange = 0;
 				additionalReloadTime = 0;
 				break;
 				
 				case 2:
-				memoryUse = 130;
-				range = 200;
+				memoryUse = 200;
+				range = 300;
 				reloadTime = 20;
-				damage = 15;
-				upgradeCost = 30;
+				damage = 6;
+				upgradeCost = 50;
+				numMissiles = 4;
 				installingTime = 90;
 				upgradingTime = 90;
 				uninstallingTime = 90;
-				additionalDamage = 5;
+				additionalDamage = 1;
 				additionalRange = 0;
 				additionalReloadTime = 0;
 				break;
 				
 				case 3:
-				memoryUse = 160;
-				range = 200;
+				memoryUse = 250;
+				range = 300;
 				reloadTime = 20;
-				damage = 20;
-				upgradeCost = 30;
+				damage = 7;
+				upgradeCost = 50;
+				numMissiles = 5;
 				installingTime = 120;
 				upgradingTime = 120;
 				uninstallingTime = 120;
-				additionalDamage = 5;
+				additionalDamage = 1;
 				additionalRange = 0;
 				additionalReloadTime = 0;
 				break;
 				
 				case 4:
-				memoryUse = 180;
-				range = 200;
+				memoryUse = 300;
+				range = 300;
 				reloadTime = 20;
-				damage = 25;
-				upgradeCost = 30;
-				installingTime = 150;
+				damage = 8;
+				upgradeCost = 50;
+				numMissiles = 6;
+				installingTime = 1500;
 				upgradingTime = 150;
 				uninstallingTime = 150;
-				additionalDamage = 5;
+				additionalDamage = 2;
 				additionalRange = 0;
 				additionalReloadTime = 0;
 				break;
 				
 				case 5:
-				memoryUse = 210;
-				range = 200;
+				memoryUse = 350;
+				range = 300;
 				reloadTime = 20;
-				damage = 30;
-				upgradeCost = 30;
+				damage = 10;
+				upgradeCost = 50;
+				numMissiles = 7;
 				installingTime = 180;
 				uninstallingTime = 180;
 				break;
