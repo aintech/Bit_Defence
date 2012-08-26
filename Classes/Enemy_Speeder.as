@@ -18,8 +18,8 @@
 			symbolsDrop = 20 * Variables.SYMBOLS_DROP_MULTIPLE;
 			memoryDrop = 15;
 			baseSpeed = 7;
-			xSpeed = baseSpeed;//////////////////////////////////////////////////////////////
-			ySpeed = 0;///////////////////////////////////////////////////////////////////////
+			//xSpeed = baseSpeed;
+			//ySpeed = 7;
 			
 			health = maxHealth = 50;
 			speed = baseSpeed;
@@ -27,6 +27,7 @@
 			baseHackChance = 10;
 			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);
 			
+			lifeBarWidth 	= 26;
 			lifeBarUP 		= new Point(25, 0);
 			lifeBarDOWN 	= new Point(-25, 0);
 			lifeBarLEFT 	= new Point(0, 25);
@@ -37,16 +38,17 @@
 		
 		private function onAdd(e:Event):void
 		{
-			if(lifeBar)
+			/*if(lifeBar)
 			{
 				lifeBar.width = clip.width;
 				lifeBar.x = lifeBarRIGHT.x;
 				lifeBar.y = lifeBarRIGHT.y;
 				lifeBar.gotoAndStop(100);
-			}
+			}*/
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;
+			//lifeBar.width = lifeBarWidth;
 		}
 	}
 }

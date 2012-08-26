@@ -30,6 +30,7 @@
 //TODO: из врагов выпадают бусты - типа защиты от взлома
 //TODO: при клике на бусте или когда он дойдет до скорборда должна быть анимация исчезновения иконки буста
 //TODO: можно настроить, чтобы турели били ближайшего, сильнейшего и т.д.
+//TODO: переделать все массивы типа i = 0; i < array.length-1
 
 
 //BALANCE: разные типы врагов устойчивые к разным турелям заставять игрока применять разные тактики
@@ -456,22 +457,22 @@ package
 					
 					if(levelMap[i] == S)
 					{
-						if(block.x == 0)//starting from left of screen(direct to right)
+						if(block.x < 5 && block.x > -5)//starting from left of screen(direct to right)
 						{
 							roadStart = new Point(block.x, block.y + block.height * .5);
 							Enemy.STARTING_DIRECTION = Enemy.DIR_RIGHT;
 						}
-						else if(block.x == (gameWidth - block.width))//starting from right(direct to left)
+						else if(block.x < (gameWidth - block.width + 5) && block.x > (gameWidth - block.width - 5))//starting from right(direct to left)
 						{
 							roadStart = new Point(block.x + block.width, block.y + block.height * .5);
 							Enemy.STARTING_DIRECTION = Enemy.DIR_LEFT;
 						}
-						else if(block.y == 0)//starting from top(direct to down)
+						else if(block.y < 5 && block.y > -5)//starting from top(direct to down)
 						{
 							roadStart = new Point(block.x + block.width * .5, block.y);
 							Enemy.STARTING_DIRECTION = Enemy.DIR_DOWN;
 						}
-						else if(block.y == (gameHeight - block.height))//starting from bottom(direct to up)
+						else if(block.y < (gameHeight - block.height + 5) && block.y > (gameHeight - block.height - 5))//starting from bottom(direct to up)
 						{
 							roadStart = new Point(block.x + block.width * .5, block.y + block.height);
 							Enemy.STARTING_DIRECTION = Enemy.DIR_UP;
@@ -483,23 +484,22 @@ package
 						block.endRoadTile = true;
 						block.tileNumber = 1;
 						//block.txtNum.text = String(block.tileNumber);
-						
 						enemyFinalTarget.x = block.x + block.width * .5;
 						enemyFinalTarget.y = block.y + block.height * .5; 
 						
-						if(block.x == 0)//road ends at left
+						if(block.x < 5 && block.x > -5)//road ends at left
 						{
 							enemyFinalTarget.rotation = 0;
 						}
-						else if(block.x == (gameWidth - block.width))//road ends at right
+						else if(block.x < (gameWidth - block.width + 5) && block.x > (gameWidth - block.width - 5))//road ends at right
 						{
 							enemyFinalTarget.rotation = 180;
 						}
-						else if(block.y == 0)//road ends at top
+						else if(block.y < 5 && block.y > -5)//road ends at top
 						{
 							enemyFinalTarget.rotation = 90;
 						}
-						else if(block.y == (gameHeight - block.height))//road ends at bottom
+						else if(block.y < (gameHeight - block.height + 5) && block.y > (gameHeight - block.height - 5))//road ends at bottom
 						{
 							enemyFinalTarget.rotation = -90;
 						}
@@ -660,10 +660,34 @@ package
 					}
 					if(enemy)
 					{
-						enemy.x = roadStart.x;
-						enemy.y = roadStart.y;
-						CONTINIUM враги при появлении должны правильно ориентироваться и иметь соответствующую скорость в стороны, скорость и поворот можно указать в Enemy а место появление в зависимости от поворота, движение врага переложить на speed
 						enemy.direction = Enemy.STARTING_DIRECTION;
+						switch(enemy.direction)
+						{
+							case Enemy.DIR_DOWN:
+							enemy.x = roadStart.x;
+							enemy.y = roadStart.y - enemy.width * .5;
+							enemy.rotation = 90;
+							break;
+							
+							case Enemy.DIR_LEFT:
+							enemy.x = roadStart.x + enemy.width * .5;
+							enemy.y = roadStart.y;
+							enemy.rotation = -180;
+							break;
+							
+							case Enemy.DIR_RIGHT:
+							enemy.x = roadStart.x - enemy.width * .5;
+							enemy.y = roadStart.y;
+							enemy.rotation = 0;
+							break;
+							
+							case Enemy.DIR_UP:
+							enemy.x = roadStart.x;
+							enemy.y = roadStart.y + enemy.width * .5;
+							enemy.rotation = -90;
+							break;
+						}
+						CONTINIUM если враг появляется сверху или снизу лайфбар неправильно отображается
 						enemyArray.push(enemy);
 						enemyHolder.addChild(enemy);
 						currentEnemy++;
@@ -701,10 +725,10 @@ package
 						{
 							case "Up":
 								enemy.rotation = -90;
-								enemy
-								if(toolStunInAction || enemy.speedUP) enemy.ySpeed = -Math.abs(enemy.xSpeed);
-								else enemy.ySpeed = -enemy.speed;
-								enemy.xSpeed = 0;
+								enemy.direction = Enemy.DIR_UP;
+								//if(toolStunInAction || enemy.speedUP) enemy.ySpeed = -Math.abs(enemy.xSpeed);
+								//else enemy.ySpeed = -enemy.speed;
+								//enemy.xSpeed = 0;
 								enemy.lifeBar.rotation = 90;
 								enemy.lifeBar.x = enemy.lifeBarUP.x;
 								enemy.lifeBar.y = enemy.lifeBarUP.y;
@@ -712,9 +736,10 @@ package
 							
 							case "Down":
 								enemy.rotation = 90;
-								if(toolStunInAction || enemy.speedUP) enemy.ySpeed = Math.abs(enemy.xSpeed);
-								else enemy.ySpeed = enemy.speed;
-								enemy.xSpeed = 0;
+								enemy.direction = Enemy.DIR_DOWN;
+								//if(toolStunInAction || enemy.speedUP) enemy.ySpeed = Math.abs(enemy.xSpeed);
+								//else enemy.ySpeed = enemy.speed;
+								//enemy.xSpeed = 0;
 								enemy.lifeBar.rotation = -90;
 								enemy.lifeBar.x = enemy.lifeBarDOWN.x;
 								enemy.lifeBar.y = enemy.lifeBarDOWN.y;
@@ -722,9 +747,10 @@ package
 							
 							case "Right":
 								enemy.rotation = 0;
-								if(toolStunInAction || enemy.speedUP) enemy.xSpeed = Math.abs(enemy.ySpeed);
-								else enemy.xSpeed = enemy.speed;
-								enemy.ySpeed = 0;
+								enemy.direction = Enemy.DIR_RIGHT;
+								//if(toolStunInAction || enemy.speedUP) enemy.xSpeed = Math.abs(enemy.ySpeed);
+								//else enemy.xSpeed = enemy.speed;
+								//enemy.ySpeed = 0;
 								enemy.lifeBar.rotation = 0;
 								enemy.lifeBar.x = enemy.lifeBarRIGHT.x;
 								enemy.lifeBar.y = enemy.lifeBarRIGHT.y;
@@ -732,9 +758,10 @@ package
 							
 							case "Left":
 								enemy.rotation = -180;
-								if(toolStunInAction || enemy.speedUP) enemy.xSpeed = -Math.abs(enemy.ySpeed);
-								else enemy.xSpeed = -enemy.speed;
-								enemy.ySpeed = 0;
+								enemy.direction = Enemy.DIR_LEFT;
+								//if(toolStunInAction || enemy.speedUP) enemy.xSpeed = -Math.abs(enemy.ySpeed);
+								//else enemy.xSpeed = -enemy.speed;
+								//enemy.ySpeed = 0;
 								enemy.lifeBar.rotation = 180;
 								enemy.lifeBar.x = enemy.lifeBarLEFT.x;
 								enemy.lifeBar.y = enemy.lifeBarLEFT.y;
@@ -743,7 +770,6 @@ package
 						enemy.roadID = dirTile.ID;
 					}
 				}
-								
 				if(enemy.stunProlonger)
 				{
 					for(var e:int = enemyArray.length; --e >= 0;)
@@ -852,10 +878,9 @@ package
 				}
 				else
 				{
-					enemy.x += enemy.xSpeed;
-					enemy.y += enemy.ySpeed;
+					//enemy.x += enemy.xSpeed;
+					//enemy.y += enemy.ySpeed;
 				}
-				
 				if(enemy.isPoisoned)
 				{
 					enemy.health -= Variables.LAUNCHER_POISON_DAMAGE;

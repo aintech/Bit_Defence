@@ -54,6 +54,7 @@
 		public var baseHackChance:int;
 		public var hackChance:int;
 		
+		public var lifeBarWidth:int;
 		public var lifeBarUP:Point;
 		public var lifeBarDOWN:Point;
 		public var lifeBarRIGHT:Point;
@@ -87,16 +88,40 @@
 		}
 		
 		private function onAdd(e:Event):void
-		{
-			//var _root = this.parent.parent;
-			//x = _root.roadStart.x;
-			//y = _root.roadStart.y;
-			
+		{			
 			lifeBar = new LifeBar();
 			addChild(lifeBar);
 			if(!Settings.LIFEBAR_VISIBLE) lifeBar.visible = false;
 			
 			ID = Math.round(Math.random() * 100000);
+			
+			switch(Enemy.STARTING_DIRECTION)
+			{
+				case Enemy.DIR_DOWN:
+				lifeBar.rotation = -90;
+				lifeBar.x = lifeBarDOWN.x;
+				lifeBar.y = lifeBarDOWN.y;
+				break;
+				
+				case Enemy.DIR_LEFT:
+				lifeBar.rotation = 180;
+				lifeBar.x = lifeBarLEFT.x;
+				lifeBar.y = lifeBarLEFT.y;
+				break;
+				
+				case Enemy.DIR_RIGHT:
+				lifeBar.rotation = 0;
+				lifeBar.x = lifeBarRIGHT.x;
+				lifeBar.y = lifeBarRIGHT.y;
+				break;
+				
+				case Enemy.DIR_UP:
+				lifeBar.rotation = 90;
+				lifeBar.x = lifeBarUP.x;
+				lifeBar.y = lifeBarUP.y;
+				break;
+			}
+			lifeBar.gotoAndStop(lifeBar.totalFrames);
 		}
 		
 		public function updateLevel(newLevel:int):void

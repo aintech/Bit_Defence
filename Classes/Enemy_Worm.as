@@ -27,6 +27,7 @@
 			baseHackChance = 20;
 			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);
 			
+			lifeBarWidth	= 55;
 			lifeBarUP 		= new Point(40, 0);
 			lifeBarDOWN 	= new Point(-50, 0);
 			lifeBarLEFT 	= new Point(0, 30);
@@ -37,16 +38,17 @@
 		
 		private function onAdd(e:Event):void
 		{
-			if(lifeBar)
+			/*if(lifeBar)
 			{
 				lifeBar.width = clip.width;
 				lifeBar.x = lifeBarRIGHT.x;
 				lifeBar.y = lifeBarRIGHT.y;
 				lifeBar.gotoAndStop(100);
-			}
+			}*/
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;
+			//lifeBar.width = lifeBarWidth;
 		}
 	}
 }
