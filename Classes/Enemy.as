@@ -46,6 +46,8 @@
 		public var isStuned:Boolean = false;
 		public var stunCounter:int = 0;
 		public var maxTimeStuned:int = Variables.FREEZE_STUN_DURATION;
+		public var stoppingSpeed:Number;
+		public var speedUP:Boolean = false;
 		
 		public var isPoisoned:Boolean = false;
 		public var poisonCounter:int = 0;
@@ -59,12 +61,7 @@
 		public var lifeBarDOWN:Point;
 		public var lifeBarRIGHT:Point;
 		public var lifeBarLEFT:Point;
-		
-		public var previusXSpeed:Number;
-		public var previusYSpeed:Number;		
-		public var firstStun:Boolean = false;
-		public var speedUP:Boolean = false;
-		
+				
 		public var hackChanceDecreased:Boolean = false;
 		public var roadID:int;
 		
@@ -73,7 +70,7 @@
 		
 		public var tileNum:int = 999;
 		public var distToMissile:Number;
-		
+				
 		public var direction:String;
 		
 		public function Enemy()
@@ -91,6 +88,7 @@
 		{			
 			lifeBar = new LifeBar();
 			addChild(lifeBar);
+			lifeBar.width = getChildByName("clip").width;
 			if(!Settings.LIFEBAR_VISIBLE) lifeBar.visible = false;
 			
 			ID = Math.round(Math.random() * 100000);

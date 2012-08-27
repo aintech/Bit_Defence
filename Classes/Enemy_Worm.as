@@ -18,8 +18,7 @@
 			symbolsDrop = 40 * Variables.SYMBOLS_DROP_MULTIPLE;
 			memoryDrop = 30;
 			baseSpeed = 3;
-			//xSpeed = baseSpeed;
-			//ySpeed = 0;
+			stoppingSpeed = .3;
 			
 			health = maxHealth = 300;
 			speed = baseSpeed;
@@ -38,17 +37,9 @@
 		
 		private function onAdd(e:Event):void
 		{
-			/*if(lifeBar)
-			{
-				lifeBar.width = clip.width;
-				lifeBar.x = lifeBarRIGHT.x;
-				lifeBar.y = lifeBarRIGHT.y;
-				lifeBar.gotoAndStop(100);
-			}*/
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;
-			//lifeBar.width = lifeBarWidth;
 		}
 	}
 }

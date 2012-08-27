@@ -4,7 +4,7 @@
 //TODO: Анимация взлома со всякими полосками бегущими по enemyFinalTarget
 //TODO: сделать прелоадер
 //TODO: Экраны должны плавно переходить друг в друга
-//TODO: Графические обозначения того, что враг отравлен или заторможен или по нему нанесен крит
+//TODO: Графические обозначения того, что враг отравлен или заторможен или по нему нанесен крит///////////////////////////////////////////////////////////////////////////////////////
 //HELP: ||
 //TODO: всплывающие подсказки над иконками specialTools, nextWave и т.д.
 //TODO: tutorScreen - всплывает экран туториал - иконка сбоку - рассказывающая о новых врагах или возможностях - держиться какое-то время
@@ -20,20 +20,19 @@
 //TODO: Сделать куллтаймы спецтехник в привязке к Variables
 //TODO: спецтехники работают только когда levelStarted
 
-//FIX: freeze неправильно работает при использовании flowStop + стреляют по тем, кого не должны доставать
 //FIX: при создании турелей 3-го уровня неправильно указываются из начальные характеристики
 //FIX: при паузе должна остановиться анимация и отсчет времени до следующей волны
 
 //TODO: нажатии кнопки не исчезают, а уменьшаются - для создания анимации
 
-//TODO: при невозможности апгрейда турели - её кнопка апгрейда должна быть серой и реагировать на клик - "нехватает памяти"
 //TODO: из врагов выпадают бусты - типа защиты от взлома
-//TODO: при клике на бусте или когда он дойдет до скорборда должна быть анимация исчезновения иконки буста
 //TODO: можно настроить, чтобы турели били ближайшего, сильнейшего и т.д.
 //TODO: переделать все массивы типа i = 0; i < array.length-1
+//TODO: У каждого врага свое время задержки перед выходом
 
 
 //BALANCE: разные типы врагов устойчивые к разным турелям заставять игрока применять разные тактики
+CONTINIUM доделать статусные эффекты
 package 
 {
 	import flash.display.MovieClip;
@@ -124,32 +123,32 @@ package
 		public var enemyLimit:int = Variables.ENEMY_DELAY;//Время задержки появления врагов
 		public var enemiesLeft:int;
 		
-		public var enemyArray:Array 				= [];
-		public var groundArray:Array				= [];
-		public var directArray:Array 				= [];
-		public var markerArray:Array 				= [];
-		public var turretArray:Array 				= [];
-		public var rocketArray:Array 				= [];
-		public var splashArray:Array 				= [];
-		public var swarmSplashArray:Array			= [];
-		public var swarmBombsArray:Array			= [];
-		public var bombSplashArray:Array			= [];
-		public var missileArray:Array 				= [];
-		public var particleArray:Array 				= [];
-		public var installingArray:Array			= [];
-		public var upgradingArray:Array				= [];
-		public var uninstallingArray:Array			= [];
-		public var specialToolsArray:Array			= [];
+		public var dropArray:Array							= [];
+		public var roadArray:Array							= [];
+		public var enemyArray:Array 						= [];
+		public var rocketArray:Array 						= [];
+		public var splashArray:Array 						= [];
+		public var groundArray:Array						= [];
+		public var directArray:Array 						= [];
+		public var markerArray:Array 						= [];
+		public var turretArray:Array 						= [];
+		public var missileArray:Array 					= [];
+		public var particleArray:Array 					= [];
+		public var upgradingArray:Array					= [];
+		public var distEnemyArray:Array					= [];
+		public var hackingEnemies:Array					= [];
+		public var installingArray:Array					= [];
+		public var swarmBombsArray:Array					= [];
+		public var bombSplashArray:Array					= [];
+		public var swarmSplashArray:Array				= [];
+		public var poisonCloudsArray:Array				= [];
+		public var uninstallingArray:Array				= [];
+		public var specialToolsArray:Array				= [];
+		public var addMarkerCounterArray:Array			= [];
 		public var specialToolsGaugeArray:Array		= [];
-		public var specialToolsCooldownsArray:Array	= [];
 		public var specialToolsDisablesArray:Array	= [];
-		public var addMarkerCounterArray:Array		= [];
 		public var availableActionFlagsArray:Array	= [];
-		public var poisonCloudsArray:Array			= [];
-		public var dropArray:Array					= [];
-		public var roadArray:Array					= [];
-		public var distEnemyArray:Array				= [];
-		public var hackingEnemies:Array				= [];
+		public var specialToolsCooldownsArray:Array	= [];
 		
 		public var mapCols:int = 15;
 		public var mapRows:int = 10;
@@ -173,8 +172,8 @@ package
 		public var relocatingTurretChoosen:Boolean = false;
 		public var relocationTurretClip:MovieClip;
 		
-		public var toolStunInAction:Boolean = false;
-		public var toolStunCounter:int;
+		public var flowStopInAction:Boolean = false;
+		public var flowStopCounter:int;
 		
 		public var startLevelBtn:MovieClip;
 		public var levelStarted:Boolean = false;
@@ -299,7 +298,6 @@ package
 			for(var s:int = 0; s < availableToolsArray.length; s++)
 			{
 				var tool:String = availableToolsArray[s];
-				
 				switch(tool)
 				{
 					case SpecialTools.ADDITIONAL_MARKER:
@@ -477,13 +475,11 @@ package
 							roadStart = new Point(block.x + block.width * .5, block.y + block.height);
 							Enemy.STARTING_DIRECTION = Enemy.DIR_UP;
 						}
-						//block.startRoadTile = true;
 					}
 					else if(levelMap[i] == F)
 					{
-						block.endRoadTile = true;
 						block.tileNumber = 1;
-						//block.txtNum.text = String(block.tileNumber);
+						block.txtNum.text = String(block.tileNumber);
 						enemyFinalTarget.x = block.x + block.width * .5;
 						enemyFinalTarget.y = block.y + block.height * .5; 
 						
@@ -523,22 +519,19 @@ package
 			{
 				if(!road.tileNumber)
 				{
-					for(var r:int = 0; r <= roadArray.length; r++)
+					for(var r:int = 0; r <= roadArray.length-1; r++)
 					{
-						if(roadArray[r] != null)
+						checkRoad = roadArray[r] as RoadTile;
+						if(checkRoad.tileNumber)
 						{
-							checkRoad = roadArray[r] as RoadTile;
-							if(checkRoad.tileNumber)
+							if (checkRoad.hitTestPoint(road.x + road.width * 1.5, road.y + road.height *  .5) || 
+								 checkRoad.hitTestPoint(road.x - road.width *  .5, road.y + road.height *  .5) ||
+								 checkRoad.hitTestPoint(road.x + road.width *  .5, road.y - road.height *  .5) ||
+								 checkRoad.hitTestPoint(road.x + road.width *  .5, road.y + road.height * 1.5))
 							{
-								if 	(checkRoad.hitTestPoint(road.x + road.width * 1.5, road.y + road.height *  .5) || 
-									 checkRoad.hitTestPoint(road.x - road.width *  .5, road.y + road.height *  .5) ||
-									 checkRoad.hitTestPoint(road.x + road.width *  .5, road.y - road.height *  .5) ||
-									 checkRoad.hitTestPoint(road.x + road.width *  .5, road.y + road.height * 1.5))
-								{
-									road.tileNumber = roadCounter;
-									//road.txtNum.text = String(road.tileNumber);
-									roadCounter++;
-								}
+								road.tileNumber = roadCounter;
+								road.txtNum.text = String(road.tileNumber);
+								roadCounter++;
 							}
 						}
 					}
@@ -665,29 +658,28 @@ package
 						{
 							case Enemy.DIR_DOWN:
 							enemy.x = roadStart.x;
-							enemy.y = roadStart.y - enemy.width * .5;
+							enemy.y = roadStart.y - enemy.width * .8;
 							enemy.rotation = 90;
 							break;
 							
 							case Enemy.DIR_LEFT:
-							enemy.x = roadStart.x + enemy.width * .5;
+							enemy.x = roadStart.x + enemy.width * .8;
 							enemy.y = roadStart.y;
 							enemy.rotation = -180;
 							break;
 							
 							case Enemy.DIR_RIGHT:
-							enemy.x = roadStart.x - enemy.width * .5;
+							enemy.x = roadStart.x - enemy.width * .8;
 							enemy.y = roadStart.y;
 							enemy.rotation = 0;
 							break;
 							
 							case Enemy.DIR_UP:
 							enemy.x = roadStart.x;
-							enemy.y = roadStart.y + enemy.width * .5;
+							enemy.y = roadStart.y + enemy.width * .8;
 							enemy.rotation = -90;
 							break;
 						}
-						CONTINIUM если враг появляется сверху или снизу лайфбар неправильно отображается
 						enemyArray.push(enemy);
 						enemyHolder.addChild(enemy);
 						currentEnemy++;
@@ -770,6 +762,7 @@ package
 						enemy.roadID = dirTile.ID;
 					}
 				}
+				
 				if(enemy.stunProlonger)
 				{
 					for(var e:int = enemyArray.length; --e >= 0;)
@@ -782,8 +775,6 @@ package
 							var dist:Number = Math.sqrt(xDest*xDest + yDest*yDest);
 							if(dist <= Variables.FREEZE_MULTY_STUN_DISTANCE)
 							{
-								tempEnemy.underFreeze = false;
-								tempEnemy.freezeCounter = 0;
 								tempEnemy.isStuned = true;
 								tempEnemy.stunCounter = 0;
 								
@@ -802,85 +793,89 @@ package
 					}
 					enemy.stunProlonger = false;
 				}
-				
-				if(toolStunInAction)
+				if(flowStopInAction)
 				{
-					if(!enemy.firstStun)
+					if(!enemy.isStuned)
 					{
-						enemy.previusXSpeed = enemy.xSpeed;
-						enemy.previusYSpeed = enemy.ySpeed;
-						enemy.firstStun = true;
-					}
-					if(enemy.xSpeed > 0) enemy.xSpeed -= .5;
-					else if(enemy.xSpeed < 0) enemy.xSpeed += .5;
-					else if(enemy.ySpeed > 0) enemy.ySpeed -= .5;
-					else if(enemy.ySpeed < 0) enemy.ySpeed += .5;
-					
-					enemy.x += enemy.xSpeed;
-					enemy.y += enemy.ySpeed;
-				}
-				else if(enemy.speedUP)
-				{
-					switch(enemy.rotation)
-					{
-						case 0://Right
-							if(enemy.xSpeed < enemy.speed) enemy.xSpeed += .5;
-							enemy.ySpeed = 0;
-						break;
-							
-						case 90://Down
-							enemy.xSpeed = 0;
-							if(enemy.ySpeed < enemy.speed) enemy.ySpeed += .5;
-						break;
-							
-						case -90://Up
-							enemy.xSpeed = 0;
-							if(enemy.ySpeed > -enemy.speed) enemy.ySpeed -= .5;
-						break;
-							
-						case -180://Left
-							if(enemy.xSpeed > -enemy.speed) enemy.xSpeed -= .5;
-							enemy.ySpeed = 0;
-						break;
-					}
-					enemy.x += enemy.xSpeed;
-					enemy.y += enemy.ySpeed;
-					
-					if(enemy.xSpeed == enemy.previusXSpeed && enemy.ySpeed == enemy.previusYSpeed) enemy.speedUP = false;
-				}
-				else if(enemy.isStuned)
-				{
-					enemy.x += 0;
-					enemy.y += 0;
-					
-					enemy.underFreeze = false;
-					enemy.stunCounter++;
-					if(enemy.stunCounter > enemy.maxTimeStuned)
-					{
-						enemy.isStuned = false;
+						enemy.isStuned = true;
 						enemy.stunCounter = 0;
-						clip = enemy.getChildByName("clip") as MovieClip;
-						clip.gotoAndPlay(clip.currentFrame);
-						clip = null;
+						enemy.maxTimeStuned = flowStopCounter;
 					}
 				}
-				else if(enemy.underFreeze)
+				if(enemy.isStuned)
 				{
-					enemy.x += enemy.xSpeed * Variables.FREEZE_SPEED_REDUCE_MULTIPLY;
-					enemy.y += enemy.ySpeed * Variables.FREEZE_SPEED_REDUCE_MULTIPLY;
+					if(enemy.speed > 0) enemy.speed -= enemy.stoppingSpeed;
+					else enemy.speed = 0;
+					
+					if(enemy.underFreeze)
+					{
+						enemy.underFreeze = false;
+						enemy.freezeCounter = 0;
+					}
+					if(!flowStopInAction) 
+					{
+						enemy.stunCounter++;
+						if(enemy.stunCounter > enemy.maxTimeStuned)
+						{
+							enemy.isStuned = false;
+							enemy.stunCounter = 0;
+							enemy.speedUP = true;
+							clip = enemy.getChildByName("clip") as MovieClip;
+							clip.gotoAndPlay(clip.currentFrame);
+							clip = null;
+						}
+					}
+					
+				}
+				if(enemy.speedUP)
+				{
+					enemy.speed += enemy.stoppingSpeed;
+					if(enemy.speed >= enemy.baseSpeed)
+					{
+						enemy.speed = enemy.baseSpeed;
+						enemy.speedUP = false;
+					}
+				}
+				trace(enemy.speed, enemy.stunCounter, enemy.maxTimeStuned);
+				if(enemy.underFreeze)
+				{
+					enemy.speed = enemy.baseSpeed * Variables.FREEZE_SPEED_REDUCE_MULTIPLY;
 					
 					enemy.freezeCounter++;
 					if(enemy.freezeCounter > enemy.maxTimeFreeze) 
 					{
 						enemy.underFreeze = false;
 						enemy.freezeCounter = 0;
+						enemy.speed = enemy.baseSpeed;
 					}
 				}
-				else
+				
+				switch(enemy.direction)
 				{
-					//enemy.x += enemy.xSpeed;
-					//enemy.y += enemy.ySpeed;
+					case Enemy.DIR_DOWN:
+						enemy.xSpeed = 0;
+						enemy.ySpeed = enemy.speed;
+					break;
+					
+					case Enemy.DIR_LEFT:
+						enemy.xSpeed = -enemy.speed;
+						enemy.ySpeed = 0;
+					break;
+					
+					case Enemy.DIR_RIGHT:
+						enemy.xSpeed = enemy.speed;
+						enemy.ySpeed = 0;
+					break;
+					
+					case Enemy.DIR_UP:
+						enemy.xSpeed = 0;
+						enemy.ySpeed = -enemy.speed;
+					break;
 				}
+				
+				enemy.x += enemy.xSpeed;
+				enemy.y += enemy.ySpeed;
+				
 				if(enemy.isPoisoned)
 				{
 					enemy.health -= Variables.LAUNCHER_POISON_DAMAGE;
@@ -895,14 +890,15 @@ package
 				
 				if(enemy.hitTestObject(enemyFinalTarget)) checkForHack(enemy, i);
 			}
-			if(toolStunInAction) toolStunCounter--;
-			if(toolStunCounter <= 0  && toolStunInAction)
+			if(flowStopInAction) flowStopCounter--;
+			if(flowStopCounter <= 0  && flowStopInAction)
 			{
-				toolStunInAction = false;
+				flowStopInAction = false;
 				for each(enemy in enemyArray)
 				{
+					enemy.isStuned = false;
+					enemy.stunCounter = 0;
 					enemy.speedUP = true;
-					enemy.firstStun = false;
 					clip = enemy.getChildByName("clip") as MovieClip;
 					clip.gotoAndPlay(clip.currentFrame);
 					clip = null;
@@ -1621,7 +1617,7 @@ package
 			}
 		}
 				
-		private function checkTurrets():void///////////////////////////////////////////////////////////////////
+		private function checkTurrets():void
 		{
 			var enemy:Enemy;
 			
@@ -1655,7 +1651,7 @@ package
 					
 					if(targetDistance < distance)
 					{
-						if(turret is FreezeTurret && (enemy.underFreeze || enemy.isStuned)){/*freezeTurret skip this enemy*/}
+						if(turret is FreezeTurret && (enemy.underFreeze || enemy.isStuned || enemy.speedUP)){/*freezeTurret skip this enemy*/}
 						else distEnemyArray.push(enemy);
 					}
 				}
@@ -1730,25 +1726,24 @@ package
 						}
 						else if(turret is FreezeTurret)
 						{
-							if(!targetEnemy.underFreeze && !targetEnemy.isStuned && !toolStunInAction)
-							{
-								turret.gun.gotoAndStop("shot");
-								turret.gun.rotation = 0;
+							turret.gun.gotoAndStop("shot");
+							turret.gun.rotation = 0;
 							
-								turret.gun.graphics.clear();
-								turret.gun.graphics.lineStyle(2, 0xFF0000);
-								turret.gun.graphics.moveTo(0, 0);
-								turret.gun.graphics.lineTo(targetEnemy.x - turret.x, targetEnemy.y - turret.y);
-								if(turret.level >= 3 && (Math.random() * 100 < Variables.FREEZE_STUN_CHANCE))
-								{
-									if(Variables.UPGRADE_MULTY_STUN) targetEnemy.stunProlonger = true;
-									targetEnemy.isStuned = true;
-									var clip:* = targetEnemy.getChildByName("clip");
-									clip.gotoAndStop(clip.currentFrame);
-									clip = null;
-								}
-								else targetEnemy.underFreeze = true;
+							turret.gun.graphics.clear();
+							turret.gun.graphics.lineStyle(2, 0xFF0000);
+							turret.gun.graphics.moveTo(0, 0);
+							turret.gun.graphics.lineTo(targetEnemy.x - turret.x, targetEnemy.y - turret.y);
+							if(turret.level >= 3 && (Math.random() * 100 < Variables.FREEZE_STUN_CHANCE))
+							{
+								if(Variables.UPGRADE_MULTY_STUN) targetEnemy.stunProlonger = true;
+								targetEnemy.isStuned = true;
+								targetEnemy.maxTimeStuned = Variables.FREEZE_STUN_DURATION;
+								targetEnemy.stunCounter = 0;
+								var clip:MovieClip = targetEnemy.getChildByName("clip") as MovieClip;
+								clip.gotoAndStop(clip.currentFrame);
+								clip = null;
 							}
+							else targetEnemy.underFreeze = true;
 						}
 					}
 					if(!turret.loaded)
@@ -2408,8 +2403,8 @@ package
 					break;
 				
 					case SpecialTools.FLOW_STOP:
-						toolStunInAction = true;
-						toolStunCounter = Variables.SPECIAL_FLOW_STOP_DURATION;
+						flowStopInAction = true;
+						flowStopCounter = Variables.SPECIAL_FLOW_STOP_DURATION;
 						specialToolCooldownClip = new SpecialToolsCooldown();
 						specialToolCooldownClip.x = e.currentTarget.x;
 						specialToolCooldownClip.y = e.currentTarget.y;
@@ -2418,7 +2413,7 @@ package
 						
 						for each(enemy in enemyArray)
 						{
-							var clip:* = enemy.getChildByName("clip");
+							var clip:MovieClip = enemy.getChildByName("clip") as MovieClip;
 							clip.gotoAndStop(clip.currentFrame);
 							clip = null;
 						}
