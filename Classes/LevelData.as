@@ -8,10 +8,10 @@
 		
 		private var S:String = "Start";
 		private var F:String = "Finish";
-		private var U:String = "direction Up";
-		private var D:String = "direction Down";
-		private var R:String = "direction Right";
-		private var L:String = "direction Left";
+		private var U:String = Enemy.DIR_UP;
+		private var D:String = Enemy.DIR_DOWN;
+		private var R:String = Enemy.DIR_RIGHT;
+		private var L:String = Enemy.DIR_LEFT;
 		
 		public var levelMapArray:Array 	= [];
 		public var levelEnemyWaves:Array = [];

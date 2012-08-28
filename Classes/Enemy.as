@@ -15,7 +15,10 @@
 		public static const DIR_LEFT:String		= "direction Left";
 		public static const DIR_UP:String		= "direction Up";
 		public static const DIR_DOWN:String		= "direction Down";
-		CONTINIUM указать эти константы в levelData и GamePlay
+		
+		public static const STATUS_POISON:String 	= "status poison";
+		public static const STATUS_STUN:String		= "status stun";
+		public static const STATUS_FREEZE:String	= "status freeze";
 		
 		public var baseLevel:int = 1;
 		public var level:int;
@@ -77,7 +80,7 @@
 		
 		public var statusHolder:Sprite;
 		public var statusEffect:StatusEffects;
-		CONTINIUM статусы пихаются в statusHolder и сортируются согласно его numChildren
+		//CONTINIUM статусы пихаются в statusHolder и сортируются согласно его numChildren
 		
 		public function Enemy()
 		{
@@ -102,10 +105,6 @@
 			
 			statusHolder = new Sprite;
 			addChild(statusHolder);
-			
-			/*statusEffect = new StatusEffects();
-			statusEffect.gotoAndStop(1);
-			statusHolder.addChild(statusEffect);*/
 			
 			updateDirection(Enemy.STARTING_DIRECTION);
 		}
@@ -152,6 +151,38 @@
 					lifeBar.y = lifeBarUP.y;
 					statusHolder.x = lifeBar.x + 10;
 					statusHolder.y = lifeBar.y;
+				break;
+			}
+		}
+		
+		public function addStatus(statusEffect:String)
+		{
+			switch(statusEffect)
+			{
+				case Enemy.STATUS_FREEZE:
+				break;
+				
+				case Enemy.STATUS_POISON:
+				break;
+				
+				case Enemy.STATUS_STUN:
+					isStuned = true;
+					stunCounter = 0;
+				break;
+			}
+		}
+		
+		public function removeStatus(statusEffect:String)
+		{
+			switch(statusEffect)
+			{
+				case Enemy.STATUS_FREEZE:
+				break;
+				
+				case Enemy.STATUS_POISON:
+				break;
+				
+				case Enemy.STATUS_STUN:
 				break;
 			}
 		}

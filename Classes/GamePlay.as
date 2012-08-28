@@ -49,16 +49,16 @@ package
 
 	public class GamePlay extends MovieClip
 	{
-		public var P:String = "Road";
-		public var G:String = "Ground";
-		public var M:String = "PlaceMarker";
+		private var P:String = "Road";
+		private var G:String = "Ground";
+		private var M:String = "PlaceMarker";
 		
-		public var S:String = "Start";
-		public var F:String = "Finish";
-		public var U:String = "Up";
-		public var D:String = "Down";
-		public var R:String = "Right";
-		public var L:String = "Left";
+		private var S:String = "Start";
+		private var F:String = "Finish";
+		private var U:String = "Up";
+		private var D:String = "Down";
+		private var R:String = "Right";
+		private var L:String = "Left";
 		
 		public var currentLevel:int;
 		public var currentWave:int = 1;
@@ -729,8 +729,10 @@ package
 							var dist:Number = Math.sqrt(xDest*xDest + yDest*yDest);
 							if(dist <= Variables.FREEZE_MULTY_STUN_DISTANCE)
 							{
-								tempEnemy.isStuned = true;
-								tempEnemy.stunCounter = 0;
+								//tempEnemy.isStuned = true;
+								//tempEnemy.stunCounter = 0;
+								CONTINIUM делаем статусы 
+ 								tempEnemy.addStatus(Enemy.STATUS_STUN);
 								
 								enemy.graphPoint.rotation = -enemy.rotation;
 								with(enemy.graphPoint.graphics)
