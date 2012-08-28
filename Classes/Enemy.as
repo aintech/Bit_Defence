@@ -5,6 +5,7 @@
 	import flash.events.Event;
 	import flash.filters.BlurFilter;
 	import flash.geom.Point;
+	import flash.display.Sprite;
 
 	public class Enemy extends MovieClip
 	{
@@ -14,6 +15,7 @@
 		public static const DIR_LEFT:String		= "direction Left";
 		public static const DIR_UP:String		= "direction Up";
 		public static const DIR_DOWN:String		= "direction Down";
+		CONTINIUM указать эти константы в levelData и GamePlay
 		
 		public var baseLevel:int = 1;
 		public var level:int;
@@ -73,6 +75,10 @@
 				
 		public var direction:String;
 		
+		public var statusHolder:Sprite;
+		public var statusEffect:StatusEffects;
+		CONTINIUM статусы пихаются в statusHolder и сортируются согласно его numChildren
+		
 		public function Enemy()
 		{
 			level = baseLevel;
@@ -89,42 +95,65 @@
 			lifeBar = new LifeBar();
 			addChild(lifeBar);
 			lifeBar.width = getChildByName("clip").width;
+			lifeBar.gotoAndStop(lifeBar.totalFrames);
 			if(!Settings.LIFEBAR_VISIBLE) lifeBar.visible = false;
 			
 			ID = Math.round(Math.random() * 100000);
 			
-			switch(Enemy.STARTING_DIRECTION)
+			statusHolder = new Sprite;
+			addChild(statusHolder);
+			
+			/*statusEffect = new StatusEffects();
+			statusEffect.gotoAndStop(1);
+			statusHolder.addChild(statusEffect);*/
+			
+			updateDirection(Enemy.STARTING_DIRECTION);
+		}
+		
+		public function updateDirection(direct:String):void
+		{
+			switch(direct)
 			{
 				case Enemy.DIR_DOWN:
-				lifeBar.rotation = -90;
-				lifeBar.x = lifeBarDOWN.x;
-				lifeBar.y = lifeBarDOWN.y;
+					rotation = 90;
+					direction = Enemy.DIR_DOWN;
+					lifeBar.rotation = statusHolder.rotation = -90;
+					lifeBar.x = lifeBarDOWN.x;
+					lifeBar.y = lifeBarDOWN.y;
+					statusHolder.x = lifeBar.x - 10;
+					statusHolder.y = lifeBar.y;
 				break;
 				
 				case Enemy.DIR_LEFT:
-				lifeBar.rotation = 180;
-				lifeBar.x = lifeBarLEFT.x;
-				lifeBar.y = lifeBarLEFT.y;
+					rotation = -180;
+					direction = Enemy.DIR_LEFT;
+					lifeBar.rotation = statusHolder.rotation = 180;
+					lifeBar.x = lifeBarLEFT.x;
+					lifeBar.y = lifeBarLEFT.y;
+					statusHolder.x = lifeBar.x;
+					statusHolder.y = lifeBar.y + 10;
 				break;
 				
 				case Enemy.DIR_RIGHT:
-				lifeBar.rotation = 0;
-				lifeBar.x = lifeBarRIGHT.x;
-				lifeBar.y = lifeBarRIGHT.y;
+					rotation = 0;
+					direction = Enemy.DIR_RIGHT;
+					lifeBar.rotation = statusHolder.rotation = 0;
+					lifeBar.x = lifeBarRIGHT.x;
+					lifeBar.y = lifeBarRIGHT.y;
+					statusHolder.x = lifeBar.x;
+					statusHolder.y = lifeBar.y - 10;
 				break;
 				
 				case Enemy.DIR_UP:
-				lifeBar.rotation = 90;
-				lifeBar.x = lifeBarUP.x;
-				lifeBar.y = lifeBarUP.y;
+					rotation = -90;
+					direction = Enemy.DIR_UP;
+					lifeBar.rotation = statusHolder.rotation = 90;
+					lifeBar.x = lifeBarUP.x;
+					lifeBar.y = lifeBarUP.y;
+					statusHolder.x = lifeBar.x + 10;
+					statusHolder.y = lifeBar.y;
 				break;
 			}
-			lifeBar.gotoAndStop(lifeBar.totalFrames);
-		}
-		
-		public function updateLevel(newLevel:int):void
-		{
-			
 		}
 	}
 }

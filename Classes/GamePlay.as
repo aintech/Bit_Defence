@@ -27,12 +27,10 @@
 
 //TODO: из врагов выпадают бусты - типа защиты от взлома
 //TODO: можно настроить, чтобы турели били ближайшего, сильнейшего и т.д.
-//TODO: переделать все массивы типа i = 0; i < array.length-1
 //TODO: У каждого врага свое время задержки перед выходом
 
 
 //BALANCE: разные типы врагов устойчивые к разным турелям заставять игрока применять разные тактики
-CONTINIUM доделать статусные эффекты
 package 
 {
 	import flash.display.MovieClip;
@@ -51,16 +49,16 @@ package
 
 	public class GamePlay extends MovieClip
 	{
-		public static const P:String = "Road";
-		public static const G:String = "Ground";
-		public static const M:String = "PlaceMarker";
+		public var P:String = "Road";
+		public var G:String = "Ground";
+		public var M:String = "PlaceMarker";
 		
-		public static const S:String = "Start";
-		public static const F:String = "Finish";
-		public static const U:String = "Up";
-		public static const D:String = "Down";
-		public static const R:String = "Right";
-		public static const L:String = "Left";
+		public var S:String = "Start";
+		public var F:String = "Finish";
+		public var U:String = "Up";
+		public var D:String = "Down";
+		public var R:String = "Right";
+		public var L:String = "Left";
 		
 		public var currentLevel:int;
 		public var currentWave:int = 1;
@@ -190,6 +188,7 @@ package
 		public var roadCounter:int = 2;
 		
 		public var enemyFinalTarget:EnemyFinalTarget;
+		public var statusEffects:StatusEffects;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -713,52 +712,7 @@ package
 					var dirTile:MovieClip = directArray[j];
 					if(enemy.hitPoint.hitTestObject(dirTile.hitPoint) && enemy.roadID != dirTile.ID)
 					{
-						switch(dirTile.direct)
-						{
-							case "Up":
-								enemy.rotation = -90;
-								enemy.direction = Enemy.DIR_UP;
-								//if(toolStunInAction || enemy.speedUP) enemy.ySpeed = -Math.abs(enemy.xSpeed);
-								//else enemy.ySpeed = -enemy.speed;
-								//enemy.xSpeed = 0;
-								enemy.lifeBar.rotation = 90;
-								enemy.lifeBar.x = enemy.lifeBarUP.x;
-								enemy.lifeBar.y = enemy.lifeBarUP.y;
-							break;
-							
-							case "Down":
-								enemy.rotation = 90;
-								enemy.direction = Enemy.DIR_DOWN;
-								//if(toolStunInAction || enemy.speedUP) enemy.ySpeed = Math.abs(enemy.xSpeed);
-								//else enemy.ySpeed = enemy.speed;
-								//enemy.xSpeed = 0;
-								enemy.lifeBar.rotation = -90;
-								enemy.lifeBar.x = enemy.lifeBarDOWN.x;
-								enemy.lifeBar.y = enemy.lifeBarDOWN.y;
-							break;
-							
-							case "Right":
-								enemy.rotation = 0;
-								enemy.direction = Enemy.DIR_RIGHT;
-								//if(toolStunInAction || enemy.speedUP) enemy.xSpeed = Math.abs(enemy.ySpeed);
-								//else enemy.xSpeed = enemy.speed;
-								//enemy.ySpeed = 0;
-								enemy.lifeBar.rotation = 0;
-								enemy.lifeBar.x = enemy.lifeBarRIGHT.x;
-								enemy.lifeBar.y = enemy.lifeBarRIGHT.y;
-							break;
-							
-							case "Left":
-								enemy.rotation = -180;
-								enemy.direction = Enemy.DIR_LEFT;
-								//if(toolStunInAction || enemy.speedUP) enemy.xSpeed = -Math.abs(enemy.ySpeed);
-								//else enemy.xSpeed = -enemy.speed;
-								//enemy.ySpeed = 0;
-								enemy.lifeBar.rotation = 180;
-								enemy.lifeBar.x = enemy.lifeBarLEFT.x;
-								enemy.lifeBar.y = enemy.lifeBarLEFT.y;
-							break;
-						}
+						enemy.updateDirection(dirTile.direct);
 						enemy.roadID = dirTile.ID;
 					}
 				}
@@ -836,7 +790,6 @@ package
 						enemy.speedUP = false;
 					}
 				}
-				trace(enemy.speed, enemy.stunCounter, enemy.maxTimeStuned);
 				if(enemy.underFreeze)
 				{
 					enemy.speed = enemy.baseSpeed * Variables.FREEZE_SPEED_REDUCE_MULTIPLY;
