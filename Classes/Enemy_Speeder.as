@@ -20,7 +20,7 @@
 			baseSpeed = 7;
 			stoppingSpeed = .7;
 			
-			health = maxHealth = 50;
+			health = maxHealth = 5000;//50
 			speed = baseSpeed;
 			
 			baseHackChance = 10;

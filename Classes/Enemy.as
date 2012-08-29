@@ -19,6 +19,7 @@
 		public static const STATUS_POISON:String 	= "status poison";
 		public static const STATUS_STUN:String		= "status stun";
 		public static const STATUS_FREEZE:String	= "status freeze";
+		public static const STATUS_CLOUD:String		= "status cloud";
 		
 		public var baseLevel:int = 1;
 		public var level:int;
@@ -71,7 +72,9 @@
 		public var roadID:int;
 		
 		public var poisonCloudOnBoard:Boolean	= false;
+		public var touchCloud:Boolean			= false;
 		public var stunProlonger:Boolean		= false;
+		public var thisTurnCloudTouched:Boolean = false;
 		
 		public var tileNum:int = 999;
 		public var distToMissile:Number;
@@ -80,7 +83,7 @@
 		
 		public var statusHolder:Sprite;
 		public var statusEffect:StatusEffects;
-		//CONTINIUM статусы пихаются в statusHolder и сортируются согласно его numChildren
+		public var effectsArray:Array = [];
 		
 		public function Enemy()
 		{
@@ -155,35 +158,81 @@
 			}
 		}
 		
-		public function addStatus(statusEffect:String)
+		public function addStatus(effect:String)
 		{
-			switch(statusEffect)
+			switch(effect)
 			{
 				case Enemy.STATUS_FREEZE:
+					underFreeze = true;
+					freezeCounter = 0;
+					speed = baseSpeed * Variables.FREEZE_SPEED_REDUCE_MULTIPLY;
 				break;
 				
 				case Enemy.STATUS_POISON:
+					isPoisoned = true;
+					poisonCounter = 0;
 				break;
 				
 				case Enemy.STATUS_STUN:
 					isStuned = true;
 					stunCounter = 0;
 				break;
+				
+				case Enemy.STATUS_CLOUD:
+					touchCloud = true;
+				break;
 			}
+			statusEffect = new StatusEffects(effect);
+			statusEffect.gotoAndStop(effect);
+			statusHolder.addChild(statusEffect);
+			effectsArray.push(statusEffect);
+			sortStatusEffects();
 		}
 		
-		public function removeStatus(statusEffect:String)
+		public function removeStatus(effect:String)
 		{
-			switch(statusEffect)
+			switch(effect)
 			{
 				case Enemy.STATUS_FREEZE:
+					underFreeze = false;
+					freezeCounter = 0;
 				break;
 				
 				case Enemy.STATUS_POISON:
+					isPoisoned = false;
+					poisonCounter = 0;
 				break;
 				
 				case Enemy.STATUS_STUN:
+					isStuned = false;
+					stunCounter = 0;
+					speedUP = true;
 				break;
+				
+				case Enemy.STATUS_CLOUD:
+					touchCloud = false;
+				break;
+			}
+			for(var i:int = effectsArray.length; --i >= 0;)
+			{
+				var tempStatus:StatusEffects = effectsArray[i];
+				if(tempStatus.effect == effect)
+				{
+					effectsArray.splice(i, 1);
+					statusHolder.removeChild(tempStatus);
+					tempStatus = null;
+				}
+			}
+			sortStatusEffects();
+		}
+		
+		private function sortStatusEffects()
+		{
+			var effLength:int = effectsArray.length;
+			for(var i:int = 0; i < effLength; i++)
+			{
+				statusEffect = effectsArray[i];
+				statusEffect.x = -(statusEffect.width * .5 * effLength) + (statusEffect.width * i);
 			}
 		}
 	}

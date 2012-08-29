@@ -4,7 +4,7 @@
 //TODO: Анимация взлома со всякими полосками бегущими по enemyFinalTarget
 //TODO: сделать прелоадер
 //TODO: Экраны должны плавно переходить друг в друга
-//TODO: Графические обозначения того, что враг отравлен или заторможен или по нему нанесен крит///////////////////////////////////////////////////////////////////////////////////////
+//TODO: Графическое обозначение урона///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 //HELP: ||
 //TODO: всплывающие подсказки над иконками specialTools, nextWave и т.д.
 //TODO: tutorScreen - всплывает экран туториал - иконка сбоку - рассказывающая о новых врагах или возможностях - держиться какое-то время
@@ -701,6 +701,8 @@ package
 				enemy = enemyArray[i];
 				enemy.graphPoint.graphics.clear();
 				
+				if(enemy.thisTurnCloudTouched) enemy.thisTurnCloudTouched = false;
+				
 				for(var r:int = 0; r < roadArray.length; r++)
 				{
 					road = roadArray[r];
@@ -729,9 +731,6 @@ package
 							var dist:Number = Math.sqrt(xDest*xDest + yDest*yDest);
 							if(dist <= Variables.FREEZE_MULTY_STUN_DISTANCE)
 							{
-								//tempEnemy.isStuned = true;
-								//tempEnemy.stunCounter = 0;
-								CONTINIUM делаем статусы 
  								tempEnemy.addStatus(Enemy.STATUS_STUN);
 								
 								enemy.graphPoint.rotation = -enemy.rotation;
@@ -749,39 +748,24 @@ package
 					}
 					enemy.stunProlonger = false;
 				}
-				if(flowStopInAction)
-				{
-					if(!enemy.isStuned)
-					{
-						enemy.isStuned = true;
-						enemy.stunCounter = 0;
-						enemy.maxTimeStuned = flowStopCounter;
-					}
-				}
+				if(flowStopInAction && !enemy.isStuned) enemy.addStatus(Enemy.STATUS_STUN);
 				if(enemy.isStuned)
 				{
 					if(enemy.speed > 0) enemy.speed -= enemy.stoppingSpeed;
 					else enemy.speed = 0;
 					
-					if(enemy.underFreeze)
-					{
-						enemy.underFreeze = false;
-						enemy.freezeCounter = 0;
-					}
+					if(enemy.underFreeze) enemy.removeStatus(Enemy.STATUS_FREEZE);
 					if(!flowStopInAction) 
 					{
 						enemy.stunCounter++;
 						if(enemy.stunCounter > enemy.maxTimeStuned)
 						{
-							enemy.isStuned = false;
-							enemy.stunCounter = 0;
-							enemy.speedUP = true;
+							enemy.removeStatus(Enemy.STATUS_STUN);
 							clip = enemy.getChildByName("clip") as MovieClip;
 							clip.gotoAndPlay(clip.currentFrame);
 							clip = null;
 						}
 					}
-					
 				}
 				if(enemy.speedUP)
 				{
@@ -794,13 +778,10 @@ package
 				}
 				if(enemy.underFreeze)
 				{
-					enemy.speed = enemy.baseSpeed * Variables.FREEZE_SPEED_REDUCE_MULTIPLY;
-					
 					enemy.freezeCounter++;
 					if(enemy.freezeCounter > enemy.maxTimeFreeze) 
 					{
-						enemy.underFreeze = false;
-						enemy.freezeCounter = 0;
+						enemy.removeStatus(Enemy.STATUS_FREEZE);
 						enemy.speed = enemy.baseSpeed;
 					}
 				}
@@ -836,12 +817,9 @@ package
 					enemy.health -= Variables.LAUNCHER_POISON_DAMAGE;
 					enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 					enemy.poisonCounter++;
-					if(enemy.poisonCounter > enemy.maxPoisonCounter)
-					{
-						enemy.isPoisoned = false;
-						enemy.poisonCounter = 0;
-					}
+					if(enemy.poisonCounter > enemy.maxPoisonCounter) enemy.removeStatus(Enemy.STATUS_POISON);
 				}
+				if(enemy.touchCloud) enemy.removeStatus(Enemy.STATUS_CLOUD);
 				
 				if(enemy.hitTestObject(enemyFinalTarget)) checkForHack(enemy, i);
 			}
@@ -851,9 +829,7 @@ package
 				flowStopInAction = false;
 				for each(enemy in enemyArray)
 				{
-					enemy.isStuned = false;
-					enemy.stunCounter = 0;
-					enemy.speedUP = true;
+					enemy.removeStatus(Enemy.STATUS_STUN);
 					clip = enemy.getChildByName("clip") as MovieClip;
 					clip.gotoAndPlay(clip.currentFrame);
 					clip = null;
@@ -1641,10 +1617,8 @@ package
 									turret.gunAccDamage = 0;
 								}
 							}
-							if(turret.level >= 3  && (Math.random() * 100 < Variables.GUN_CRIT_CHANCE)) {targetEnemy.health -= turret.damage * Variables.GUN_CRIT_DAMAGE_MULTIPLY + turret.gunAccDamage; trace("crit");}
+							if(turret.level >= 3  && (Math.random() * 100 < Variables.GUN_CRIT_CHANCE)) {targetEnemy.health -= turret.damage * Variables.GUN_CRIT_DAMAGE_MULTIPLY + turret.gunAccDamage;}
 							else targetEnemy.health -= turret.damage + turret.gunAccDamage;
-							
-							trace(turret.gunAccDamage, " / ", turret.damage + turret.gunAccDamage, " / ", enemy.health, " / ", enemy.ID);
 							
 							targetEnemy.lifeBar.gotoAndStop(Math.floor(targetEnemy.health / targetEnemy.maxHealth * 100));
 						}
@@ -1691,14 +1665,13 @@ package
 							if(turret.level >= 3 && (Math.random() * 100 < Variables.FREEZE_STUN_CHANCE))
 							{
 								if(Variables.UPGRADE_MULTY_STUN) targetEnemy.stunProlonger = true;
-								targetEnemy.isStuned = true;
+								targetEnemy.addStatus(Enemy.STATUS_STUN);
 								targetEnemy.maxTimeStuned = Variables.FREEZE_STUN_DURATION;
-								targetEnemy.stunCounter = 0;
 								var clip:MovieClip = targetEnemy.getChildByName("clip") as MovieClip;
 								clip.gotoAndStop(clip.currentFrame);
 								clip = null;
 							}
-							else targetEnemy.underFreeze = true;
+							else targetEnemy.addStatus(Enemy.STATUS_FREEZE);
 						}
 					}
 					if(!turret.loaded)
@@ -1767,7 +1740,7 @@ package
 									createPoisonCloud(enemy);
 									enemy.poisonCloudOnBoard = true;
 								}
-								else enemy.isPoisoned = true;
+								else if(!enemy.isPoisoned) enemy.addStatus(Enemy.STATUS_POISON);
 							}
 							enemy.health -= splash.damage;
 							enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
@@ -1948,10 +1921,12 @@ package
 				for(var ee:int = enemyArray.length; --ee >= 0;)
 				{
 					enemy = enemyArray[ee];
-					if(cloud.hitTestObject(enemy))
+					if(cloud.hitTestObject(enemy) && !enemy.thisTurnCloudTouched && !enemy.isPoisoned)
 					{
+						enemy.addStatus(Enemy.STATUS_CLOUD);
 						enemy.health -= Variables.LAUNCHER_POISON_CLOUD_DAMAGE;
 						enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
+						enemy.thisTurnCloudTouched = true;
 					}
 				}
 				cloud.lifeTime--;
@@ -2039,7 +2014,7 @@ package
 				var enemy:Enemy = enemyArray[i];
 				if(enemy.health <= 0)
 				{
-					createExplosion(enemy.x, enemy.y, enemy.levelColor);
+					createExplosion(enemy.x, enemy.y, enemy.levelColor, true);
 					if((Math.random() * 100) <= Variables.SYMBOLS_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.rotation, enemy.symbolsDrop, enemy.memoryDrop, Drop.DROP_SYMBOLS);
 					if((Math.random() * 100) <= Variables.MEMORY_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.rotation, enemy.symbolsDrop, enemy.memoryDrop, Drop.DROP_MEMORY);
 					removeObject(i, enemyArray);
@@ -2158,9 +2133,16 @@ package
 			}
 		}
 		
-		private function createExplosion(xVal:int, yVal:int, color:uint):void
+		private function createExplosion(xVal:int, yVal:int, color:uint, enemyKilled:Boolean = false, crit:Boolean = false, poison:Boolean = false):void
 		{
-			for(var i:int = 0; i < 50; i++)
+			var numParticles:int;
+			if(enemyKilled) numParticles = 50;
+			else if(!enemyKilled) numParticles = 10;
+			if(crit) numParticles = 20;
+			if(poison) numParticles = 5;
+			CONTINIUM отображаем удары по врагам
+			
+			for(var i:int = 0; i < numParticles; i++)
 			{
 				var particle:Particle = new Particle(color);
 				particle.rotation = Math.random() * 360;
@@ -2309,7 +2291,7 @@ package
 		{
 			scoreBoard.txtWave.text 			= "Wave: " + currentWave + "/" + int(enemyWaves.length);
 			scoreBoard.txtMemory.text 			= "Memory: " + memoryUsed + "/" + memoryTotal;
-			scoreBoard.txtEnemiesLeft.text 	= "Enemies Left: " + enemiesLeft;
+			scoreBoard.txtEnemiesLeft.text 		= "Enemies Left: " + enemiesLeft;
 			scoreBoard.txtSymbols.text			= "Symbols: " + String(Variables.SYMBOLS);
 		}
 		
