@@ -4,7 +4,6 @@
 //TODO: Анимация взлома со всякими полосками бегущими по enemyFinalTarget
 //TODO: сделать прелоадер
 //TODO: Экраны должны плавно переходить друг в друга
-//TODO: Графическое обозначение урона///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 //HELP: ||
 //TODO: всплывающие подсказки над иконками specialTools, nextWave и т.д.
 //TODO: tutorScreen - всплывает экран туториал - иконка сбоку - рассказывающая о новых врагах или возможностях - держиться какое-то время
@@ -18,9 +17,8 @@
 //Мина - устанавлвается на дороге и наносит и взрывается при прикосновении противника
 
 //TODO: Сделать куллтаймы спецтехник в привязке к Variables
-//TODO: спецтехники работают только когда levelStarted
 
-//FIX: при создании турелей 3-го уровня неправильно указываются из начальные характеристики
+//FIX: при создании турелей 3-го уровня неправильно указываются из начальные характеристики///////////////////////////////////////////////////////
 //FIX: при паузе должна остановиться анимация и отсчет времени до следующей волны
 
 //TODO: нажатии кнопки не исчезают, а уменьшаются - для создания анимации
@@ -121,28 +119,28 @@ package
 		public var enemyLimit:int = Variables.ENEMY_DELAY;//Время задержки появления врагов
 		public var enemiesLeft:int;
 		
-		public var dropArray:Array							= [];
-		public var roadArray:Array							= [];
-		public var enemyArray:Array 						= [];
-		public var rocketArray:Array 						= [];
-		public var splashArray:Array 						= [];
-		public var groundArray:Array						= [];
-		public var directArray:Array 						= [];
-		public var markerArray:Array 						= [];
-		public var turretArray:Array 						= [];
-		public var missileArray:Array 					= [];
-		public var particleArray:Array 					= [];
-		public var upgradingArray:Array					= [];
-		public var distEnemyArray:Array					= [];
-		public var hackingEnemies:Array					= [];
-		public var installingArray:Array					= [];
-		public var swarmBombsArray:Array					= [];
-		public var bombSplashArray:Array					= [];
-		public var swarmSplashArray:Array				= [];
-		public var poisonCloudsArray:Array				= [];
-		public var uninstallingArray:Array				= [];
-		public var specialToolsArray:Array				= [];
-		public var addMarkerCounterArray:Array			= [];
+		public var dropArray:Array					= [];
+		public var roadArray:Array					= [];
+		public var enemyArray:Array 				= [];
+		public var rocketArray:Array 				= [];
+		public var splashArray:Array 				= [];
+		public var groundArray:Array				= [];
+		public var directArray:Array 				= [];
+		public var markerArray:Array 				= [];
+		public var turretArray:Array 				= [];
+		public var missileArray:Array 				= [];
+		public var particleArray:Array 				= [];
+		public var upgradingArray:Array				= [];
+		public var distEnemyArray:Array				= [];
+		public var hackingEnemies:Array				= [];
+		public var installingArray:Array			= [];
+		public var swarmBombsArray:Array			= [];
+		public var bombSplashArray:Array			= [];
+		public var swarmSplashArray:Array			= [];
+		public var poisonCloudsArray:Array			= [];
+		public var uninstallingArray:Array			= [];
+		public var specialToolsArray:Array			= [];
+		public var addMarkerCounterArray:Array		= [];
 		public var specialToolsGaugeArray:Array		= [];
 		public var specialToolsDisablesArray:Array	= [];
 		public var availableActionFlagsArray:Array	= [];
@@ -815,6 +813,7 @@ package
 				if(enemy.isPoisoned)
 				{
 					enemy.health -= Variables.LAUNCHER_POISON_DAMAGE;
+					createExplosion(enemy.x, enemy.y, enemy.levelColor);
 					enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 					enemy.poisonCounter++;
 					if(enemy.poisonCounter > enemy.maxPoisonCounter) enemy.removeStatus(Enemy.STATUS_POISON);
@@ -851,19 +850,23 @@ package
 				switch(e.currentTarget.charType)
 				{
 					case Turret.TURRET_GUN:
-					tempChar = new GunTurret();
+						tempChar = new GunTurret();
+						if(Variables.UPGRADE_GUN_MASTERED) tempChar.level = 3;
 					break;
 					
 					case Turret.TURRET_LAUNCHER:
-					tempChar = new LauncherTurret();
+						tempChar = new LauncherTurret();
+						if(Variables.UPGRADE_LAUNCHER_MASTERED) tempChar.level = 3;
 					break;
 					
 					case Turret.TURRET_SWARM:
-					tempChar = new SwarmTurret();
+						tempChar = new SwarmTurret();
+						if(Variables.UPGRADE_SWARM_MASTERED) tempChar.level = 3;
 					break;
 					
 					case Turret.TURRET_FREEZE:
-					tempChar = new FreezeTurret();
+						tempChar = new FreezeTurret();
+						if(Variables.UPGRADE_FREEZE_MASTERED) tempChar.level = 3;
 					break;
 				}
 				
@@ -877,10 +880,9 @@ package
 				else if(e.currentTarget.charType == Turret.TURRET_FREEZE) baseCharInfo.txtCharType.text = "Freeze";
 				
 				baseCharInfo.txtMemoryUse.text 		= "$: " + tempChar.memoryUse;
-				baseCharInfo.txtDamage.text			= "Damage: " + tempChar.damage;
-				baseCharInfo.txtRange.text 			= "Range: " + tempChar.range;
-				baseCharInfo.txtReloadTime.text 		= "Reload Time: " + tempChar.reloadTime;
-				baseCharInfo.txtAbility.text 			= tempChar.abilityDescription;
+				baseCharInfo.txtDamage.text			= tempChar.damage;
+				baseCharInfo.txtRange.text 			= tempChar.range;
+				baseCharInfo.txtReloadTime.text 	= tempChar.reloadTime;
 				
 				baseCharInfo.x = gameWidth;
 				baseCharInfo.y = gameHeight;
@@ -1487,28 +1489,29 @@ package
 			
 				if(target.level < target.maxLevel)
 				{
-					charInfo.txtUpgradeCost.text	= "UpgradeCost $: " + target.upgradeCost;
+					CONTINIUM переделываем CharInfo
+					//charInfo.txtUpgradeCost.text	= "$ " + target.upgradeCost;
 				
-					if(target.additionalDamage != 0) charInfo.txtDamageUP.text 			= "+ " + target.additionalDamage;
-					else charInfo.txtDamageUP.text 												= "";
-					if(target.additionalRange != 0) charInfo.txtRangeUP.text 			= "+ " + target.additionalRange;
-					else charInfo.txtRangeUP.text 												= "";
-					if(target.additionalReloadTime != 0) charInfo.txtReloadUP.text		= "- " + target.additionalReloadTime;
-					else charInfo.txtReloadUP.text 												= "";
+					//if(target.additionalDamage != 0) charInfo.txtDamageUP.text 			= "+ " + target.additionalDamage;
+					//else charInfo.txtDamageUP.text 												= "";
+					//if(target.additionalRange != 0) charInfo.txtRangeUP.text 			= "+ " + target.additionalRange;
+					//else charInfo.txtRangeUP.text 												= "";
+					//if(target.additionalReloadTime != 0) charInfo.txtReloadUP.text		= "- " + target.additionalReloadTime;
+					//else charInfo.txtReloadUP.text 												= "";
 				}
 				else 
 				{
-					charInfo.txtUpgradeCost.text	= "Upgrade Maximum";
-					charInfo.txtDamageUP.text		= "";
-					charInfo.txtRangeUP.text		= "";
-					charInfo.txtReloadUP.text		= "";
+					//charInfo.txtUpgradeCost.text	= "MAX";
+					//charInfo.txtDamageUP.text		= "";
+					//charInfo.txtRangeUP.text		= "";
+					//charInfo.txtReloadUP.text		= "";
 				}
 			
-				charInfo.txtCharLevel.text 	= " lvl " + target.level;
-				charInfo.txtDamage.text			= "Damage: " + target.damage;
-				charInfo.txtRange.text			= "Range: " + target.range;
-				charInfo.txtReloadTime.text	= "ReloadTime: " + target.reloadTime;
-				charInfo.txtSellCost.text		= "SellCost $: " + target.memoryUse;
+				charInfo.txtCharLevel.text 		= " lvl " + target.level;
+				charInfo.txtDamage.text			= target.damage;
+				charInfo.txtRange.text			= target.range;
+				charInfo.txtReloadTime.text		= target.reloadTime;
+				//charInfo.txtSellCost.text		= target.memoryUse;
 				charInfo.x = gameWidth;
 				charInfo.y = gameHeight;
 				charHolder.addChild(charInfo);
@@ -1617,8 +1620,16 @@ package
 									turret.gunAccDamage = 0;
 								}
 							}
-							if(turret.level >= 3  && (Math.random() * 100 < Variables.GUN_CRIT_CHANCE)) {targetEnemy.health -= turret.damage * Variables.GUN_CRIT_DAMAGE_MULTIPLY + turret.gunAccDamage;}
-							else targetEnemy.health -= turret.damage + turret.gunAccDamage;
+							if(turret.level >= 3  && (Math.random() * 100 < Variables.GUN_CRIT_CHANCE))
+							{
+								targetEnemy.health -= turret.damage * Variables.GUN_CRIT_DAMAGE_MULTIPLY + turret.gunAccDamage;
+								createExplosion(targetEnemy.x, targetEnemy.y, targetEnemy.levelColor, false, true);
+							}
+							else
+							{
+								targetEnemy.health -= turret.damage + turret.gunAccDamage;
+								createExplosion(targetEnemy.x, targetEnemy.y, targetEnemy.levelColor);
+							}
 							
 							targetEnemy.lifeBar.gotoAndStop(Math.floor(targetEnemy.health / targetEnemy.maxHealth * 100));
 						}
@@ -1743,6 +1754,7 @@ package
 								else if(!enemy.isPoisoned) enemy.addStatus(Enemy.STATUS_POISON);
 							}
 							enemy.health -= splash.damage;
+							createExplosion(enemy.x, enemy.y, enemy.levelColor);
 							enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 						}
 					}
@@ -1806,6 +1818,7 @@ package
 						else
 						{
 							target.health -= missile.damage;
+							createExplosion(target.x, target.y, target.levelColor);
 							target.lifeBar.gotoAndStop(Math.floor(target.health / target.maxHealth * 100));
 						}
 						removeObject(m, missileArray);
@@ -1883,6 +1896,7 @@ package
 						if(swSplash.hitZone.hitTestObject(enemy))
 						{
 							enemy.health -= swSplash.damage;
+							createExplosion(enemy.x, enemy.y, enemy.levelColor);
 							enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 						}
 					}
@@ -1925,6 +1939,7 @@ package
 					{
 						enemy.addStatus(Enemy.STATUS_CLOUD);
 						enemy.health -= Variables.LAUNCHER_POISON_CLOUD_DAMAGE;
+						createExplosion(enemy.x, enemy.y, enemy.levelColor, false, false, true);
 						enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 						enemy.thisTurnCloudTouched = true;
 					}
@@ -2139,16 +2154,23 @@ package
 			if(enemyKilled) numParticles = 50;
 			else if(!enemyKilled) numParticles = 10;
 			if(crit) numParticles = 20;
-			if(poison) numParticles = 5;
-			CONTINIUM отображаем удары по врагам
+			if(poison) numParticles = 2;
 			
 			for(var i:int = 0; i < numParticles; i++)
 			{
 				var particle:Particle = new Particle(color);
 				particle.rotation = Math.random() * 360;
 				particle.speed = Math.random() * 10 + 5;
-				particle.x = xVal;
-				particle.y = yVal;
+				if(enemyKilled)
+				{
+					particle.x = xVal;
+					particle.y = yVal;
+				}
+				else
+				{
+					particle.x = xVal + Math.random() * 30 - 15;
+					particle.y = yVal + Math.random() * 30 - 15;
+				}
 				particleArray.push(particle);
 				addChild(particle);
 			}
@@ -2376,6 +2398,7 @@ package
 						{
 							enemy = enemyArray[i];
 							enemy.health -= Variables.SPECIAL_FLOW_OVERLOAD_DAMAGE;
+							createExplosion(enemy.x, enemy.y, enemy.levelColor);
 							enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 						}
 						specialToolCooldownClip = new SpecialToolsCooldown();
