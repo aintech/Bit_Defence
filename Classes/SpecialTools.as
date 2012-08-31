@@ -10,11 +10,15 @@
 		public static const RELOCATE_TURRET:String		= "relocate turret";
 		public static const ADDITIONAL_MARKER:String		= "additional marker";
 		
+		public var counter:int = 0;
+		public var timeWait:int;
+		
 		public var type:String;
 		
 		public function SpecialTools(type:String)
 		{
 			this.type = type;
+			
 		}
 	}
 }

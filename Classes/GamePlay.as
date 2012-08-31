@@ -16,10 +16,7 @@
 //Подключение дополнительного маркера - можно создать новый маркер, на который можно установить турель
 //Мина - устанавлвается на дороге и наносит и взрывается при прикосновении противника
 
-//TODO: Сделать куллтаймы спецтехник в привязке к Variables
-
-//FIX: при создании турелей 3-го уровня неправильно указываются из начальные характеристики///////////////////////////////////////////////////////
-//FIX: при паузе должна остановиться анимация и отсчет времени до следующей волны
+CONTINIUM: Сделать куллтаймы спецтехник в привязке к Variables
 
 //TODO: нажатии кнопки не исчезают, а уменьшаются - для создания анимации
 
@@ -1295,6 +1292,8 @@ package
 		private function startUpgradeTurret(e:MouseEvent):void
 		{
 			var turret:Turret = charMenu.target;
+			if(turret is FreezeTurret) turret.gun.graphics.clear();
+			
 			for(var i:int = turretArray.length; --i >= 0;)
 			{
 				var tempTurret:Turret = turretArray[i];
@@ -1464,7 +1463,12 @@ package
 				charMenu.txtSellCost.text = target.memoryUse;
 				charMenu.txtUpgradeCost.text = target.upgradeCost;
 			
-				if((target.level < target.maxLevel) && (memoryTotal >= memoryUsed + target.upgradeCost)) charMenu.upgradeBtn.addEventListener(MouseEvent.CLICK, startUpgradeTurret, false, 0, true);
+				if((target.level < target.maxLevel) && (memoryTotal >= memoryUsed + target.upgradeCost))
+				{
+					charMenu.upgradeBtn.addEventListener(MouseEvent.CLICK, startUpgradeTurret, false, 0, true);
+					charMenu.upgradeBtn.addEventListener(MouseEvent.MOUSE_OVER, showTurretUP, false, 0, true);
+					charMenu.upgradeBtn.addEventListener(MouseEvent.MOUSE_OUT, hideTurretUP, false, 0, true);
+				}
 				else if(target.level == target.maxLevel)
 				{
 					charMenu.upgradeBtn.visible = false;
@@ -1486,32 +1490,11 @@ package
 				else if(target is LauncherTurret) charInfo.txtCharType.text = "Launcher";
 				else if(target is SwarmTurret) charInfo.txtCharType.text = "Swarm";
 				else if(target is FreezeTurret) charInfo.txtCharType.text = "Freeze";
-			
-				if(target.level < target.maxLevel)
-				{
-					CONTINIUM переделываем CharInfo
-					//charInfo.txtUpgradeCost.text	= "$ " + target.upgradeCost;
 				
-					//if(target.additionalDamage != 0) charInfo.txtDamageUP.text 			= "+ " + target.additionalDamage;
-					//else charInfo.txtDamageUP.text 												= "";
-					//if(target.additionalRange != 0) charInfo.txtRangeUP.text 			= "+ " + target.additionalRange;
-					//else charInfo.txtRangeUP.text 												= "";
-					//if(target.additionalReloadTime != 0) charInfo.txtReloadUP.text		= "- " + target.additionalReloadTime;
-					//else charInfo.txtReloadUP.text 												= "";
-				}
-				else 
-				{
-					//charInfo.txtUpgradeCost.text	= "MAX";
-					//charInfo.txtDamageUP.text		= "";
-					//charInfo.txtRangeUP.text		= "";
-					//charInfo.txtReloadUP.text		= "";
-				}
-			
 				charInfo.txtCharLevel.text 		= " lvl " + target.level;
 				charInfo.txtDamage.text			= target.damage;
 				charInfo.txtRange.text			= target.range;
 				charInfo.txtReloadTime.text		= target.reloadTime;
-				//charInfo.txtSellCost.text		= target.memoryUse;
 				charInfo.x = gameWidth;
 				charInfo.y = gameHeight;
 				charHolder.addChild(charInfo);
@@ -1519,6 +1502,40 @@ package
 				showTurretRange(target.range, target.x, target.y);
 			}
 			unClickMarker(e);
+		}
+		
+		private function showTurretUP(e:MouseEvent):void
+		{
+			var target:Turret = charMenu.target;
+			if(target.additionalDamage != 0)
+			{
+				charInfo.txtDamage.textColor = 0xFF0000;
+				charInfo.txtDamage.text = String(target.damage + target.additionalDamage);
+			}
+			if(target.additionalRange != 0)
+			{
+				charInfo.txtRange.textColor = 0xFF0000;
+				charInfo.txtRange.text = String(target.range + target.additionalRange);
+			}
+			if(target.additionalReloadTime != 0)
+			{
+				charInfo.txtReloadTime.textColor = 0xFF0000;
+				charInfo.txtReloadTime.text = String(target.reloadTime - target.additionalReloadTime);
+			}
+		}
+		
+		private function hideTurretUP(e:MouseEvent):void
+		{
+			if(charInfo)
+			{
+				var target:Turret = charMenu.target;
+				charInfo.txtDamage.text = target.damage;
+				charInfo.txtRange.text = target.range;
+				charInfo.txtReloadTime.text = target.reloadTime;
+				charInfo.txtDamage.textColor = 0xFFFFFF;
+				charInfo.txtRange.textColor = 0xFFFFFF;
+				charInfo.txtReloadTime.textColor = 0xFFFFFF;
+			}
 		}
 		
 		private function showTurretRange(range:int, xVal:int, yVal:int):void
@@ -2341,6 +2358,7 @@ package
 						specialToolCooldownClip = new SpecialToolsCooldown();
 						specialToolCooldownClip.x = e.currentTarget.x;
 						specialToolCooldownClip.y = e.currentTarget.y;
+						specialToolCooldownClip.gotoAndStop(1);
 						toolsScreen.addChild(specialToolCooldownClip);
 						specialToolsCooldownsArray.push(specialToolCooldownClip);
 						

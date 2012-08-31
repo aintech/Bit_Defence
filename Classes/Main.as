@@ -221,6 +221,7 @@
 						
 						playScreen.filters = [];
 						playScreen.gameTimer.start();
+						if(playScreen.waveTimerInAction) playScreen.nextWaveTimer.start();
 						stage.focus = playScreen;
 					}
 				}
@@ -240,7 +241,8 @@
 			if(playScreen)
 			{
 				playScreen.gameTimer.stop();
-				playScreen.filters = [new BlurFilter(10, 10)];
+				if(playScreen.waveTimerInAction) playScreen.nextWaveTimer.stop();
+				playScreen.filters = [new BlurFilter(5, 5)];
 				
 				optionsScreen.restartBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
 				optionsScreen.mapBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
@@ -249,7 +251,7 @@
 			}
 			else if(mapScreen)
 			{
-				mapScreen.filters = [new BlurFilter(10, 10)];
+				mapScreen.filters = [new BlurFilter(5, 5)];
 					
 				optionsScreen.restartBtn.visible = false;
 				optionsScreen.saveBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
@@ -281,6 +283,7 @@
 				{
 					playScreen.gameTimer.start();
 					playScreen.filters = [];
+					if(playScreen.waveTimerInAction) playScreen.nextWaveTimer.start();
 				}
 				else if(mapScreen)
 				{
@@ -354,12 +357,6 @@
 				}
 				
 				restartGame(null);
-				/*menuScreen = new MenuScreen();
-				stage.focus = menuScreen;
-				menuScreen.addEventListener(CustomEvents.START_GAME, onGameStart, false, 0, true);
-				menuScreen.addEventListener(CustomEvents.SHOW_SETTINGS, showSettingsScreen, false, 0, true);
-				menuScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
-				addChild(menuScreen);*/
 				break;
 			}
 		}
