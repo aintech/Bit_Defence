@@ -4,7 +4,7 @@
 	import flash.geom.Point;
 	import flash.events.Event;
 
-	public class Missile extends MovieClip
+	public class Swarm extends MovieClip
 	{
 		public var speed:int = 20;
 		public var ease:int = 10;
@@ -28,7 +28,7 @@
 		
 		public var lifeTime:int;
 		
-		public function Missile()
+		public function Swarm()
 		{
 			
 		}

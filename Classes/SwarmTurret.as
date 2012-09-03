@@ -11,7 +11,7 @@
 		{
 			maxLevel = Variables.SWARM_MAX_LEVEL;
 			base = new TurretBase();
-			gun = new MissileTurret_Gun();
+			gun = new SwarmTurret_Gun();
 			addChild(base);
 			addChild(gun);
 			

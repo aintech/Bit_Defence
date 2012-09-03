@@ -5,8 +5,7 @@
 //TODO: сделать прелоадер
 //TODO: Экраны должны плавно переходить друг в друга
 //HELP: ||
-//TODO: всплывающие подсказки над иконками specialTools, nextWave и т.д.
-//TODO: tutorScreen - всплывает экран туториал - иконка сбоку - рассказывающая о новых врагах или возможностях - держиться какое-то время
+//TODO: tutorScreen - всплывает экран туториал - иконка сбоку - рассказывающая о новых врагах или возможностях - держиться какое-то время///////////////////////////////////////
 
 //СпецТехника:
 //Дополнительный контур защиты - снижает вероятность взлома системы
@@ -16,13 +15,13 @@
 //Подключение дополнительного маркера - можно создать новый маркер, на который можно установить турель
 //Мина - устанавлвается на дороге и наносит и взрывается при прикосновении противника
 
-CONTINIUM: Сделать куллтаймы спецтехник в привязке к Variables
-
 //TODO: нажатии кнопки не исчезают, а уменьшаются - для создания анимации
 
 //TODO: из врагов выпадают бусты - типа защиты от взлома
 //TODO: можно настроить, чтобы турели били ближайшего, сильнейшего и т.д.
 //TODO: У каждого врага свое время задержки перед выходом
+
+//TODO: reloadTime у турелей надо высчитывать по реальному времени, радиус в клетках
 
 
 //BALANCE: разные типы врагов устойчивые к разным турелям заставять игрока применять разные тактики
@@ -34,6 +33,7 @@ package
 	import flash.display.Sprite;
 	import flash.display.Shape;
 	import flash.utils.Timer;
+	import flash.utils.getTimer;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.events.Event;
@@ -77,6 +77,7 @@ package
 		public var bulletHolder:Sprite 			= new Sprite();
 		public var charHolder:Sprite 				= new Sprite();
 		public var userInterface:Sprite			= new Sprite();
+		public var introduceHolder:Sprite		= new Sprite();
 		public var toolGaugeScreen:Sprite		= new Sprite();
 		
 		public var charScreen:MovieClip;
@@ -116,28 +117,29 @@ package
 		public var enemyLimit:int = Variables.ENEMY_DELAY;//Время задержки появления врагов
 		public var enemiesLeft:int;
 		
-		public var dropArray:Array					= [];
-		public var roadArray:Array					= [];
-		public var enemyArray:Array 				= [];
-		public var rocketArray:Array 				= [];
-		public var splashArray:Array 				= [];
-		public var groundArray:Array				= [];
-		public var directArray:Array 				= [];
-		public var markerArray:Array 				= [];
-		public var turretArray:Array 				= [];
-		public var missileArray:Array 				= [];
-		public var particleArray:Array 				= [];
-		public var upgradingArray:Array				= [];
-		public var distEnemyArray:Array				= [];
-		public var hackingEnemies:Array				= [];
-		public var installingArray:Array			= [];
-		public var swarmBombsArray:Array			= [];
-		public var bombSplashArray:Array			= [];
-		public var swarmSplashArray:Array			= [];
-		public var poisonCloudsArray:Array			= [];
-		public var uninstallingArray:Array			= [];
-		public var specialToolsArray:Array			= [];
-		public var addMarkerCounterArray:Array		= [];
+		public var dropArray:Array							= [];
+		public var roadArray:Array							= [];
+		public var enemyArray:Array 						= [];
+		public var swarmArray:Array 						= [];
+		public var rocketArray:Array 						= [];
+		public var splashArray:Array 						= [];
+		public var groundArray:Array						= [];
+		public var directArray:Array 						= [];
+		public var markerArray:Array 						= [];
+		public var turretArray:Array 						= [];
+		public var particleArray:Array 					= [];
+		public var upgradingArray:Array					= [];
+		public var distEnemyArray:Array					= [];
+		public var hackingEnemies:Array					= [];
+		public var installingArray:Array					= [];
+		public var swarmBombsArray:Array					= [];
+		public var bombSplashArray:Array					= [];
+		public var swarmSplashArray:Array				= [];
+		public var poisonCloudsArray:Array				= [];
+		public var uninstallingArray:Array				= [];
+		public var specialToolsArray:Array				= [];
+		public var introScreensArray:Array				= [];
+		public var addMarkerCounterArray:Array			= [];
 		public var specialToolsGaugeArray:Array		= [];
 		public var specialToolsDisablesArray:Array	= [];
 		public var availableActionFlagsArray:Array	= [];
@@ -156,7 +158,7 @@ package
 		
 		public var specialToolsGauge:int = Variables.SPECIAL_TOOL_GAUGE;
 		public var addingMarker:Boolean = false;
-		public var specialToolCooldownClip:MovieClip;
+		public var specialToolCooldown:SpecialToolsCooldown;
 		public var specialToolDisableClip:Sprite;
 		
 		public var cancelToolClip:MovieClip;
@@ -184,6 +186,8 @@ package
 		
 		public var enemyFinalTarget:EnemyFinalTarget;
 		public var statusEffects:StatusEffects;
+		
+		public var introScreen:IntroduceScreen;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -220,6 +224,7 @@ package
 			addChild(bulletHolder);
 			addChild(charHolder);
 			addChild(userInterface);
+			addChild(introduceHolder); introduceHolder.x = 60;
 			userInterface.addChild(scoreBoard);
 			
 			optionsGearBtn = new OptionsGear();
@@ -309,9 +314,9 @@ package
 					toolIcon.gotoAndStop("flowStop");
 					break;
 					
-					case SpecialTools.HACK_CHANCE_REDUCE:
-					toolIcon = new SpecialTools(SpecialTools.HACK_CHANCE_REDUCE);
-					toolIcon.gotoAndStop("hackChanceReduce");
+					case SpecialTools.HACK_REDUCE:
+					toolIcon = new SpecialTools(SpecialTools.HACK_REDUCE);
+					toolIcon.gotoAndStop("hackReduce");
 					break;
 					
 					case SpecialTools.RELOCATE_TURRET:
@@ -545,7 +550,7 @@ package
 			checkBanners();
 			checkForEndLevel();
 			checkSettings();
-			fillSpecialGauge();
+			specialToolsInWork();
 			installTurrets();
 			upgradeTurrets();
 			uninstallTurrets();
@@ -600,13 +605,17 @@ package
 			Settings.SETTINGS_CHANGED = false;
 		}
 		
-		private function fillSpecialGauge():void
+		private function specialToolsInWork():void
 		{
+			var timeLeft:Number;
+			var gauge:MovieClip;
+			var cFrame:int;
+			
 			specialToolsGauge = 0;
 			for(var i:int = 0; i < specialToolsGaugeArray.length; i++)
 			{
-				var gauge:MovieClip = specialToolsGaugeArray[i] as MovieClip;
-				var cFrame:int = gauge.currentFrame;
+				gauge = specialToolsGaugeArray[i] as MovieClip;
+				cFrame = gauge.currentFrame;
 				if(cFrame < gauge.totalFrames) 
 				{
 					cFrame++;
@@ -617,8 +626,13 @@ package
 			}
 			for(var k:int = specialToolsCooldownsArray.length; --k >= 0;)
 			{
-				var cooldown:MovieClip = specialToolsCooldownsArray[k] as MovieClip;
-				if(cooldown.currentFrame >= 100) removeObject(k, specialToolsCooldownsArray);
+				var cooldown:SpecialToolsCooldown = specialToolsCooldownsArray[k];
+				timeLeft = Math.round((cooldown.finishTime - getTimer()) * .01) * .1;
+				cooldown.txtCounter.text = timeLeft.toString();
+				if(cooldown.txtCounter.length == 1) cooldown.txtCounter.appendText(".0");
+				else if(timeLeft > 10) cooldown.txtCounter.replaceText(2, cooldown.txtCounter.length, "");
+				cooldown.gotoAndStop(Math.round((timeLeft * 1000) / cooldown.lifeTime * 100));
+				if(timeLeft <= 0) removeObject(k, specialToolsCooldownsArray);
 			}
 		}
 		
@@ -635,6 +649,14 @@ package
 					{
 						case 1:
 						enemy = new Enemy_Speeder();
+						if(!Variables.INTRODUCE_SPEEDER)
+						{
+							introScreen = new IntroduceScreen(IntroduceScreen.SPEEDER);
+							introScreensArray.push(introScreen);
+							introduceHolder.addChild(introScreen);
+							Variables.INTRODUCE_SPEEDER = true;
+							CONTINIUM создаем экраны представляющие новых врагов, турели и т.д.
+						}
 						break;
 						
 						case 2:
@@ -1114,24 +1136,28 @@ package
 			{
 				case "gunBtn":
 				tempChar = new GunTurret();
+				if(Variables.UPGRADE_GUN_MASTERED) tempChar.level = 3;
 				confirmTurretCircle.turretType = Turret.TURRET_GUN;
 				break;
 				
 				case "launcherBtn":
 				tempChar = new LauncherTurret();
 				confirmTurretCircle.abilityTxt.text = "Splash";
+				if(Variables.UPGRADE_LAUNCHER_MASTERED) tempChar.level = 3;
 				confirmTurretCircle.turretType = Turret.TURRET_LAUNCHER;
 				break;
 				
 				case "swarmBtn":
 				tempChar = new SwarmTurret();
-				confirmTurretCircle.abilityTxt.text = "Missiles";
+				confirmTurretCircle.abilityTxt.text = "Swarm";
+				if(Variables.UPGRADE_SWARM_MASTERED) tempChar.level = 3;
 				confirmTurretCircle.turretType = Turret.TURRET_SWARM;
 				break;
 				
 				case "freezeBtn":
 				tempChar = new FreezeTurret();
 				confirmTurretCircle.abilityTxt.text = "Freeze";
+				if(Variables.UPGRADE_FREEZE_MASTERED) tempChar.level = 3;
 				confirmTurretCircle.turretType = Turret.TURRET_FREEZE;
 				break;
 			}
@@ -1667,18 +1693,18 @@ package
 							turret.gun.gotoAndPlay("shot");
 							for(var t:int = 0; t < turret.numMissiles; t++)
 							{
-								var missile:Missile = new Missile();
-								missile.turretLevel = turret.level;
-								missile.damage = turret.damage;
-								missile.numBombs = turret.numSwarmBombs;
-								missile.x = turret.x;
-								missile.y = turret.y;
-								missile.orbiterPoint = new Point(turret.x, turret.y);
+								var swarm:Swarm = new Swarm();
+								swarm.turretLevel = turret.level;
+								swarm.damage = turret.damage;
+								swarm.numBombs = turret.numSwarmBombs;
+								swarm.x = turret.x;
+								swarm.y = turret.y;
+								swarm.orbiterPoint = new Point(turret.x, turret.y);
 								var minAngle:int = -(turret.numMissiles - 1) * 25;
-								missile.rotation = turret.gun.rotation + minAngle + (t * 50);
-								missile.target = targetEnemy;
-								missileArray.push(missile);
-								bulletHolder.addChild(missile);
+								swarm.rotation = turret.gun.rotation + minAngle + (t * 50);
+								swarm.target = targetEnemy;
+								swarmArray.push(swarm);
+								bulletHolder.addChild(swarm);
 							}
 						}
 						else if(turret is FreezeTurret)
@@ -1779,121 +1805,121 @@ package
 				if(splash.currentFrame >= 10) removeObject(s, splashArray);
 			}
 			
-			for(var m:int = missileArray.length; --m >= 0;)
+			for(var m:int = swarmArray.length; --m >= 0;)
 			{
-				var missile:Missile = missileArray[m];
-				missile.lifeTime++;
+				var swarm:Swarm = swarmArray[m];
+				swarm.lifeTime++;
 				
-				if(missile.target.health <= 0 && enemyArray.length > 0)
+				if(swarm.target.health <= 0 && enemyArray.length > 0)
 				{
-					if(missile.lostTarget) !missile.lostTarget;
+					if(swarm.lostTarget) !swarm.lostTarget;
 					for(var ne:int = enemyArray.length; --ne >= 0;)
 					{
 						enemy = enemyArray[ne];
-						distance = Math.sqrt(Math.pow(enemy.x - missile.x,2) + Math.pow(enemy.y - missile.y, 2));
+						distance = Math.sqrt(Math.pow(enemy.x - swarm.x,2) + Math.pow(enemy.y - swarm.y, 2));
 						enemy.distToMissile = distance;
 						distEnemyArray.push(enemy);
 						if(distEnemyArray.length > 1)
 						{
 							distEnemyArray.sort(sortForMissiles);
-							missile.target = distEnemyArray[0];
+							swarm.target = distEnemyArray[0];
 						}
-						else missile.target = distEnemyArray[0];
+						else swarm.target = distEnemyArray[0];
 					}
 				}
-				if(missile.target.health > 0)
+				if(swarm.target.health > 0)
 				{
-					if(missile.lostTarget) !missile.lostTarget;
-					var target:MovieClip = missile.target;
+					if(swarm.lostTarget) !swarm.lostTarget;
+					var target:MovieClip = swarm.target;
 				
-					xDest = target.x - missile.x;
-					yDest = target.y - missile.y;					
+					xDest = target.x - swarm.x;
+					yDest = target.y - swarm.y;					
 					angle = Math.atan2(yDest, xDest) * 180 / Math.PI;
-					if(Math.abs(angle - missile.rotation) > 180)
+					if(Math.abs(angle - swarm.rotation) > 180)
 					{
-						if(angle > 0 && missile.rotation < 0) missile.rotation -= (360 - angle + missile.rotation) / missile.ease;
-						else if(angle < 0 && missile.rotation > 0) missile.rotation += (360 - angle + missile.rotation) / missile.ease;
+						if(angle > 0 && swarm.rotation < 0) swarm.rotation -= (360 - angle + swarm.rotation) / swarm.ease;
+						else if(angle < 0 && swarm.rotation > 0) swarm.rotation += (360 - angle + swarm.rotation) / swarm.ease;
 					}
-					else if(angle < missile.rotation) missile.rotation -= Math.abs(missile.rotation - angle) / missile.ease;
-					else missile.rotation += Math.abs(angle - missile.rotation) / missile.ease;
+					else if(angle < swarm.rotation) swarm.rotation -= Math.abs(swarm.rotation - angle) / swarm.ease;
+					else swarm.rotation += Math.abs(angle - swarm.rotation) / swarm.ease;
 				
-					missile.xSpeed = missile.speed * (90 - Math.abs(missile.rotation)) / 90;
+					swarm.xSpeed = swarm.speed * (90 - Math.abs(swarm.rotation)) / 90;
 				
-					if(missile.rotation < 0) missile.ySpeed = -missile.speed + Math.abs(missile.xSpeed);
-					else missile.ySpeed = missile.speed - Math.abs(missile.xSpeed);
+					if(swarm.rotation < 0) swarm.ySpeed = -swarm.speed + Math.abs(swarm.xSpeed);
+					else swarm.ySpeed = swarm.speed - Math.abs(swarm.xSpeed);
 				
-					missile.x += missile.xSpeed;
-					missile.y += missile.ySpeed;
+					swarm.x += swarm.xSpeed;
+					swarm.y += swarm.ySpeed;
 					
-					if(missile.hitTestObject(target.hitPoint)) 
+					if(swarm.hitTestObject(target.hitPoint)) 
 					{
-						if(missile.turretLevel >= 3 && (Math.random() * 100 < Variables.SWARM_SPLASH_CHANCE))
+						if(swarm.turretLevel >= 3 && (Math.random() * 100 < Variables.SWARM_SPLASH_CHANCE))
 						{
-							if(Variables.UPGRADE_BOMB_CASCADE) createCascadeBombs(missile.x, missile.y, missile.rotation, missile.numBombs);
-							else createSwarmSplash(missile.x, missile.y, "swarmSplash", Variables.SWARM_SPLASH_DAMAGE);
+							if(Variables.UPGRADE_BOMB_CASCADE) createCascadeBombs(swarm.x, swarm.y, swarm.rotation, swarm.numBombs);
+							else createSwarmSplash(swarm.x, swarm.y, "swarmSplash", Variables.SWARM_SPLASH_DAMAGE);
 						}
 						else
 						{
-							target.health -= missile.damage;
+							target.health -= swarm.damage;
 							createExplosion(target.x, target.y, target.levelColor);
 							target.lifeBar.gotoAndStop(Math.floor(target.health / target.maxHealth * 100));
 						}
-						removeObject(m, missileArray);
+						removeObject(m, swarmArray);
 					}
-					if(missile.ease > 1) missile.ease--;
+					if(swarm.ease > 1) swarm.ease--;
 				}
-				else if(missile.target.health <= 0)
+				else if(swarm.target.health <= 0)
 				{
-					if(!missile.lostTarget)
+					if(!swarm.lostTarget)
 					{
-						missile.lostTarget = true;
-						missile.ease = 10;
+						swarm.lostTarget = true;
+						swarm.ease = 10;
 					}
 					
-					xDest = missile.orbiterPoint.x - missile.x;
-					yDest = missile.orbiterPoint.y - missile.y;
+					xDest = swarm.orbiterPoint.x - swarm.x;
+					yDest = swarm.orbiterPoint.y - swarm.y;
 					
 					distance = Math.sqrt(xDest*xDest + yDest*yDest);
 					if(distance > 30)
 					{
 						radian = Math.atan2(yDest, xDest);
 						angle = radian * 180 / Math.PI;
-						missile.xSpeed = Math.cos(radian) * missile.speed;
-						missile.ySpeed = Math.sin(radian) * missile.speed;
-						missile.rotation  = angle;
+						swarm.xSpeed = Math.cos(radian) * swarm.speed;
+						swarm.ySpeed = Math.sin(radian) * swarm.speed;
+						swarm.rotation  = angle;
 						
-						missile.x += missile.xSpeed;
-						missile.y += missile.ySpeed;
+						swarm.x += swarm.xSpeed;
+						swarm.y += swarm.ySpeed;
 					}
-					else if(missile.lifeTime > 10)
+					else if(swarm.lifeTime > 10)
 					{
-						missile.orbiterAngle += missile.orbiterSpeed;
-						radian = missile.orbiterAngle * (Math.PI / 180);
-						missile.rotation = (Math.atan2(yDest, xDest) * 180 / Math.PI) - 90;
-						missile.x = missile.orbiterPoint.x + missile.orbiterRadius * Math.cos(radian);
-						missile.y = missile.orbiterPoint.y + missile.orbiterRadius * Math.sin(radian);
+						swarm.orbiterAngle += swarm.orbiterSpeed;
+						radian = swarm.orbiterAngle * (Math.PI / 180);
+						swarm.rotation = (Math.atan2(yDest, xDest) * 180 / Math.PI) - 90;
+						swarm.x = swarm.orbiterPoint.x + swarm.orbiterRadius * Math.cos(radian);
+						swarm.y = swarm.orbiterPoint.y + swarm.orbiterRadius * Math.sin(radian);
 					}
 					else
 					{				
 						angle = Math.atan2(yDest, xDest) * 180 / Math.PI;
-						if(Math.abs(angle - missile.rotation) > 180)
+						if(Math.abs(angle - swarm.rotation) > 180)
 						{
-							if(angle > 0 && missile.rotation < 0) missile.rotation -= (360 - angle + missile.rotation) / missile.ease;
-							else if(angle < 0 && missile.rotation > 0) missile.rotation += (360 - angle + missile.rotation) / missile.ease;
+							if(angle > 0 && swarm.rotation < 0) swarm.rotation -= (360 - angle + swarm.rotation) / swarm.ease;
+							else if(angle < 0 && swarm.rotation > 0) swarm.rotation += (360 - angle + swarm.rotation) / swarm.ease;
 						}
-						else if(angle < missile.rotation) missile.rotation -= Math.abs(missile.rotation - angle) / missile.ease;
-						else missile.rotation += Math.abs(angle - missile.rotation) / missile.ease;
+						else if(angle < swarm.rotation) swarm.rotation -= Math.abs(swarm.rotation - angle) / swarm.ease;
+						else swarm.rotation += Math.abs(angle - swarm.rotation) / swarm.ease;
 				
-						missile.xSpeed = missile.speed * (90 - Math.abs(missile.rotation)) / 90;
+						swarm.xSpeed = swarm.speed * (90 - Math.abs(swarm.rotation)) / 90;
 					
-						if(missile.rotation < 0) missile.ySpeed = -missile.speed + Math.abs(missile.xSpeed);
-						else missile.ySpeed = missile.speed - Math.abs(missile.xSpeed);
+						if(swarm.rotation < 0) swarm.ySpeed = -swarm.speed + Math.abs(swarm.xSpeed);
+						else swarm.ySpeed = swarm.speed - Math.abs(swarm.xSpeed);
 				
-						missile.x += missile.xSpeed;
-						missile.y += missile.ySpeed;
+						swarm.x += swarm.xSpeed;
+						swarm.y += swarm.ySpeed;
 					}
 				}
-				else removeObject(m, missileArray);
+				else removeObject(m, swarmArray);
 				for(var a:int = distEnemyArray.length; --a >= 0;) distEnemyArray.splice(a, 1);
 			}
 			
@@ -2140,7 +2166,8 @@ package
 		private function pickUpDrop(e:MouseEvent):void
 		{
 			var drop:Drop = e.currentTarget as Drop;
-			getDrop(drop);
+			drop.gotoScoreBoard = true;
+			drop.waitCounter = drop.waitTime;
 		}
 		
 		private function getDrop(drop:Drop):void
@@ -2212,7 +2239,7 @@ package
 			if(enemiesLeft == 0 && !waveTimerInAction && currentWave < enemyWaves.length)
 			{
 				startWaveBtn = new StartWaveBtn();
-				startWaveBtn.x = roadStart.x + 100;
+				startWaveBtn.x = roadStart.x + 50;
 				startWaveBtn.y = roadStart.y;
 				startWaveBtn.buttonMode = true;
 				startWaveBtn.timeCounter.mouseEnabled = false;
@@ -2232,7 +2259,8 @@ package
 		
 		private function countWaveDelay(e:TimerEvent):void
 		{
-			startWaveBtn.timeCounter.text = int(nextWaveTimer.repeatCount) - int(nextWaveTimer.currentCount);
+			if((nextWaveTimer.repeatCount - nextWaveTimer.currentCount) < 10) startWaveBtn.timeCounter.text = "0" + (int(nextWaveTimer.repeatCount) - int(nextWaveTimer.currentCount));
+			else startWaveBtn.timeCounter.text = int(nextWaveTimer.repeatCount) - int(nextWaveTimer.currentCount);
 		}
 		
 		private function onClickNextWave(e:MouseEvent):void
@@ -2345,22 +2373,26 @@ package
 				
 				switch(e.currentTarget.type)
 				{
-					case SpecialTools.HACK_CHANCE_REDUCE:
+					case SpecialTools.HACK_REDUCE:
 						for(var b:int = enemyArray.length; --b >= 0;)
 						{
 							enemy = enemyArray[b];
 							if(!enemy.hackChanceDecreased)
 							{
-								enemy.hackChance *= Variables.SPECIAL_HACK_CHANCE_REDUCE_MULTIPLY;
+								enemy.hackChance *= Variables.SPECIAL_HACK_REDUCE_MULTIPLY;
 								enemy.hackChanceDecreased = true;
 							}
 						}
-						specialToolCooldownClip = new SpecialToolsCooldown();
-						specialToolCooldownClip.x = e.currentTarget.x;
-						specialToolCooldownClip.y = e.currentTarget.y;
-						specialToolCooldownClip.gotoAndStop(1);
-						toolsScreen.addChild(specialToolCooldownClip);
-						specialToolsCooldownsArray.push(specialToolCooldownClip);
+						specialToolCooldown = new SpecialToolsCooldown();
+						specialToolCooldown.x = e.currentTarget.x;
+						specialToolCooldown.y = e.currentTarget.y;
+						specialToolCooldown.gotoAndStop(1);
+						specialToolCooldown.lifeTime = Variables.SPECIAL_HACK_REDUCE_COOLTIME;
+						specialToolCooldown.finishTime = getTimer() + Variables.SPECIAL_HACK_REDUCE_COOLTIME;
+						if(Variables.SPECIAL_HACK_REDUCE_COOLTIME < 10) specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_HACK_REDUCE_COOLTIME/1000)) + ".0";
+						else specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_HACK_REDUCE_COOLTIME/1000));
+						toolsScreen.addChild(specialToolCooldown);
+						specialToolsCooldownsArray.push(specialToolCooldown);
 						
 						specialToolsGauge--;
 						for(var ghc:int = specialToolsGaugeArray.length; --ghc >= 0;)
@@ -2382,11 +2414,16 @@ package
 					case SpecialTools.FLOW_STOP:
 						flowStopInAction = true;
 						flowStopCounter = Variables.SPECIAL_FLOW_STOP_DURATION;
-						specialToolCooldownClip = new SpecialToolsCooldown();
-						specialToolCooldownClip.x = e.currentTarget.x;
-						specialToolCooldownClip.y = e.currentTarget.y;
-						toolsScreen.addChild(specialToolCooldownClip);
-						specialToolsCooldownsArray.push(specialToolCooldownClip);
+						specialToolCooldown = new SpecialToolsCooldown();
+						specialToolCooldown.x = e.currentTarget.x;
+						specialToolCooldown.y = e.currentTarget.y;
+						specialToolCooldown.gotoAndStop(1);
+						specialToolCooldown.lifeTime = Variables.SPECIAL_FLOW_STOP_COOLTIME;
+						specialToolCooldown.finishTime = getTimer() + Variables.SPECIAL_FLOW_STOP_COOLTIME;
+						if(Variables.SPECIAL_FLOW_STOP_COOLTIME < 10) specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_FLOW_STOP_COOLTIME/1000)) + ".0";
+						else specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_FLOW_STOP_COOLTIME/1000));
+						toolsScreen.addChild(specialToolCooldown);
+						specialToolsCooldownsArray.push(specialToolCooldown);
 						
 						for each(enemy in enemyArray)
 						{
@@ -2419,11 +2456,16 @@ package
 							createExplosion(enemy.x, enemy.y, enemy.levelColor);
 							enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 						}
-						specialToolCooldownClip = new SpecialToolsCooldown();
-						specialToolCooldownClip.x = e.currentTarget.x;
-						specialToolCooldownClip.y = e.currentTarget.y;
-						toolsScreen.addChild(specialToolCooldownClip);
-						specialToolsCooldownsArray.push(specialToolCooldownClip);
+						specialToolCooldown = new SpecialToolsCooldown();
+						specialToolCooldown.x = e.currentTarget.x;
+						specialToolCooldown.y = e.currentTarget.y;
+						specialToolCooldown.gotoAndStop(1);
+						specialToolCooldown.lifeTime = Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME;
+						specialToolCooldown.finishTime = getTimer() + Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME;
+						if(Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME < 10) specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME/1000)) + ".0";
+						else specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME/1000));
+						toolsScreen.addChild(specialToolCooldown);
+						specialToolsCooldownsArray.push(specialToolCooldown);
 						
 						specialToolsGauge--;
 						for(var gfo:int = specialToolsGaugeArray.length; --gfo >= 0;)
@@ -2539,11 +2581,16 @@ package
 				{ 
 					if(tool.type == SpecialTools.ADDITIONAL_MARKER)
 					{
-						specialToolCooldownClip = new SpecialToolsCooldown();
-						specialToolCooldownClip.x = tool.x;
-						specialToolCooldownClip.y = tool.y;
-						toolsScreen.addChild(specialToolCooldownClip);
-						specialToolsCooldownsArray.push(specialToolCooldownClip);
+						specialToolCooldown = new SpecialToolsCooldown();
+						specialToolCooldown.x = tool.x;
+						specialToolCooldown.y = tool.y;
+						specialToolCooldown.gotoAndStop(1);
+						specialToolCooldown.lifeTime = Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME;
+						specialToolCooldown.finishTime = getTimer() + Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME;
+						if(Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME < 10) specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME/1000)) + ".0";
+						else specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME/1000));
+						toolsScreen.addChild(specialToolCooldown);
+						specialToolsCooldownsArray.push(specialToolCooldown);
 					} 
 					tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
 				}
@@ -2644,11 +2691,16 @@ package
 				{ 
 					if(tool.type == SpecialTools.RELOCATE_TURRET)
 					{
-						specialToolCooldownClip = new SpecialToolsCooldown();
-						specialToolCooldownClip.x = tool.x;
-						specialToolCooldownClip.y = tool.y;
-						toolsScreen.addChild(specialToolCooldownClip);
-						specialToolsCooldownsArray.push(specialToolCooldownClip);
+						specialToolCooldown = new SpecialToolsCooldown();
+						specialToolCooldown.x = tool.x;
+						specialToolCooldown.y = tool.y;
+						specialToolCooldown.gotoAndStop(1);
+						specialToolCooldown.lifeTime = Variables.SPECIAL_RELOCATE_TURRET_COOLTIME;
+						specialToolCooldown.finishTime = getTimer() + Variables.SPECIAL_RELOCATE_TURRET_COOLTIME;
+						if(Variables.SPECIAL_RELOCATE_TURRET_COOLTIME < 10) specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_RELOCATE_TURRET_COOLTIME/1000)) + ".0";
+						else specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_RELOCATE_TURRET_COOLTIME/1000));
+						toolsScreen.addChild(specialToolCooldown);
+						specialToolsCooldownsArray.push(specialToolCooldown);
 					} 
 					tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
 				}

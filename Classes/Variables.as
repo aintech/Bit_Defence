@@ -56,11 +56,11 @@
 		public static var SPECIAL_ADDITIONAL_MARKER_COOLTIME:int;
 		public static var SPECIAL_FLOW_OVERLOAD_COOLTIME:int;
 		public static var SPECIAL_FLOW_STOP_COOLTIME:int;
-		public static var SPECIAL_HACK_CHANCE_REDUCE_COOLTIME:int;
+		public static var SPECIAL_HACK_REDUCE_COOLTIME:int;
 		public static var SPECIAL_RELOCATE_TURRET_COOLTIME:int;
 		
 		public static var SPECIAL_FLOW_OVERLOAD_DAMAGE:int;
-		public static var SPECIAL_HACK_CHANCE_REDUCE_MULTIPLY:Number;
+		public static var SPECIAL_HACK_REDUCE_MULTIPLY:Number;
 		public static var SPECIAL_FLOW_STOP_DURATION:int;
 		public static var SPECIAL_ADDITIONAL_MARKER_INSTALL_TIME:int;
 		
@@ -133,6 +133,22 @@
 		
 		public static var GRAY_MATRIX:Array;
 		
+		public static var INTRODUCE_SPEEDER:Boolean;
+		public static var INTRODUCE_WORM:Boolean;
+		
+		public static var INTRODUCE_GUN:Boolean;
+		public static var INTRODUCE_SWARM:Boolean;
+		public static var INTRODUCE_LAUNCHER:Boolean;
+		public static var INTRODUCE_FREEZE:Boolean;
+		
+		public static var INTRODUCE_ADDITIONAL_MARKER:Boolean;
+		public static var INTRODUCE_FLOW_OVERLOAD:Boolean;
+		public static var INTRODUCE_FLOW_STOP:Boolean;
+		public static var INTRODUCE_HACK_REDUCE:Boolean;
+		public static var INTRODUCE_RELOCATE_TURRET:Boolean;
+		
+		public static const INTRODUCE_SCREEN_LIFETIME:int;
+		
 		public static function setToDefault():void
 		{
 			SYMBOLS						= 5000;
@@ -178,14 +194,14 @@
 		
 		 	SPECIAL_TOOL_GAUGE							= 4;
 		
-		 	SPECIAL_ADDITIONAL_MARKER_COOLTIME		= 5;
-		 	SPECIAL_FLOW_OVERLOAD_COOLTIME			= 5;
-		 	SPECIAL_FLOW_STOP_COOLTIME				= 5;
-		 	SPECIAL_HACK_CHANCE_REDUCE_COOLTIME 	= 5;
-		 	SPECIAL_RELOCATE_TURRET_COOLTIME		= 5;
+		 	SPECIAL_ADDITIONAL_MARKER_COOLTIME		= 5000;//задержка в милисекундах
+		 	SPECIAL_FLOW_OVERLOAD_COOLTIME			= 5000;
+		 	SPECIAL_FLOW_STOP_COOLTIME					= 5000;
+		 	SPECIAL_HACK_REDUCE_COOLTIME 	= 5000;
+		 	SPECIAL_RELOCATE_TURRET_COOLTIME			= 5000;
 		
 		 	SPECIAL_FLOW_OVERLOAD_DAMAGE				= 100;
-		 	SPECIAL_HACK_CHANCE_REDUCE_MULTIPLY		= .5;
+		 	SPECIAL_HACK_REDUCE_MULTIPLY				= .5;
 		 	SPECIAL_FLOW_STOP_DURATION					= 50;
 		 	SPECIAL_ADDITIONAL_MARKER_INSTALL_TIME = 50;
 		
@@ -260,8 +276,24 @@
 							0.3086, 0.6094, 0.082, 0, 0,
 					  		0.3086, 0.6094, 0.082, 0, 0,
 					  		0.3086, 0.6094, 0.082, 0, 0,
-								 0,		 0,	  	0, 1, 0
+								  0,		 0,	  0, 1, 0
 						];
+		
+			INTRODUCE_SPEEDER					= false;
+			INTRODUCE_WORM						= false;
+		
+			INTRODUCE_GUN						= false;
+			INTRODUCE_SWARM					= false;
+			INTRODUCE_LAUNCHER				= false;
+			INTRODUCE_FREEZE					= false;
+		
+			INTRODUCE_ADDITIONAL_MARKER	= false;
+			INTRODUCE_FLOW_OVERLOAD			= false;
+			INTRODUCE_FLOW_STOP				= false;
+			INTRODUCE_HACK_REDUCE			= false;
+			INTRODUCE_RELOCATE_TURRET		= false;
+			
+			INTRODUCE_SCREEN_LIFETIME		= 20000//miliseconds
 		}
 	}
 }
