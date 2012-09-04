@@ -97,7 +97,7 @@
 			{
 				case 1:
 				levelEnemyWaves = [[1/*, 1, 2, 2*/],
-								   [1, 1],
+								   [1, 2],
 								   [1, 2, 1, 2, 1, 1], 
 								   [1, 1, 1, 2, 1, 1, 2, 1],
 								   [1, 1, 1, 1, 1, 1, 1, 1]
@@ -161,19 +161,19 @@
 			switch(level)
 			{
 				case 1:
-				openTools = [SpecialTools.HACK_CHANCE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER];
+				openTools = [SpecialTools.HACK_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER];
 				break;
 				
 				case 2:
-				openTools = [SpecialTools.HACK_CHANCE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER];
+				openTools = [SpecialTools.HACK_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER];
 				break;
 				
 				case 3:
-				openTools = [SpecialTools.HACK_CHANCE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER];
+				openTools = [SpecialTools.HACK_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER];
 				break;
 				
 				default:
-				openTools = [SpecialTools.HACK_CHANCE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER];
+				openTools = [SpecialTools.HACK_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER];
 				break;
 			}
 			return openTools;

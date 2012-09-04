@@ -4,7 +4,7 @@
 
 	public class SpecialTools extends MovieClip
 	{
-		public static const HACK_CHANCE_REDUCE:String 	= "hack chance reduce";
+		public static const HACK_REDUCE:String 			= "hack chance reduce";
 		public static const FLOW_STOP:String				= "flow stop";
 		public static const FLOW_OVERLOAD:String			= "flow overload";
 		public static const RELOCATE_TURRET:String		= "relocate turret";
