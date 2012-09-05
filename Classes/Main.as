@@ -220,7 +220,7 @@
 						optionsScreen = null;
 						
 						playScreen.filters = [];
-						playScreen.gameTimer.start();
+						playScreen.pauseGame(false);
 						if(playScreen.waveTimerInAction) playScreen.nextWaveTimer.start();
 						stage.focus = playScreen;
 					}
@@ -240,9 +240,9 @@
 			
 			if(playScreen)
 			{
-				playScreen.gameTimer.stop();
+				playScreen.pauseGame();
 				if(playScreen.waveTimerInAction) playScreen.nextWaveTimer.stop();
-				playScreen.filters = [new BlurFilter(5, 5)];
+				playScreen.filters = [new BlurFilter()];
 				
 				optionsScreen.restartBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
 				optionsScreen.mapBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
@@ -281,7 +281,7 @@
 				case "resumeBtn":
 				if(playScreen)
 				{
-					playScreen.gameTimer.start();
+					playScreen.pauseGame(false);
 					playScreen.filters = [];
 					if(playScreen.waveTimerInAction) playScreen.nextWaveTimer.start();
 				}

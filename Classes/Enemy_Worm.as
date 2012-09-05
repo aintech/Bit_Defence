@@ -22,6 +22,7 @@
 			
 			health = maxHealth = 300;
 			speed = baseSpeed;
+			systemDamage = 10;
 			
 			baseHackChance = 20;
 			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);

@@ -6,6 +6,7 @@
 	import flash.filters.BlurFilter;
 	import flash.geom.Point;
 	import flash.display.Sprite;
+	import flash.events.MouseEvent;
 
 	public class Enemy extends MovieClip
 	{
@@ -45,17 +46,17 @@
 		public var lifeBar:MovieClip;
 		public var ID:int = 11111;
 		
-		public var underFreeze:Boolean = false;
+		public var underFreeze:Boolean;
 		public var freezeCounter:int = 0;
 		public var maxTimeFreeze:int = Variables.FREEZE_SPEED_REDUCE_DURATION;
 		
-		public var isStuned:Boolean = false;
+		public var isStuned:Boolean;
 		public var stunCounter:int = 0;
 		public var maxTimeStuned:int = Variables.FREEZE_STUN_DURATION;
 		public var stoppingSpeed:Number;
-		public var speedUP:Boolean = false;
+		public var speedUP:Boolean;
 		
-		public var isPoisoned:Boolean = false;
+		public var isPoisoned:Boolean;
 		public var poisonCounter:int = 0;
 		public var maxPoisonCounter:int = Variables.LAUNCHER_POISON_DURATION;
 		
@@ -68,13 +69,13 @@
 		public var lifeBarRIGHT:Point;
 		public var lifeBarLEFT:Point;
 				
-		public var hackChanceDecreased:Boolean = false;
+		public var hackChanceDecreased:Boolean;
 		public var roadID:int;
 		
-		public var poisonCloudOnBoard:Boolean	= false;
-		public var touchCloud:Boolean			= false;
-		public var stunProlonger:Boolean		= false;
-		public var thisTurnCloudTouched:Boolean = false;
+		public var poisonCloudOnBoard:Boolean;
+		public var touchCloud:Boolean;
+		public var stunProlonger:Boolean;
+		public var thisTurnCloudTouched:Boolean;
 		
 		public var tileNum:int = 999;
 		public var distToMissile:Number;
@@ -85,6 +86,9 @@
 		public var statusEffect:StatusEffects;
 		public var effectsArray:Array = [];
 		
+		public var systemDamage:int;
+		public var isHacking:Boolean;
+		
 		public function Enemy()
 		{
 			level = baseLevel;
@@ -93,7 +97,6 @@
 			blurFilter = new BlurFilter(2, 2);
 			
 			addEventListener(Event.ADDED_TO_STAGE, onAdd, false, 0, true);
-			
 		}
 		
 		private function onAdd(e:Event):void

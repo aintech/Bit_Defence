@@ -78,7 +78,7 @@
 				uninstallingTime = 120;
 				additionalDamage = 5;
 				additionalRange = 10;
-				additionalReloadTime = 0;
+				additionalReloadTime = 2;
 				removeChild(gun);
 				gun = null;
 				gun = new GunTurret_Gun_III();
@@ -88,7 +88,7 @@
 				case 4:
 				memoryUse = 125;
 				range = 150;
-				reloadTime = 10;
+				reloadTime = 8;
 				damage = 35;
 				upgradeCost = 25;
 				installingTime = 150;
@@ -96,7 +96,7 @@
 				uninstallingTime = 150;
 				additionalDamage = 5;
 				additionalRange = 10;
-				additionalReloadTime = 5;
+				additionalReloadTime = 2;
 				removeChild(gun);
 				gun = null;
 				gun = new GunTurret_Gun_IV();
@@ -106,7 +106,7 @@
 				case 5:
 				memoryUse = 150;
 				range = 160;
-				reloadTime = 5;
+				reloadTime = 6;
 				damage = 40;
 				upgradeCost = 25;
 				installingTime = 180;

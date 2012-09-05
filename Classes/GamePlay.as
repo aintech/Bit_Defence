@@ -5,7 +5,6 @@
 //TODO: сделать прелоадер
 //TODO: Экраны должны плавно переходить друг в друга
 //HELP: ||
-//TODO: tutorScreen - всплывает экран туториал - иконка сбоку - рассказывающая о новых врагах или возможностях - держиться какое-то время///////////////////////////////////////
 
 //СпецТехника:
 //Дополнительный контур защиты - снижает вероятность взлома системы
@@ -21,8 +20,7 @@
 //TODO: можно настроить, чтобы турели били ближайшего, сильнейшего и т.д.
 //TODO: У каждого врага свое время задержки перед выходом
 
-//TODO: reloadTime у турелей надо высчитывать по реальному времени, радиус в клетках
-
+//TODO: Когда враг дошел до цели, он начинает взлом системы, и когда взломал - тогда и есть шанс вломиться в систему
 
 //BALANCE: разные типы врагов устойчивые к разным турелям заставять игрока применять разные тактики
 package 
@@ -38,8 +36,6 @@ package
 	import flash.events.TimerEvent;
 	import flash.events.Event;
 	import flash.display.SimpleButton;
-	import flash.filters.GlowFilter;
-	import flash.filters.BlurFilter;
 	import flash.filters.ColorMatrixFilter;
 
 	public class GamePlay extends MovieClip
@@ -188,6 +184,9 @@ package
 		public var statusEffects:StatusEffects;
 		
 		public var introScreen:IntroduceScreen;
+		public var introduceInWork:Boolean;
+		
+		public var systemProtection:Number = 100;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -256,24 +255,44 @@ package
 					character = new GunTurret();
 					charIcon = new CharIcon(Turret.TURRET_GUN);
 					charIcon.gotoAndStop("gunTurret");
+					if(!Variables.INTRODUCE_GUN)
+					{
+						introduce(IntroduceScreen.GUN);
+						Variables.INTRODUCE_GUN = true;
+					}
 					break;
 					
 					case Turret.TURRET_LAUNCHER:
 					character = new LauncherTurret();
 					charIcon = new CharIcon(Turret.TURRET_LAUNCHER);
 					charIcon.gotoAndStop("launcherTurret");
+					if(!Variables.INTRODUCE_LAUNCHER)
+					{
+						introduce(IntroduceScreen.LAUNCHER);
+						Variables.INTRODUCE_LAUNCHER = true;
+					}
 					break;
 					
 					case Turret.TURRET_SWARM:
 					character = new SwarmTurret();
 					charIcon = new CharIcon(Turret.TURRET_SWARM);
 					charIcon.gotoAndStop("swarmTurret");
+					if(!Variables.INTRODUCE_SWARM)
+					{
+						introduce(IntroduceScreen.SWARM);
+						Variables.INTRODUCE_SWARM = true;
+					}
 					break;
 					
 					case Turret.TURRET_FREEZE:
 					character = new FreezeTurret();
 					charIcon = new CharIcon(Turret.TURRET_FREEZE);
 					charIcon.gotoAndStop("freezeTurret");
+					if(!Variables.INTRODUCE_FREEZE)
+					{
+						introduce(IntroduceScreen.FREEZE);
+						Variables.INTRODUCE_FREEZE = true;
+					}
 					break;
 				}
 				
@@ -302,26 +321,51 @@ package
 					case SpecialTools.ADDITIONAL_MARKER:
 					toolIcon = new SpecialTools(SpecialTools.ADDITIONAL_MARKER);
 					toolIcon.gotoAndStop("additionalMarker");
+					if(!Variables.INTRODUCE_ADDITIONAL_MARKER)
+					{
+						introduce(IntroduceScreen.ADDITIONAL_MARKER);
+						Variables.INTRODUCE_ADDITIONAL_MARKER = true;
+					}
 					break;
 					
 					case SpecialTools.FLOW_OVERLOAD:
 					toolIcon = new SpecialTools(SpecialTools.FLOW_OVERLOAD);
 					toolIcon.gotoAndStop("flowOverload");
+					if(!Variables.INTRODUCE_FLOW_OVERLOAD)
+					{
+						introduce(IntroduceScreen.FLOW_OVERLOAD);
+						Variables.INTRODUCE_FLOW_OVERLOAD = true;
+					}
 					break;
 					
 					case SpecialTools.FLOW_STOP:
 					toolIcon = new SpecialTools(SpecialTools.FLOW_STOP);
 					toolIcon.gotoAndStop("flowStop");
+					if(!Variables.INTRODUCE_FLOW_STOP)
+					{
+						introduce(IntroduceScreen.FLOW_STOP);
+						Variables.INTRODUCE_FLOW_STOP = true;
+					}
 					break;
 					
 					case SpecialTools.HACK_REDUCE:
 					toolIcon = new SpecialTools(SpecialTools.HACK_REDUCE);
 					toolIcon.gotoAndStop("hackReduce");
+					if(!Variables.INTRODUCE_HACK_REDUCE)
+					{
+						introduce(IntroduceScreen.HACK_REDUCE);
+						Variables.INTRODUCE_HACK_REDUCE = true;
+					}
 					break;
 					
 					case SpecialTools.RELOCATE_TURRET:
 					toolIcon = new SpecialTools(SpecialTools.RELOCATE_TURRET);
 					toolIcon.gotoAndStop("relocateTurret");
+					if(!Variables.INTRODUCE_RELOCATE_TURRET)
+					{
+						introduce(IntroduceScreen.RELOCATE_TURRET);
+						Variables.INTRODUCE_RELOCATE_TURRET = true;
+					}
 					break;
 				}
 				
@@ -595,7 +639,9 @@ package
 			for(var i:int = numIntros; --i >= 0;)
 			{
 				intro = introScreensArray[i];
-				intro.y = i * intro.height;
+				intro.counter++;
+				if(intro.y > (i * intro.height)) intro.y -= 5;
+				else intro.y = i * intro.height;
 				if(intro.comingOut) 
 				{
 					intro.x += intro.speed;
@@ -610,13 +656,68 @@ package
 					intro.x -= intro.speed;
 					if(intro.x <= -intro.width * .5) removeObject(i, introScreensArray);
 				}
-				else if(intro.timeToLeave <= getTimer()) intro.leaving = true;
+				else if(intro.counter >= intro.timeToLeave) intro.leaving = true;
 			}
 		}
 		
 		private function clickIntro(e:MouseEvent):void
 		{
 			var intro:IntroduceScreen = e.currentTarget as IntroduceScreen;
+			var frame:String = intro.introduceObject + "_Big";
+			intro.removeEventListener(MouseEvent.CLICK, clickIntro);
+			intro.gotoAndStop(frame);
+			addChild(intro);
+			introScreensArray.splice(introScreensArray.indexOf(intro), 1);
+			checkBannersAndIntro();
+			intro.addEventListener(MouseEvent.CLICK, closeIntro, false, 0, true);
+			intro.x = gameWidth * .5;
+			intro.y = gameHeight * .5;
+			intro.buttonMode = false;
+			introduceInWork = true;
+			pauseGame();
+		}
+		
+		private function closeIntro(e:MouseEvent):void
+		{
+			var intro:IntroduceScreen = e.currentTarget as IntroduceScreen;
+			intro.removeEventListener(MouseEvent.CLICK, closeIntro);
+			removeChild(intro);
+			intro = null;
+			introduceInWork = false;
+			pauseGame(false);
+		}
+		
+		public function pauseGame(pauseGame:Boolean = true)
+		{
+			var clip:MovieClip;
+			var enemy:Enemy;
+			
+			switch(pauseGame)
+			{
+				case true:
+				gameTimer.stop();
+				for each(enemy in enemyArray)
+				{
+					clip = enemy.getChildByName("clip") as MovieClip;
+					clip.gotoAndStop(clip.currentFrame);
+				}
+				break;
+				
+				case false:
+				if(!introduceInWork)
+				{
+					gameTimer.start();
+					for each(enemy in enemyArray)
+					{
+						if(!enemy.isStuned)
+						{
+							clip = enemy.getChildByName("clip") as MovieClip;
+							clip.gotoAndPlay(clip.currentFrame);
+						}
+					}
+				}
+				break;
+			}
 		}
 		
 		private function checkSettings():void
@@ -636,7 +737,7 @@ package
 		
 		private function specialToolsInWork():void
 		{
-			var timeLeft:Number;
+			var cooldown:SpecialToolsCooldown;
 			var gauge:MovieClip;
 			var cFrame:int;
 			
@@ -655,13 +756,14 @@ package
 			}
 			for(var k:int = specialToolsCooldownsArray.length; --k >= 0;)
 			{
-				var cooldown:SpecialToolsCooldown = specialToolsCooldownsArray[k];
-				//timeLeft = Math.round((cooldown.finishTime - getTimer()) * .01) * .1;
-				//cooldown.txtCounter.text = timeLeft.toString();
-				//if(cooldown.txtCounter.length == 1) cooldown.txtCounter.appendText(".0");
-				//else if(timeLeft > 10) cooldown.txtCounter.replaceText(2, cooldown.txtCounter.length, "");
-				//cooldown.gotoAndStop(Math.round((timeLeft * 1000) / cooldown.lifeTime * 100));
-				//if(timeLeft <= 0) removeObject(k, specialToolsCooldownsArray);
+				cooldown = specialToolsCooldownsArray[k];
+				cooldown.waitCounter++;
+				//делим на два и после раунда на 10, чтобы получить десятые секунд и привести в соответсвие то, что считаем через gameTimer, а на выходе нужны секунды с десятыми
+				cooldown.txtCounter.text = String(Math.round((cooldown.timeToWait - cooldown.waitCounter) * .5) * .1);
+				if(cooldown.txtCounter.length == 1) cooldown.txtCounter.appendText(".0");
+				else if((cooldown.timeToWait - cooldown.waitCounter) > 200) cooldown.txtCounter.replaceText(2, cooldown.txtCounter.length, "");
+				cooldown.gotoAndStop(Math.round((cooldown.timeToWait - cooldown.waitCounter) / cooldown.timeToWait * 100));
+				if(cooldown.waitCounter >= cooldown.timeToWait) removeObject(k, specialToolsCooldownsArray);
 			}
 		}
 		
@@ -678,15 +780,9 @@ package
 					{
 						case 1:
 						enemy = new Enemy_Speeder();
-						if(!Variables.INTRODUCE_SPEEDER)
+						if(!Variables.INTRODUCE_SPEEDER) 
 						{
-							introScreen = new IntroduceScreen(IntroduceScreen.SPEEDER);
-							introScreen.addEventListener(MouseEvent.CLICK, clickIntro, false, 0, true);
-							introScreen.gotoAndStop(IntroduceScreen.SPEEDER);
-							introScreen.x = -introScreen.width * .5;
-							introScreensArray.push(introScreen);
-							introScreen.index = introScreensArray.length -1;
-							introduceHolder.addChild(introScreen);
+							introduce(IntroduceScreen.SPEEDER);
 							Variables.INTRODUCE_SPEEDER = true;
 						}
 						break;
@@ -695,13 +791,7 @@ package
 						enemy = new Enemy_Worm();
 						if(!Variables.INTRODUCE_WORM)
 						{
-							introScreen = new IntroduceScreen(IntroduceScreen.WORM);
-							introScreen.addEventListener(MouseEvent.CLICK, clickIntro, false, 0, true);
-							introScreen.gotoAndStop(IntroduceScreen.WORM);
-							introScreen.x = -introScreen.width * .5;
-							introScreensArray.push(introScreen);
-							introScreen.index = introScreensArray.length -1;
-							introduceHolder.addChild(introScreen);
+							introduce(IntroduceScreen.WORM);
 							Variables.INTRODUCE_WORM = true;
 						}
 						break;
@@ -746,6 +836,16 @@ package
 					}
 				}
 			}
+		}
+		
+		private function introduce(target:String):void
+		{
+			introScreen = new IntroduceScreen(target);
+			introScreen.addEventListener(MouseEvent.CLICK, clickIntro, false, 0, true);
+			introScreen.gotoAndStop(target);
+			introScreen.x = -introScreen.width * .5;
+			introScreensArray.push(introScreen);
+			introduceHolder.addChild(introScreen);
 		}
 		
 		private function updateEnemies():void
@@ -882,7 +982,7 @@ package
 				}
 				if(enemy.touchCloud) enemy.removeStatus(Enemy.STATUS_CLOUD);
 				
-				if(enemy.hitTestObject(enemyFinalTarget)) checkForHack(enemy, i);
+				if(enemy.hitTestObject(enemyFinalTarget)) hackingSystem(enemy); //checkForHack(enemy, i);
 			}
 			if(flowStopInAction) flowStopCounter--;
 			if(flowStopCounter <= 0  && flowStopInAction)
@@ -902,6 +1002,17 @@ package
 				enemy = hackingEnemies[h];
 				enemy.alpha -= .2;
 				if(enemy.alpha <= 0) removeObject(h, hackingEnemies);
+			}
+		}
+		
+		private function hackingSystem(enemyToAct:Enemy):void
+		{
+			var enemy:Enemy = enemyToAct as Enemy;
+			if(systemProtection >= 0)
+			{
+				systemProtection -= enemy.systemDamage;
+				scoreBoard.txtSystem.text = "System " + String(systemProtection) + " %";
+				CONTINIUM когда враг подходит - останавливаем его isHacking и снимаем защиту системы, если защиты нет - пытаемся хакнуть и убираем врага со сцены
 			}
 		}
 		
@@ -944,7 +1055,8 @@ package
 				baseCharInfo.txtMemoryUse.text 		= "$: " + tempChar.memoryUse;
 				baseCharInfo.txtDamage.text			= tempChar.damage;
 				baseCharInfo.txtRange.text 			= tempChar.range;
-				baseCharInfo.txtReloadTime.text 	= tempChar.reloadTime;
+				baseCharInfo.txtReloadTime.text 		= String(Math.round(tempChar.reloadTime * .5) * .1);
+				if(baseCharInfo.txtReloadTime.length == 1) baseCharInfo.txtReloadTime.appendText(".0");
 				
 				baseCharInfo.x = gameWidth;
 				baseCharInfo.y = gameHeight;
@@ -1561,9 +1673,10 @@ package
 				else if(target is FreezeTurret) charInfo.txtCharType.text = "Freeze";
 				
 				charInfo.txtCharLevel.text 		= " lvl " + target.level;
-				charInfo.txtDamage.text			= target.damage;
-				charInfo.txtRange.text			= target.range;
-				charInfo.txtReloadTime.text		= target.reloadTime;
+				charInfo.txtDamage.text				= target.damage;
+				charInfo.txtRange.text				= target.range;
+				charInfo.txtReloadTime.text		= String(Math.round(target.reloadTime * .5) * .1);
+				if(charInfo.txtReloadTime.length == 1) charInfo.txtReloadTime.appendText(".0");
 				charInfo.x = gameWidth;
 				charInfo.y = gameHeight;
 				charHolder.addChild(charInfo);
@@ -1578,18 +1691,19 @@ package
 			var target:Turret = charMenu.target;
 			if(target.additionalDamage != 0)
 			{
-				charInfo.txtDamage.textColor = 0xFF0000;
+				charInfo.txtDamage.textColor = 0xFFFF00;
 				charInfo.txtDamage.text = String(target.damage + target.additionalDamage);
 			}
 			if(target.additionalRange != 0)
 			{
-				charInfo.txtRange.textColor = 0xFF0000;
+				charInfo.txtRange.textColor = 0xFFFF00;
 				charInfo.txtRange.text = String(target.range + target.additionalRange);
 			}
 			if(target.additionalReloadTime != 0)
 			{
-				charInfo.txtReloadTime.textColor = 0xFF0000;
-				charInfo.txtReloadTime.text = String(target.reloadTime - target.additionalReloadTime);
+				charInfo.txtReloadTime.textColor = 0xFFFF00;
+				charInfo.txtReloadTime.text = String(Math.round((target.reloadTime - target.additionalReloadTime) * .5) * .1);
+				if(charInfo.txtReloadTime.length == 1) charInfo.txtReloadTime.appendText(".0");
 			}
 		}
 		
@@ -1600,7 +1714,8 @@ package
 				var target:Turret = charMenu.target;
 				charInfo.txtDamage.text = target.damage;
 				charInfo.txtRange.text = target.range;
-				charInfo.txtReloadTime.text = target.reloadTime;
+				charInfo.txtReloadTime.text = String(Math.round(target.reloadTime * .5) * .1);
+				if(charInfo.txtReloadTime.length == 1) charInfo.txtReloadTime.appendText(".0");
 				charInfo.txtDamage.textColor = 0xFFFFFF;
 				charInfo.txtRange.textColor = 0xFFFFFF;
 				charInfo.txtReloadTime.textColor = 0xFFFFFF;
@@ -2431,10 +2546,8 @@ package
 						specialToolCooldown.y = e.currentTarget.y;
 						specialToolCooldown.gotoAndStop(1);
 						specialToolCooldown.timeToWait = Variables.SPECIAL_HACK_REDUCE_COOLTIME;
-						specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						if(Variables.SPECIAL_HACK_REDUCE_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
 						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
-						CONTINIUM все расчеты specialTool и intro привести в вид как 4 строчки выше
 						toolsScreen.addChild(specialToolCooldown);
 						specialToolsCooldownsArray.push(specialToolCooldown);
 						
@@ -2462,10 +2575,9 @@ package
 						specialToolCooldown.x = e.currentTarget.x;
 						specialToolCooldown.y = e.currentTarget.y;
 						specialToolCooldown.gotoAndStop(1);
-						//specialToolCooldown.lifeTime = Variables.SPECIAL_FLOW_STOP_COOLTIME;
-						//specialToolCooldown.finishTime = getTimer() + Variables.SPECIAL_FLOW_STOP_COOLTIME;
-						//if(Variables.SPECIAL_FLOW_STOP_COOLTIME < 10) specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_FLOW_STOP_COOLTIME/1000)) + ".0";
-						//else specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_FLOW_STOP_COOLTIME/1000));
+						specialToolCooldown.timeToWait = Variables.SPECIAL_FLOW_STOP_COOLTIME;
+						if(Variables.SPECIAL_FLOW_STOP_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
+						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						toolsScreen.addChild(specialToolCooldown);
 						specialToolsCooldownsArray.push(specialToolCooldown);
 						
@@ -2504,10 +2616,9 @@ package
 						specialToolCooldown.x = e.currentTarget.x;
 						specialToolCooldown.y = e.currentTarget.y;
 						specialToolCooldown.gotoAndStop(1);
-						//specialToolCooldown.lifeTime = Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME;
-						//specialToolCooldown.finishTime = getTimer() + Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME;
-						//if(Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME < 10) specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME/1000)) + ".0";
-						//else specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME/1000));
+						specialToolCooldown.timeToWait = Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME;
+						if(Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
+						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						toolsScreen.addChild(specialToolCooldown);
 						specialToolsCooldownsArray.push(specialToolCooldown);
 						
@@ -2629,10 +2740,9 @@ package
 						specialToolCooldown.x = tool.x;
 						specialToolCooldown.y = tool.y;
 						specialToolCooldown.gotoAndStop(1);
-						//specialToolCooldown.lifeTime = Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME;
-						//specialToolCooldown.finishTime = getTimer() + Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME;
-						//if(Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME < 10) specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME/1000)) + ".0";
-						//else specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME/1000));
+						specialToolCooldown.timeToWait = Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME;
+						if(Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
+						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						toolsScreen.addChild(specialToolCooldown);
 						specialToolsCooldownsArray.push(specialToolCooldown);
 					} 
@@ -2739,10 +2849,9 @@ package
 						specialToolCooldown.x = tool.x;
 						specialToolCooldown.y = tool.y;
 						specialToolCooldown.gotoAndStop(1);
-						//specialToolCooldown.lifeTime = Variables.SPECIAL_RELOCATE_TURRET_COOLTIME;
-						//specialToolCooldown.finishTime = getTimer() + Variables.SPECIAL_RELOCATE_TURRET_COOLTIME;
-						//if(Variables.SPECIAL_RELOCATE_TURRET_COOLTIME < 10) specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_RELOCATE_TURRET_COOLTIME/1000)) + ".0";
-						//else specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_RELOCATE_TURRET_COOLTIME/1000));
+						specialToolCooldown.timeToWait = Variables.SPECIAL_RELOCATE_TURRET_COOLTIME;
+						if(Variables.SPECIAL_RELOCATE_TURRET_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
+						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						toolsScreen.addChild(specialToolCooldown);
 						specialToolsCooldownsArray.push(specialToolCooldown);
 					} 
@@ -2764,7 +2873,10 @@ package
 	}
 }
 
-/*private function clickTool(e:MouseEvent):void
+/*
+*
+*
+private function clickTool(e:MouseEvent):void
 		{
 			if(specialToolsGauge > 0 && levelStarted)
 			{
@@ -2945,4 +3057,45 @@ package
 				}
 				enemy = null;
 			}
-		}*/
+		}
+		
+private function specialToolsInWork():void
+		{
+			var cooldown:SpecialToolsCooldown;
+			var gauge:MovieClip;
+			var cFrame:int;
+			
+			specialToolsGauge = 0;
+			for(var i:int = 0; i < specialToolsGaugeArray.length; i++)
+			{
+				gauge = specialToolsGaugeArray[i] as MovieClip;
+				cFrame = gauge.currentFrame;
+				if(cFrame < gauge.totalFrames) 
+				{
+					cFrame++;
+					gauge.gotoAndStop(cFrame);
+					break;
+				}
+				else specialToolsGauge++;
+			}
+			for(var k:int = specialToolsCooldownsArray.length; --k >= 0;)
+			{
+				cooldown = specialToolsCooldownsArray[k];
+				cooldown.waitCounter++;
+				//делим на два и после раунда на 10, чтобы получить десятые секунд и привести в соответсвие то, что считаем через gameTimer, а на выходе нужны секунды с десятыми
+				cooldown.txtCounter.text = String(Math.round((cooldown.timeToWait - cooldown.waitCounter) * .5) * .1);
+				if(cooldown.txtCounter.length == 1) cooldown.txtCounter.appendText(".0");
+				else if((cooldown.timeToWait - cooldown.waitCounter) > 200) cooldown.txtCounter.replaceText(2, cooldown.txtCounter.length, "");
+				cooldown.gotoAndStop(Math.round((cooldown.timeToWait - cooldown.waitCounter) / cooldown.timeToWait * 100));
+				if(cooldown.waitCounter >= cooldown.timeToWait) removeObject(k, specialToolsCooldownsArray);
+				//timeLeft = Math.round((cooldown.finishTime - getTimer()) * .01) * .1;
+				//cooldown.txtCounter.text = timeLeft.toString();
+				//if(cooldown.txtCounter.length == 1) cooldown.txtCounter.appendText(".0");
+				//else if(timeLeft > 10) cooldown.txtCounter.replaceText(2, cooldown.txtCounter.length, "");
+				//cooldown.gotoAndStop(Math.round((timeLeft * 1000) / cooldown.lifeTime * 100));
+				//if(timeLeft <= 0) removeObject(k, specialToolsCooldownsArray);
+			}
+		}
+*
+*
+*/

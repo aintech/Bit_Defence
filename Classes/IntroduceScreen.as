@@ -24,8 +24,8 @@
 		public var comingOut:Boolean 			= true;
 		public var leaving:Boolean				= false;
 		public var speed:int						= 3;
-		public var timeToLeave:int				= 400; // = 20000 ms / gameTimer(50)
-		public var index:int						= 0;
+		public var timeToLeave:int				= 200; // = 10000 ms / gameTimer(50)
+		public var counter:int					= 0;
 		
 		public function IntroduceScreen(introduce:String)
 		{
