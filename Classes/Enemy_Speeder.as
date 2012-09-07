@@ -17,12 +17,13 @@
 			clip.filters = [blurFilter, glowFilter];
 			symbolsDrop = 20 * Variables.SYMBOLS_DROP_MULTIPLE;
 			memoryDrop = 15;
+			protectDrop = 5;
 			baseSpeed = 7;
 			stoppingSpeed = .7;
 			
 			health = maxHealth = 50;
 			speed = baseSpeed;
-			systemDamage = 5;
+			systemDamage = .2;// 4% sec
 			
 			baseHackChance = 10;
 			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);

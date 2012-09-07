@@ -5,6 +5,7 @@
 		public static var SYMBOLS:int;
 		public static var SYMBOLS_DROP_CHANCE:int;
 		public static var MEMORY_DROP_CHANCE:int;
+		public static var PROTECT_DROP_CHANCE:int;
 		public static var SYMBOLS_DROP_MULTIPLE:Number;
 		
 		public static var HACK_PROTECT_LEVEL:int;//процент вычитается из возможности врага взломать систему 
@@ -58,6 +59,7 @@
 		public static var SPECIAL_FLOW_STOP_COOLTIME:int;
 		public static var SPECIAL_HACK_REDUCE_COOLTIME:int;
 		public static var SPECIAL_RELOCATE_TURRET_COOLTIME:int;
+		public static var SPECIAL_FALSE_TARGET_COOLTIME:int;
 		
 		public static var SPECIAL_FLOW_OVERLOAD_DAMAGE:int;
 		public static var SPECIAL_HACK_REDUCE_MULTIPLY:Number;
@@ -146,12 +148,14 @@
 		public static var INTRODUCE_FLOW_STOP:Boolean;
 		public static var INTRODUCE_HACK_REDUCE:Boolean;
 		public static var INTRODUCE_RELOCATE_TURRET:Boolean;
+		public static var INTRODUCE_FALSE_TARGET:Boolean;
 		
 		public static function setToDefault():void
 		{
 			SYMBOLS						= 5000;
 			SYMBOLS_DROP_CHANCE		= 15;
 			MEMORY_DROP_CHANCE		= 10;
+			PROTECT_DROP_CHANCE		= 15;
 			SYMBOLS_DROP_MULTIPLE	= 1;
 		
 			HACK_PROTECT_LEVEL		= 0;
@@ -197,6 +201,7 @@
 		 	SPECIAL_FLOW_STOP_COOLTIME					= 100;
 		 	SPECIAL_HACK_REDUCE_COOLTIME 				= 100;
 		 	SPECIAL_RELOCATE_TURRET_COOLTIME			= 100;
+			SPECIAL_FALSE_TARGET_COOLTIME				= 100;
 		
 		 	SPECIAL_FLOW_OVERLOAD_DAMAGE				= 100;
 		 	SPECIAL_HACK_REDUCE_MULTIPLY				= .5;
@@ -290,6 +295,7 @@
 			INTRODUCE_FLOW_STOP				= false;
 			INTRODUCE_HACK_REDUCE			= false;
 			INTRODUCE_RELOCATE_TURRET		= false;
+			INTRODUCE_FALSE_TARGET			= false;
 		}
 	}
 }

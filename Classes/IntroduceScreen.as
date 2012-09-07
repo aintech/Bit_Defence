@@ -19,6 +19,7 @@
 		public static const FLOW_STOP:String			= "intro_Flow_Stop";
 		public static const RELOCATE_TURRET:String	= "intro_Relocate_Turret";
 		public static const HACK_REDUCE:String			= "intro_Hack_Reduce";
+		public static const FALSE_TARGET:String		= "intro_False_Target";
 		
 		public var introduceObject:String;
 		public var comingOut:Boolean 			= true;

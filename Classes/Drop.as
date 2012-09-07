@@ -5,9 +5,10 @@
 
 	public class Drop extends MovieClip
 	{
-		public static const DROP_SYMBOLS:String = "drop symbols";
+		public static const DROP_SYMBOLS:String 	= "drop symbols";
 		public static const DROP_MEMORY:String 	= "drop memory";
-		public static const DROP_DISTANCE:int	= 40;
+		public static const DROP_PROTECT:String	= "drop protect";
+		public static const DISTANCE:int				= 60;
 		
 		public var dropType:String;
 		public var dropAmaunt:int;
@@ -18,6 +19,7 @@
 		public var destY:Number;
 		public var xSpeed:Number;
 		public var ySpeed:Number;
+		public var angle:Number;
 		
 		public var gotoScorePoint:Point;
 		

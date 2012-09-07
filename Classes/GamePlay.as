@@ -13,6 +13,7 @@
 //Переустановка - перестановка турели со всеми апгрейдами на другой маркер
 //Подключение дополнительного маркера - можно создать новый маркер, на который можно установить турель
 //Мина - устанавлвается на дороге и наносит и взрывается при прикосновении противника
+//Преграда - фальшивый enemyFinalTarget, который тот должен взломать, чтобы продолжить движение
 
 //TODO: нажатии кнопки не исчезают, а уменьшаются - для создания анимации
 
@@ -177,6 +178,7 @@ package
 		
 		public var scoreMemoryPoint:Point;
 		public var scoreSymbolsPoint:Point;
+		public var scoreProtectPoint:Point;
 		
 		public var roadCounter:int = 2;
 		
@@ -187,6 +189,8 @@ package
 		public var introduceInWork:Boolean;
 		
 		public var systemProtection:Number = 100;
+		
+		public var falseTarget:EnemyFalseTarget;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -223,7 +227,7 @@ package
 			addChild(bulletHolder);
 			addChild(charHolder);
 			addChild(userInterface);
-			addChild(introduceHolder); introduceHolder.y = 60;
+			addChild(introduceHolder); introduceHolder.y = 90;
 			userInterface.addChild(scoreBoard);
 			
 			optionsGearBtn = new OptionsGear();
@@ -319,13 +323,13 @@ package
 				switch(tool)
 				{
 					case SpecialTools.ADDITIONAL_MARKER:
-					toolIcon = new SpecialTools(SpecialTools.ADDITIONAL_MARKER);
-					toolIcon.gotoAndStop("additionalMarker");
-					if(!Variables.INTRODUCE_ADDITIONAL_MARKER)
-					{
-						introduce(IntroduceScreen.ADDITIONAL_MARKER);
-						Variables.INTRODUCE_ADDITIONAL_MARKER = true;
-					}
+						toolIcon = new SpecialTools(SpecialTools.ADDITIONAL_MARKER);
+						toolIcon.gotoAndStop("additionalMarker");
+						if(!Variables.INTRODUCE_ADDITIONAL_MARKER)
+						{
+							introduce(IntroduceScreen.ADDITIONAL_MARKER);
+							Variables.INTRODUCE_ADDITIONAL_MARKER = true;
+						}
 					break;
 					
 					case SpecialTools.FLOW_OVERLOAD:
@@ -366,6 +370,16 @@ package
 						introduce(IntroduceScreen.RELOCATE_TURRET);
 						Variables.INTRODUCE_RELOCATE_TURRET = true;
 					}
+					break;
+					
+					case SpecialTools.FALSE_TARGET:
+						toolIcon = new SpecialTools(SpecialTools.FALSE_TARGET);
+						toolIcon.gotoAndStop("falseTarget");
+						if(!Variables.INTRODUCE_FALSE_TARGET)
+						{
+							introduce(IntroduceScreen.FALSE_TARGET);
+							Variables.INTRODUCE_FALSE_TARGET = true;
+						}
 					break;
 				}
 				
@@ -410,10 +424,16 @@ package
 			userInterface.addChild(startBanner);
 			
 			scoreBoard.x = startLevelBtn.width + 5;
+			updateScoreBoard("txtWave");
+			updateScoreBoard("txtEnemiesLeft");
+			updateScoreBoard("txtMemory");
+			updateScoreBoard("txtSymbols");
+			updateScoreBoard("txtSymbols");
 			scoreBoard.txtHackChance.text = "hack: */*";
 			
 			scoreSymbolsPoint = new Point(scoreBoard.txtSymbols.x + startLevelBtn.width + scoreBoard.txtSymbols.width * .5, scoreBoard.y - 20); 
 			scoreMemoryPoint = new Point(scoreBoard.txtMemory.x + startLevelBtn.width + scoreBoard.txtMemory.width * .5, scoreBoard.y - 20); 
+			scoreProtectPoint = new Point(scoreBoard.txtSystem.x + startLevelBtn.width + scoreBoard.txtSystem.width * .5, scoreBoard.y - 20);
 			
 			startWave();
 			makeLevel();
@@ -445,6 +465,8 @@ package
 					if(enemyWaves[currentWave - 1][i] != 0) enemiesLeft++;
 				}
 			}
+			updateScoreBoard("txtWave");
+			updateScoreBoard("txtEnemiesLeft");
 		}
 		
 		private function makeLevel():void
@@ -607,7 +629,6 @@ package
 			updateBullets();
 			checkForNextWave();
 			checkDrop();
-			updateScoreBoard();
 		}
 		
 		private function checkBannersAndIntro():void
@@ -969,9 +990,6 @@ package
 					break;
 				}
 				
-				enemy.x += enemy.xSpeed;
-				enemy.y += enemy.ySpeed;
-				
 				if(enemy.isPoisoned)
 				{
 					enemy.health -= Variables.LAUNCHER_POISON_DAMAGE;
@@ -982,7 +1000,25 @@ package
 				}
 				if(enemy.touchCloud) enemy.removeStatus(Enemy.STATUS_CLOUD);
 				
-				if(enemy.hitTestObject(enemyFinalTarget)) hackingSystem(enemy); //checkForHack(enemy, i);
+				if(enemy.hitTestObject(enemyFinalTarget))
+				{
+					enemy.speed = 0;
+					if(systemProtection > 0)
+					{
+						systemProtection -= enemy.systemDamage;
+						clip = enemy.getChildByName("clip") as MovieClip;
+						clip.gotoAndStop(clip.currentFrame);
+						updateScoreBoard("txtSystem");
+					}
+					else if(systemProtection <= 0)
+					{
+						systemProtection = 0;
+						checkForHack(enemy, i);
+					}
+				}
+				
+				enemy.x += enemy.xSpeed;
+				enemy.y += enemy.ySpeed;
 			}
 			if(flowStopInAction) flowStopCounter--;
 			if(flowStopCounter <= 0  && flowStopInAction)
@@ -1002,17 +1038,6 @@ package
 				enemy = hackingEnemies[h];
 				enemy.alpha -= .2;
 				if(enemy.alpha <= 0) removeObject(h, hackingEnemies);
-			}
-		}
-		
-		private function hackingSystem(enemyToAct:Enemy):void
-		{
-			var enemy:Enemy = enemyToAct as Enemy;
-			if(systemProtection >= 0)
-			{
-				systemProtection -= enemy.systemDamage;
-				scoreBoard.txtSystem.text = "System " + String(systemProtection) + " %";
-				CONTINIUM когда враг подходит - останавливаем его isHacking и снимаем защиту системы, если защиты нет - пытаемся хакнуть и убираем врага со сцены
 			}
 		}
 		
@@ -1436,6 +1461,7 @@ package
 			counter.passTime = 0;
 			
 			memoryUsed += turret.memoryUse;
+			updateScoreBoard("txtMemory");
 			
 			turret.x = xVal + turret.width * .5;
 			turret.y = yVal + turret.height * .5;
@@ -1496,6 +1522,7 @@ package
 			counter.y = turret.y;
 			
 			memoryUsed += turret.upgradeCost;
+			updateScoreBoard("txtMemory");
 			upgradingArray.push(counter);
 			turretHolder.addChild(counter);
 		}
@@ -1584,6 +1611,7 @@ package
 				{
 					var turret:Turret = counter.turretInAction;
 					memoryUsed -= turret.memoryUse;
+					updateScoreBoard("txtMemeory");
 					
 					for each(var marker:PlaceMarker in markerArray)
 					{
@@ -2231,49 +2259,44 @@ package
 				if(enemy.health <= 0)
 				{
 					createExplosion(enemy.x, enemy.y, enemy.levelColor, true);
-					if((Math.random() * 100) <= Variables.SYMBOLS_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.rotation, enemy.symbolsDrop, enemy.memoryDrop, Drop.DROP_SYMBOLS);
-					if((Math.random() * 100) <= Variables.MEMORY_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.rotation, enemy.symbolsDrop, enemy.memoryDrop, Drop.DROP_MEMORY);
+					if((Math.random() * 100) <= Variables.SYMBOLS_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.symbolsDrop, Drop.DROP_SYMBOLS);
+					if((Math.random() * 100) <= Variables.MEMORY_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.memoryDrop, Drop.DROP_MEMORY);
+					if((Math.random() * 100) <= Variables.PROTECT_DROP_CHANCE && systemProtection < 100) drop(enemy.x, enemy.y, enemy.protectDrop, Drop.DROP_PROTECT); 
 					removeObject(i, enemyArray);
 					enemiesLeft--;
+					updateScoreBoard("txtEnemiesLeft");
 				}
 			}
 		}
 		
-		private function drop(xVal:int, yVal:int, rotate:Number, symbolsAmount:int, memoryAmount:int, dropType:String):void
+		private function drop(xVal:int, yVal:int, dropAmaunt:int, dropType:String):void
 		{
 			var drop:Drop = new Drop();
 			drop.x = drop.destX = xVal;
 			drop.y = drop.destY = yVal;
+			drop.destX += Math.round(Math.cos(Math.random() * 360) * Drop.DISTANCE);
+			drop.destY += Math.round(Math.sin(Math.random() * 360) * Drop.DISTANCE);
 			drop.dropType = dropType;
+			drop.dropAmaunt = dropAmaunt;
 			drop.addEventListener(MouseEvent.CLICK, pickUpDrop, false, 0, true);
 			dropArray.push(drop);
 			userInterface.addChild(drop);
 			
-			if(drop.dropType == Drop.DROP_SYMBOLS)
+			switch(drop.dropType)
 			{
-				drop.gotoScorePoint = scoreSymbolsPoint;
-				drop.dropAmaunt = symbolsAmount;
-				drop.gotoAndStop("symbols");
-			}
-			if(drop.dropType == Drop.DROP_MEMORY)
-			{
-				drop.gotoScorePoint = scoreMemoryPoint;
-				drop.dropAmaunt = memoryAmount;
-				drop.gotoAndStop("memory");
-			}
-			
-			switch(rotate)
-			{
-				case -90://up
-				case 90://down
-				if(dropType == Drop.DROP_SYMBOLS) 	drop.destX -= Drop.DROP_DISTANCE;
-				if(dropType == Drop.DROP_MEMORY)	drop.destX += Drop.DROP_DISTANCE;
+				case Drop.DROP_SYMBOLS:
+					drop.gotoScorePoint = scoreSymbolsPoint;
+					drop.gotoAndStop("symbols");
 				break;
 				
-				case 0://right
-				case -180://left
-				if(dropType == Drop.DROP_SYMBOLS) 	drop.destY -= Drop.DROP_DISTANCE;
-				if(dropType == Drop.DROP_MEMORY)	drop.destY += Drop.DROP_DISTANCE;
+				case Drop.DROP_MEMORY:
+					drop.gotoScorePoint = scoreMemoryPoint;
+					drop.gotoAndStop("memory");
+				break;
+				
+				case Drop.DROP_PROTECT:
+					drop.gotoScorePoint = scoreProtectPoint;
+					drop.gotoAndStop("protect");
 				break;
 			}
 		}
@@ -2292,7 +2315,7 @@ package
 					xDist = drop.destX - drop.x;
 					yDist = drop.destY - drop.y;
 					dist = Math.sqrt(xDist*xDist + yDist*yDist);
-					if(dist > 3)
+					if(dist > 5)
 					{
 						angle = Math.atan2(yDist, xDist);
 						drop.xSpeed = Math.cos(angle) * drop.speed;
@@ -2336,10 +2359,18 @@ package
 			{
 				case Drop.DROP_SYMBOLS:
 					Variables.SYMBOLS += drop.dropAmaunt;
+					updateScoreBoard("txtSymbols");
 				break;
 				
 				case Drop.DROP_MEMORY:
 					memoryTotal += drop.dropAmaunt;
+					updateScoreBoard("txtMemory");
+				break;
+				
+				case Drop.DROP_PROTECT:
+					systemProtection += drop.dropAmaunt;
+					if(systemProtection >= 100) systemProtection = 100;
+					updateScoreBoard("txtSystem");
 				break;
 			}
 			drop.parent.removeChild(drop);
@@ -2500,6 +2531,7 @@ package
 		private function checkForHack(enemy:Enemy, i:int):void
 		{
 			enemiesLeft--;
+			updateScoreBoard("enemiesLeft");
 			enemyArray.splice(i, 1);
 			hackingEnemies.push(enemy);
 			var clip:MovieClip = enemy.getChildByName("clip") as MovieClip;
@@ -2512,12 +2544,45 @@ package
 			else scoreBoard.txtHackChance.text = "hack: " + enemy.hackChance + "/" + res;
 		}
 		
-		private function updateScoreBoard():void
+		private function updateScoreBoard(field:String):void
 		{
-			scoreBoard.txtWave.text 			= "Wave: " + currentWave + "/" + int(enemyWaves.length);
-			scoreBoard.txtMemory.text 			= "Memory: " + memoryUsed + "/" + memoryTotal;
-			scoreBoard.txtEnemiesLeft.text 		= "Enemies Left: " + enemiesLeft;
-			scoreBoard.txtSymbols.text			= "Symbols: " + String(Variables.SYMBOLS);
+			switch(field)
+			{
+				case "txtWave":
+					scoreBoard.txtWave.text = "Wave: " + currentWave + "/" + int(enemyWaves.length);
+				break;
+				
+				case "txtMemory":
+					scoreBoard.txtMemory.text = "Memory: " + memoryUsed + "/" + memoryTotal;
+				break;
+				
+				case "txtEnemiesLeft":
+					scoreBoard.txtEnemiesLeft.text = "Enemies Left: " + enemiesLeft;
+				break;
+				
+				case "txtSymbols":
+					scoreBoard.txtSymbols.text = "Symbols: " + String(Variables.SYMBOLS);
+				break;
+				
+				case "txtSystem":
+					var result:Number;
+					var string:String;
+					result = Math.round(systemProtection * 10) * .1;
+					if(result <= 0) result = 0;
+					else if(result >= 100) result = 100;
+					if((result % 1) == 0) string = result + ".0";
+					else string = result.toString();
+					string = string.slice(0, Number(string.indexOf(".")+2));
+					scoreBoard.txtSystem.text = "System: " + string + " %";
+				break;
+				
+				case "txtHackChance":
+				break;
+				
+				default:
+					trace("wrong field name");
+				break;
+			}
 		}
 		
 		private function clickTool(e:MouseEvent):void
@@ -2694,6 +2759,10 @@ package
 								groundHolder.addChild(flag);
 							}
 						}
+					break;
+					
+					case SpecialTools.FALSE_TARGET:
+						CONTINIUM создаем на дороге ненастоящую цель для взлома
 					break;
 				}
 				enemy = null;

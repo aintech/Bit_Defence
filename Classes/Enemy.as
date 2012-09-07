@@ -36,6 +36,7 @@
 		
 		public var symbolsDrop:int;
 		public var memoryDrop:int;
+		public var protectDrop:int;
 		public var baseSpeed:Number;
 		public var xSpeed:Number;
 		public var ySpeed:Number;
@@ -86,8 +87,8 @@
 		public var statusEffect:StatusEffects;
 		public var effectsArray:Array = [];
 		
-		public var systemDamage:int;
-		public var isHacking:Boolean;
+		public var systemDamage:Number;
+		public var isFalseHacking:Boolean;
 		
 		public function Enemy()
 		{
