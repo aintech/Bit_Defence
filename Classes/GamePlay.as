@@ -12,7 +12,7 @@
 //Перегрузка потока - наносятся повреждения всем врагам
 //Переустановка - перестановка турели со всеми апгрейдами на другой маркер
 //Подключение дополнительного маркера - можно создать новый маркер, на который можно установить турель
-//Мина - устанавлвается на дороге и наносит и взрывается при прикосновении противника
+//Мины - устанавлваются на дороге и взрывается при прикосновении противника
 //Преграда - фальшивый enemyFinalTarget, который тот должен взломать, чтобы продолжить движение
 
 //TODO: нажатии кнопки не исчезают, а уменьшаются - для создания анимации
@@ -191,6 +191,7 @@ package
 		public var systemProtection:Number = 100;
 		
 		public var falseTarget:EnemyFalseTarget;
+		public var placingFalseTarget:Boolean;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -615,20 +616,21 @@ package
 			stage.focus = this;
 			checkBannersAndIntro();
 			checkForEndLevel();
-			checkSettings();
+			if(Settings.SETTINGS_CHANGED) 																checkSettings();
 			specialToolsInWork();
-			installTurrets();
-			upgradeTurrets();
-			uninstallTurrets();
-			checkMarkerCounter();
-			makeEnemies();
+			if(installingArray.length > 0)																installTurrets();
+			if(upgradingArray.length > 0)																	upgradeTurrets();
+			if(uninstallingArray.length > 0) 															uninstallTurrets();
+			if(addMarkerCounter.length > 0) 																checkMarkerCounter();
+			if(currentWave <= enemyWaves.length && levelStarted) 									makeEnemies();
 			checkEnemies();
 			updateEnemies();
-			updateExplosions();
+			if(particleArray.length > 0)																	updateExplosions();
 			checkTurrets();
 			updateBullets();
-			checkForNextWave();
-			checkDrop();
+			if(enemiesLeft == 0 && !waveTimerInAction && currentWave < enemyWaves.length)	checkForNextWave();
+			if(dropArray.length > 0) 																		checkDrop();
+			if(placingFalseTarget) 																			checkRoadForFalseTarget();
 		}
 		
 		private function checkBannersAndIntro():void
@@ -743,14 +745,11 @@ package
 		
 		private function checkSettings():void
 		{
-			if(Settings.SETTINGS_CHANGED)
+			for(var i:int = enemyArray.length; --i >=0;)
 			{
-				for(var i:int = enemyArray.length; --i >=0;)
-				{
-					var enemy:Enemy = enemyArray[i];
-					if(Settings.LIFEBAR_VISIBLE) enemy.lifeBar.visible = true;
-					else if(!Settings.LIFEBAR_VISIBLE) enemy.lifeBar.visible = false;
-				}
+				var enemy:Enemy = enemyArray[i];
+				if(Settings.LIFEBAR_VISIBLE) enemy.lifeBar.visible = true;
+				else if(!Settings.LIFEBAR_VISIBLE) enemy.lifeBar.visible = false;
 			}
 			
 			Settings.SETTINGS_CHANGED = false;
@@ -761,6 +760,7 @@ package
 			var cooldown:SpecialToolsCooldown;
 			var gauge:MovieClip;
 			var cFrame:int;
+			var result:Number;
 			
 			specialToolsGauge = 0;
 			for(var i:int = 0; i < specialToolsGaugeArray.length; i++)
@@ -780,93 +780,122 @@ package
 				cooldown = specialToolsCooldownsArray[k];
 				cooldown.waitCounter++;
 				//делим на два и после раунда на 10, чтобы получить десятые секунд и привести в соответсвие то, что считаем через gameTimer, а на выходе нужны секунды с десятыми
-				cooldown.txtCounter.text = String(Math.round((cooldown.timeToWait - cooldown.waitCounter) * .5) * .1);
-				if(cooldown.txtCounter.length == 1) cooldown.txtCounter.appendText(".0");
-				else if((cooldown.timeToWait - cooldown.waitCounter) > 200) cooldown.txtCounter.replaceText(2, cooldown.txtCounter.length, "");
+				result = Math.round((cooldown.timeToWait - cooldown.waitCounter) * .5) * .1;
+				cooldown.txtCounter.text = String(result.toFixed(1));
+				if((cooldown.timeToWait - cooldown.waitCounter) >= 200) cooldown.txtCounter.replaceText(2, cooldown.txtCounter.length, "");
 				cooldown.gotoAndStop(Math.round((cooldown.timeToWait - cooldown.waitCounter) / cooldown.timeToWait * 100));
 				if(cooldown.waitCounter >= cooldown.timeToWait) removeObject(k, specialToolsCooldownsArray);
+			}
+			
+			if(falseTarget)
+			{
+				if(falseTarget.placed) falseTarget.lifeCounter++;
+				result = Math.round((falseTarget.lifeTime - falseTarget.lifeCounter) * .5) * .1;
+				falseTarget.txtLife.text = String(result.toFixed(1));
+				if((falseTarget.lifeTime - falseTarget.lifeCounter) >= 200) falseTarget.txtLife.replaceText(2, falseTarget.txtLife.length, "");
+				falseTarget.txtLife.appendText(" s");
+				if(falseTarget.lifeCounter >= falseTarget.lifeTime || falseTarget.protectAmount <= 0)
+				{
+					falseTarget.parent.removeChild(falseTarget);
+					falseTarget = null;
+					for each(var enemy:Enemy in enemyArray) enemy.isFalseHacking = false;
+				}
 			}
 		}
 		
 		private function makeEnemies():void
 		{
-			if(currentWave <= enemyWaves.length && levelStarted)
+			if(enemyTime < enemyLimit) enemyTime++;
+			else
 			{
-				if(enemyTime < enemyLimit) enemyTime++;
-				else
+				var id:int = enemyWaves[currentWave - 1][currentEnemy];
+				var enemy:Enemy;
+				switch(id)
 				{
-					var id:int = enemyWaves[currentWave - 1][currentEnemy];
-					var enemy:Enemy;
-					switch(id)
-					{
-						case 1:
+					case 1:
 						enemy = new Enemy_Speeder();
 						if(!Variables.INTRODUCE_SPEEDER) 
 						{
 							introduce(IntroduceScreen.SPEEDER);
 							Variables.INTRODUCE_SPEEDER = true;
 						}
-						break;
-						
-						case 2:
+					break;
+					
+					case 2:
 						enemy = new Enemy_Worm();
 						if(!Variables.INTRODUCE_WORM)
 						{
 							introduce(IntroduceScreen.WORM);
 							Variables.INTRODUCE_WORM = true;
 						}
-						break;
-						
-						default:
-						enemy = null;
-						break;
-					}
-					if(enemy)
-					{
-						enemy.direction = Enemy.STARTING_DIRECTION;
-						switch(enemy.direction)
+					break;
+					
+					case 3:
+						enemy = new Enemy_Recoder();
+						if(!Variables.INTRODUCE_RECODER)
 						{
-							case Enemy.DIR_DOWN:
+							introduce(IntroduceScreen.RECODER);
+							Variables.INTRODUCE_RECODER = true;
+						}
+					break;
+					
+					default:
+						enemy = null;
+					break;
+				}
+				if(enemy)
+				{
+					enemy.direction = Enemy.STARTING_DIRECTION;
+					switch(enemy.direction)
+					{
+						case Enemy.DIR_DOWN:
 							enemy.x = roadStart.x;
 							enemy.y = roadStart.y - enemy.width * .8;
 							enemy.rotation = 90;
-							break;
+						break;
 							
-							case Enemy.DIR_LEFT:
+						case Enemy.DIR_LEFT:
 							enemy.x = roadStart.x + enemy.width * .8;
 							enemy.y = roadStart.y;
 							enemy.rotation = -180;
-							break;
+						break;
 							
-							case Enemy.DIR_RIGHT:
+						case Enemy.DIR_RIGHT:
 							enemy.x = roadStart.x - enemy.width * .8;
 							enemy.y = roadStart.y;
 							enemy.rotation = 0;
-							break;
+						break;
 							
-							case Enemy.DIR_UP:
+						case Enemy.DIR_UP:
 							enemy.x = roadStart.x;
 							enemy.y = roadStart.y + enemy.width * .8;
 							enemy.rotation = -90;
-							break;
-						}
-						enemyArray.push(enemy);
-						enemyHolder.addChild(enemy);
-						currentEnemy++;
-						enemyTime = 0;
+						break;
 					}
+					enemyArray.push(enemy);
+					enemyHolder.addChild(enemy);
+					currentEnemy++;
+					enemyTime = 0;
 				}
 			}
 		}
-		
-		private function introduce(target:String):void
+				
+		private function checkEnemies():void
 		{
-			introScreen = new IntroduceScreen(target);
-			introScreen.addEventListener(MouseEvent.CLICK, clickIntro, false, 0, true);
-			introScreen.gotoAndStop(target);
-			introScreen.x = -introScreen.width * .5;
-			introScreensArray.push(introScreen);
-			introduceHolder.addChild(introScreen);
+			for(var i:int = enemyArray.length; --i >= 0;)
+			{
+				var enemy:Enemy = enemyArray[i];
+				if(enemy.health <= 0)
+				{
+					createExplosion(enemy.x, enemy.y, enemy.levelColor, true);
+					if((Math.random() * 100) <= Variables.SYMBOLS_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.symbolsDrop, Drop.DROP_SYMBOLS);
+					if((Math.random() * 100) <= Variables.MEMORY_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.memoryDrop, Drop.DROP_MEMORY);
+					if((Math.random() * 100) <= Variables.PROTECT_DROP_CHANCE && systemProtection < 100) drop(enemy.x, enemy.y, enemy.protectDrop, Drop.DROP_PROTECT); 
+					removeObject(i, enemyArray);
+					enemiesLeft--;
+					updateScoreBoard("txtEnemiesLeft");
+				}
+			}
 		}
 		
 		private function updateEnemies():void
@@ -881,6 +910,8 @@ package
 			{
 				enemy = enemyArray[i];
 				enemy.graphPoint.graphics.clear();
+				clip = enemy.getChildByName("clip") as MovieClip;
+				clip.gotoAndPlay(clip.currentFrame);
 				
 				if(enemy.thisTurnCloudTouched) enemy.thisTurnCloudTouched = false;
 				
@@ -935,17 +966,13 @@ package
 					if(enemy.speed > 0) enemy.speed -= enemy.stoppingSpeed;
 					else enemy.speed = 0;
 					
+					clip.gotoAndStop(clip.currentFrame);
+					
 					if(enemy.underFreeze) enemy.removeStatus(Enemy.STATUS_FREEZE);
 					if(!flowStopInAction) 
 					{
 						enemy.stunCounter++;
-						if(enemy.stunCounter > enemy.maxTimeStuned)
-						{
-							enemy.removeStatus(Enemy.STATUS_STUN);
-							clip = enemy.getChildByName("clip") as MovieClip;
-							clip.gotoAndPlay(clip.currentFrame);
-							clip = null;
-						}
+						if(enemy.stunCounter > enemy.maxTimeStuned) enemy.removeStatus(Enemy.STATUS_STUN);
 					}
 				}
 				if(enemy.speedUP)
@@ -1006,7 +1033,7 @@ package
 					if(systemProtection > 0)
 					{
 						systemProtection -= enemy.systemDamage;
-						clip = enemy.getChildByName("clip") as MovieClip;
+						if(systemProtection <= 0) systemProtection = 0;
 						clip.gotoAndStop(clip.currentFrame);
 						updateScoreBoard("txtSystem");
 					}
@@ -1016,9 +1043,37 @@ package
 						checkForHack(enemy, i);
 					}
 				}
+				if(falseTarget)
+				{
+					if(clip.hitTestObject(falseTarget)) enemy.isFalseHacking = true; 
+				}
 				
-				enemy.x += enemy.xSpeed;
-				enemy.y += enemy.ySpeed;
+				if(!enemy.isFalseHacking)
+				{
+					enemy.x += enemy.xSpeed;
+					enemy.y += enemy.ySpeed;
+				}
+				if(enemy.isFalseHacking && falseTarget)
+				{
+					falseTarget.protectAmount -= enemy.systemDamage;
+					clip.gotoAndStop(clip.currentFrame);
+					falseTarget.txtProtection.text = String(Number(falseTarget.protectAmount).toFixed(1)) + " %";
+					if(falseTarget.protectAmount <= 0) falseTarget.txtProtection.text = "0.0 %";
+				}
+				
+				if(enemy is Enemy_Recoder)
+				{
+					var distan:Number;
+					for(var o:int = enemyArray.length; --o >= 0;)
+					{
+						var otherEnemy:Enemy = enemyArray[o];
+						if(otherEnemy != enemy)
+						{
+							distan = Math.sqrt(Math.pow((otherEnemy.x - enemy.x),2) + Math.pow((otherEnemy.y - enemy.y),2));
+							if(distan <= enemy.healDistance) CONTINIUM учим Рекодера лечить ближайшую цель, возможно выбирать из них наиболее побитую;
+						}
+					}
+				}
 			}
 			if(flowStopInAction) flowStopCounter--;
 			if(flowStopCounter <= 0  && flowStopInAction)
@@ -1041,6 +1096,16 @@ package
 			}
 		}
 		
+		private function introduce(target:String):void
+		{
+			introScreen = new IntroduceScreen(target);
+			introScreen.addEventListener(MouseEvent.CLICK, clickIntro, false, 0, true);
+			introScreen.gotoAndStop(target);
+			introScreen.x = -introScreen.width * .5;
+			introScreensArray.push(introScreen);
+			introduceHolder.addChild(introScreen);
+		}
+				
 		private function showBaseCharInfo(e:MouseEvent):void
 		{
 			if(!charInfo)
@@ -1080,8 +1145,7 @@ package
 				baseCharInfo.txtMemoryUse.text 		= "$: " + tempChar.memoryUse;
 				baseCharInfo.txtDamage.text			= tempChar.damage;
 				baseCharInfo.txtRange.text 			= tempChar.range;
-				baseCharInfo.txtReloadTime.text 		= String(Math.round(tempChar.reloadTime * .5) * .1);
-				if(baseCharInfo.txtReloadTime.length == 1) baseCharInfo.txtReloadTime.appendText(".0");
+				baseCharInfo.txtReloadTime.text 		= String(Number(Math.round(tempChar.reloadTime * .5) * .1).toFixed(1));
 				
 				baseCharInfo.x = gameWidth;
 				baseCharInfo.y = gameHeight;
@@ -1101,67 +1165,71 @@ package
 		
 		private function dragIcon(e:MouseEvent):void
 		{
-			if(charMenu) unClickTurret(e);
+			if(addingMarker || placingFalseTarget || turretRelocatingON){}
+			else
+			{
+				if(charMenu) unClickTurret(e);
 			
-			if(chooseTurretCircle)
-			{
-				chooseTurretCircle.gunBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.launcherBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.freezeBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.swarmBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				turretHolder.removeChild(chooseTurretCircle);
-				chooseTurretCircle = null;
-			}
-						
-			if(confirmTurretCircle)
-			{
-				confirmTurretCircle.buyTurret.addEventListener(MouseEvent.CLICK, confirmTurret, false, 0, true);
-				confirmTurretCircle.cancelTurret.addEventListener(MouseEvent.CLICK, cancelTurret, false, 0, true);
-				turretHolder.removeChild(confirmTurretCircle);
-				confirmTurretCircle = null;
-			}
-			
-			if(rangeCircle)
-			{
-				rangeCircle.graphics.clear();
-				removeChild(rangeCircle);
-				rangeCircle = null;
-			}
-			
-			var charCost:int = e.currentTarget.memoryUse;
-			if(memoryTotal >= (memoryUsed + charCost))
-			{
-				dragCharIcon = new CharIcon(e.currentTarget.charType);
-				dragCharIcon.memoryUse = charCost;
-				dragCharIcon.range = e.currentTarget.range;
-				
-				switch(e.currentTarget.charType)
+				if(chooseTurretCircle)
 				{
-					case Turret.TURRET_GUN:
-					dragCharIcon.gotoAndStop("gunTurret");
-					break;
-					
-					case Turret.TURRET_LAUNCHER:
-					dragCharIcon.gotoAndStop("launcherTurret");
-					break;
-					
-					case Turret.TURRET_SWARM:
-					dragCharIcon.gotoAndStop("swarmTurret");
-					break;
-					
-					case Turret.TURRET_FREEZE:
-					dragCharIcon.gotoAndStop("freezeTurret");
-					break;
+					chooseTurretCircle.gunBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+					chooseTurretCircle.launcherBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+					chooseTurretCircle.freezeBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+					chooseTurretCircle.swarmBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+					turretHolder.removeChild(chooseTurretCircle);
+					chooseTurretCircle = null;
 				}
-				dragCharIcon.x = stage.mouseX;
-				dragCharIcon.y = stage.mouseY;
-				addChild(dragCharIcon);
-				dragCharIcon.startDrag();
-				dragging = true;
-			}
-			else trace("not enought memory");
+						
+				if(confirmTurretCircle)
+				{
+					confirmTurretCircle.buyTurret.addEventListener(MouseEvent.CLICK, confirmTurret, false, 0, true);
+					confirmTurretCircle.cancelTurret.addEventListener(MouseEvent.CLICK, cancelTurret, false, 0, true);
+					turretHolder.removeChild(confirmTurretCircle);
+					confirmTurretCircle = null;
+				}
 			
-			stage.addEventListener(MouseEvent.MOUSE_UP, dropIcon, false, 0, true);
+				if(rangeCircle)
+				{
+					rangeCircle.graphics.clear();
+					removeChild(rangeCircle);
+					rangeCircle = null;
+				}
+			
+				var charCost:int = e.currentTarget.memoryUse;
+				if(memoryTotal >= (memoryUsed + charCost))
+				{
+					dragCharIcon = new CharIcon(e.currentTarget.charType);
+					dragCharIcon.memoryUse = charCost;
+					dragCharIcon.range = e.currentTarget.range;
+				
+					switch(e.currentTarget.charType)
+					{
+						case Turret.TURRET_GUN:
+							dragCharIcon.gotoAndStop("gunTurret");
+						break;
+				
+						case Turret.TURRET_LAUNCHER:
+							dragCharIcon.gotoAndStop("launcherTurret");
+						break;
+					
+						case Turret.TURRET_SWARM:
+							dragCharIcon.gotoAndStop("swarmTurret");
+						break;
+					
+						case Turret.TURRET_FREEZE:
+							dragCharIcon.gotoAndStop("freezeTurret");
+						break;
+					}
+					dragCharIcon.x = stage.mouseX;
+					dragCharIcon.y = stage.mouseY;
+					addChild(dragCharIcon);
+					dragCharIcon.startDrag();
+					dragging = true;
+				}
+				else trace("not enought memory");
+			
+				stage.addEventListener(MouseEvent.MOUSE_UP, dropIcon, false, 0, true);
+			}
 		}
 		
 		private function dropIcon(e:MouseEvent):void
@@ -1611,7 +1679,7 @@ package
 				{
 					var turret:Turret = counter.turretInAction;
 					memoryUsed -= turret.memoryUse;
-					updateScoreBoard("txtMemeory");
+					updateScoreBoard("txtMemory");
 					
 					for each(var marker:PlaceMarker in markerArray)
 					{
@@ -1628,8 +1696,7 @@ package
 		
 		private function clickTurret(e:MouseEvent):void
 		{
-			if(addingMarker){}
-			else if(relocatingTurretChoosen){}
+			if(addingMarker || placingFalseTarget || relocatingTurretChoosen){}
 			else if(turretRelocatingON)
 			{
 				relocationTurretClip = new RelocationTurretClip();
@@ -1703,8 +1770,7 @@ package
 				charInfo.txtCharLevel.text 		= " lvl " + target.level;
 				charInfo.txtDamage.text				= target.damage;
 				charInfo.txtRange.text				= target.range;
-				charInfo.txtReloadTime.text		= String(Math.round(target.reloadTime * .5) * .1);
-				if(charInfo.txtReloadTime.length == 1) charInfo.txtReloadTime.appendText(".0");
+				charInfo.txtReloadTime.text		= String(Number(Math.round(target.reloadTime * .5) * .1).toFixed(1));
 				charInfo.x = gameWidth;
 				charInfo.y = gameHeight;
 				charHolder.addChild(charInfo);
@@ -1730,8 +1796,7 @@ package
 			if(target.additionalReloadTime != 0)
 			{
 				charInfo.txtReloadTime.textColor = 0xFFFF00;
-				charInfo.txtReloadTime.text = String(Math.round((target.reloadTime - target.additionalReloadTime) * .5) * .1);
-				if(charInfo.txtReloadTime.length == 1) charInfo.txtReloadTime.appendText(".0");
+				charInfo.txtReloadTime.text = String(Number(Math.round((target.reloadTime - target.additionalReloadTime) * .5) * .1).toFixed(1));
 			}
 		}
 		
@@ -1742,8 +1807,7 @@ package
 				var target:Turret = charMenu.target;
 				charInfo.txtDamage.text = target.damage;
 				charInfo.txtRange.text = target.range;
-				charInfo.txtReloadTime.text = String(Math.round(target.reloadTime * .5) * .1);
-				if(charInfo.txtReloadTime.length == 1) charInfo.txtReloadTime.appendText(".0");
+				charInfo.txtReloadTime.text = String(Number(Math.round(target.reloadTime * .5) * .1).toFixed(1));
 				charInfo.txtDamage.textColor = 0xFFFFFF;
 				charInfo.txtRange.textColor = 0xFFFFFF;
 				charInfo.txtReloadTime.textColor = 0xFFFFFF;
@@ -2250,25 +2314,7 @@ package
 			addChild(splash);
 			removeObject(index, rocketArray);
 		}
-		
-		private function checkEnemies():void
-		{
-			for(var i:int = enemyArray.length; --i >= 0;)
-			{
-				var enemy:Enemy = enemyArray[i];
-				if(enemy.health <= 0)
-				{
-					createExplosion(enemy.x, enemy.y, enemy.levelColor, true);
-					if((Math.random() * 100) <= Variables.SYMBOLS_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.symbolsDrop, Drop.DROP_SYMBOLS);
-					if((Math.random() * 100) <= Variables.MEMORY_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.memoryDrop, Drop.DROP_MEMORY);
-					if((Math.random() * 100) <= Variables.PROTECT_DROP_CHANCE && systemProtection < 100) drop(enemy.x, enemy.y, enemy.protectDrop, Drop.DROP_PROTECT); 
-					removeObject(i, enemyArray);
-					enemiesLeft--;
-					updateScoreBoard("txtEnemiesLeft");
-				}
-			}
-		}
-		
+				
 		private function drop(xVal:int, yVal:int, dropAmaunt:int, dropType:String):void
 		{
 			var drop:Drop = new Drop();
@@ -2425,25 +2471,22 @@ package
 		
 		private function checkForNextWave():void
 		{
-			if(enemiesLeft == 0 && !waveTimerInAction && currentWave < enemyWaves.length)
-			{
-				startWaveBtn = new StartWaveBtn();
-				startWaveBtn.x = roadStart.x + 50;
-				startWaveBtn.y = roadStart.y;
-				startWaveBtn.buttonMode = true;
-				startWaveBtn.timeCounter.mouseEnabled = false;
-				startWaveBtn.addEventListener(MouseEvent.CLICK, onClickNextWave, false, 0, true);
-				startWaveBtn.timeCounter.text = Variables.WAVE_DELAY;
-				userInterface.addChild(startWaveBtn);
-				
-				startWaveBtnArrow = new StartWaveBtnArrow();
-				startWaveBtnArrow.x = startWaveBtn.x - startWaveBtn.width + 5;
-				startWaveBtnArrow.y = startWaveBtn.y;
-				userInterface.addChild(startWaveBtnArrow);
+			startWaveBtn = new StartWaveBtn();
+			startWaveBtn.x = roadStart.x + 50;
+			startWaveBtn.y = roadStart.y;
+			startWaveBtn.buttonMode = true;
+			startWaveBtn.timeCounter.mouseEnabled = false;
+			startWaveBtn.addEventListener(MouseEvent.CLICK, onClickNextWave, false, 0, true);
+			startWaveBtn.timeCounter.text = Variables.WAVE_DELAY;
+			userInterface.addChild(startWaveBtn);
 			
-				waveTimerInAction = true;
-				nextWaveTimer.start();
-			}
+			startWaveBtnArrow = new StartWaveBtnArrow();
+			startWaveBtnArrow.x = startWaveBtn.x - startWaveBtn.width + 5;
+			startWaveBtnArrow.y = startWaveBtn.y;
+			userInterface.addChild(startWaveBtnArrow);
+		
+			waveTimerInAction = true;
+			nextWaveTimer.start();
 		}
 		
 		private function countWaveDelay(e:TimerEvent):void
@@ -2531,7 +2574,7 @@ package
 		private function checkForHack(enemy:Enemy, i:int):void
 		{
 			enemiesLeft--;
-			updateScoreBoard("enemiesLeft");
+			updateScoreBoard("txtEnemiesLeft");
 			enemyArray.splice(i, 1);
 			hackingEnemies.push(enemy);
 			var clip:MovieClip = enemy.getChildByName("clip") as MovieClip;
@@ -2565,22 +2608,24 @@ package
 				break;
 				
 				case "txtSystem":
-					var result:Number;
-					var string:String;
-					result = Math.round(systemProtection * 10) * .1;
-					if(result <= 0) result = 0;
-					else if(result >= 100) result = 100;
-					if((result % 1) == 0) string = result + ".0";
-					else string = result.toString();
-					string = string.slice(0, Number(string.indexOf(".")+2));
-					scoreBoard.txtSystem.text = "System: " + string + " %";
+					//var result:Number;
+					//var string:String;
+					//result = Math.round(systemProtection * 10) * .1;
+					//if(result <= 0) result = 0;
+					//else if(result >= 100) result = 100;
+					//if((result % 1) == 0) string = result + ".0";
+					//else string = result.toString();
+					//string = string.slice(0, Number(string.indexOf(".")+2));
+					//scoreBoard.txtSystem.text = "System: " + string + " %";
+					scoreBoard.txtSystem.text = "System: "+ String(Number(Math.round(systemProtection * 10) * .1).toFixed(1)) + " %";
+					
 				break;
 				
 				case "txtHackChance":
 				break;
 				
 				default:
-					trace("wrong field name");
+					trace("wrong field name", field);
 				break;
 			}
 		}
@@ -2719,7 +2764,7 @@ package
 						cancelToolClip.y = e.currentTarget.y;
 						cancelToolClip.addEventListener(MouseEvent.CLICK, cancelTool, false, 0, true);
 						toolsScreen.addChild(cancelToolClip);
-						for each(var toolA:SpecialTools in specialToolsArray) toolA.removeEventListener(MouseEvent.CLICK, clickTool);
+						for each(specTool in specialToolsArray) specTool.removeEventListener(MouseEvent.CLICK, clickTool);
 						
 						for each(var turret:Turret in turretArray)
 						{
@@ -2746,7 +2791,7 @@ package
 						cancelToolClip.y = e.currentTarget.y;
 						cancelToolClip.addEventListener(MouseEvent.CLICK, cancelTool, false, 0, true);
 						toolsScreen.addChild(cancelToolClip);
-						for each(var toolB:SpecialTools in specialToolsArray) toolB.removeEventListener(MouseEvent.CLICK, clickTool);
+						for each(specTool in specialToolsArray) specTool.removeEventListener(MouseEvent.CLICK, clickTool);
 						
 						for each(var ground:GroundTile in groundArray)
 						{
@@ -2762,10 +2807,108 @@ package
 					break;
 					
 					case SpecialTools.FALSE_TARGET:
-						CONTINIUM создаем на дороге ненастоящую цель для взлома
+						for each(specTool in specialToolsArray)
+						{
+							specialToolDisableClip = new SpecialToolDisable();
+							specialToolDisableClip.x = specTool.x;
+							specialToolDisableClip.y = specTool.y;
+							specialToolsDisablesArray.push(specialToolDisableClip);
+							toolsScreen.addChild(specialToolDisableClip);
+						}
+						placingFalseTarget = true;
+						cancelToolClip = new CancelSpecialTool();
+						cancelToolClip.x = e.currentTarget.x;
+						cancelToolClip.y = e.currentTarget.y;
+						cancelToolClip.addEventListener(MouseEvent.CLICK, cancelTool, false, 0, true);
+						toolsScreen.addChild(cancelToolClip);
+						for each(specTool in specialToolsArray) specTool.removeEventListener(MouseEvent.CLICK, clickTool);
+						
+						falseTarget = new EnemyFalseTarget();
+						falseTarget.alpha = 0;
+						falseTarget.txtProtection.text = String(falseTarget.protectAmount) + ".0 %";
+						falseTarget.txtLife.text = String(falseTarget.lifeTime) + ".0 s";
+						turretHolder.addChild(falseTarget);
+						falseTarget.addEventListener(MouseEvent.CLICK, placeFalseTarget, false, 0, true);
 					break;
 				}
 				enemy = null;
+			}
+		}
+		
+		private function placeFalseTarget(e:MouseEvent):void
+		{
+			if(falseTarget.canBePlaced)
+			{				
+				falseTarget.removeEventListener(MouseEvent.CLICK, placeFalseTarget);
+				falseTarget.alpha = 1;
+				falseTarget.placed = true;
+				placingFalseTarget = false;
+				if(cancelToolClip)
+				{
+					toolsScreen.removeChild(cancelToolClip);
+					cancelToolClip = null;
+				}
+				
+				for(var i:int = specialToolsDisablesArray.length; --i >= 0;) removeObject(i, specialToolsDisablesArray);
+				
+				specialToolsGauge--;
+				var frame:int = 1;
+				for(var g:int = specialToolsGaugeArray.length; --g >= 0;)
+				{
+					var gauge:MovieClip = specialToolsGaugeArray[g] as MovieClip;
+					if(gauge.currentFrame < gauge.totalFrames)
+					{
+						frame = gauge.currentFrame;
+						gauge.gotoAndStop(1);
+					}
+					else if(gauge.currentFrame >= gauge.totalFrames)
+					{
+						gauge.gotoAndStop(frame);
+						break;
+					}
+				}
+				
+				
+				for each(var tool:SpecialTools in specialToolsArray)
+				{ 
+					if(tool.type == SpecialTools.FALSE_TARGET)
+					{
+						specialToolCooldown = new SpecialToolsCooldown();
+						specialToolCooldown.x = tool.x;
+						specialToolCooldown.y = tool.y;
+						specialToolCooldown.gotoAndStop(1);
+						specialToolCooldown.timeToWait = Variables.SPECIAL_FALSE_TARGET_COOLTIME;
+						if(Variables.SPECIAL_FALSE_TARGET_COOLTIME >= 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
+						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
+						toolsScreen.addChild(specialToolCooldown);
+						specialToolsCooldownsArray.push(specialToolCooldown);
+					} 
+					tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
+				}
+			}
+		}
+		
+		private function checkRoadForFalseTarget():void
+		{
+			falseTarget.alpha = 0;
+			falseTarget.canBePlaced = false;
+			for each(var road:RoadTile in roadArray)
+			{
+				for each(var enemy:Enemy in enemyArray)
+				{
+					if(enemy.hitTestObject(road)) road.collideWithEnemy = true;
+					else road.collideWithEnemy = false;
+				}
+				if(!road.collideWithEnemy)
+				{
+					if(mouseX > road.x && mouseX < road.x + road.width && mouseY > road.y && mouseY < road.y + road.height)
+					{
+						falseTarget.x = road.x + road.width * .5;
+						falseTarget.y = road.y + road.height * .5;
+						falseTarget.alpha = .5;
+						falseTarget.canBePlaced = true;
+					}
+				}
 			}
 		}
 		
@@ -2777,6 +2920,7 @@ package
 			addingMarker = false;
 			turretRelocatingON = false;
 			relocatingTurretChoosen = false;
+			placingFalseTarget = false;
 			
 			for(var i:int = specialToolsDisablesArray.length; --i >= 0;) removeObject(i, specialToolsDisablesArray);
 			
@@ -2786,6 +2930,12 @@ package
 				relocationTurretClip = null;
 			}
 			for(var f:int = availableActionFlagsArray.length; --f >= 0;) removeObject(f, availableActionFlagsArray);
+			
+			if(falseTarget)
+			{
+				falseTarget.parent.removeChild(falseTarget);
+				falseTarget = null;
+			}
 		}
 		
 		private function addMarkerCounter(e:MouseEvent):void
@@ -2882,7 +3032,7 @@ package
 		
 		private function clickMarker(e:MouseEvent):void
 		{
-			if(addingMarker){}
+			if(addingMarker || placingFalseTarget){}
 			else if(turretRelocatingON && !relocatingTurretChoosen){}
 			else if(turretRelocatingON && relocatingTurretChoosen)
 			{
@@ -2941,230 +3091,3 @@ package
 		}
 	}
 }
-
-/*
-*
-*
-private function clickTool(e:MouseEvent):void
-		{
-			if(specialToolsGauge > 0 && levelStarted)
-			{
-				var enemy:Enemy;
-				var cFrame:int = 1;
-				var gauge:MovieClip;
-				var specTool:SpecialTools;
-				
-				switch(e.currentTarget.type)
-				{
-					case SpecialTools.HACK_REDUCE:
-						for(var b:int = enemyArray.length; --b >= 0;)
-						{
-							enemy = enemyArray[b];
-							if(!enemy.hackChanceDecreased)
-							{
-								enemy.hackChance *= Variables.SPECIAL_HACK_REDUCE_MULTIPLY;
-								enemy.hackChanceDecreased = true;
-							}
-						}
-						specialToolCooldown = new SpecialToolsCooldown();
-						specialToolCooldown.x = e.currentTarget.x;
-						specialToolCooldown.y = e.currentTarget.y;
-						specialToolCooldown.gotoAndStop(1);
-						specialToolCooldown.timeToWait = Variables.SPECIAL_HACK_REDUCE_COOLTIME;
-						specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
-						if(Variables.SPECIAL_HACK_REDUCE_COOLTIME < 500) specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_HACK_REDUCE_COOLTIME/1000)) + ".0";
-						else specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_HACK_REDUCE_COOLTIME/1000));
-						toolsScreen.addChild(specialToolCooldown);
-						specialToolsCooldownsArray.push(specialToolCooldown);
-						
-						specialToolsGauge--;
-						for(var ghc:int = specialToolsGaugeArray.length; --ghc >= 0;)
-						{
-							gauge = specialToolsGaugeArray[ghc] as MovieClip;
-							if(gauge.currentFrame < gauge.totalFrames)
-							{
-								cFrame = gauge.currentFrame;
-								gauge.gotoAndStop(1);
-							}
-							else if(gauge.currentFrame >= gauge.totalFrames)
-							{
-								gauge.gotoAndStop(cFrame);
-								break;
-							}
-						}
-					break;
-				
-					case SpecialTools.FLOW_STOP:
-						flowStopInAction = true;
-						flowStopCounter = Variables.SPECIAL_FLOW_STOP_DURATION;
-						specialToolCooldown = new SpecialToolsCooldown();
-						specialToolCooldown.x = e.currentTarget.x;
-						specialToolCooldown.y = e.currentTarget.y;
-						specialToolCooldown.gotoAndStop(1);
-						//specialToolCooldown.lifeTime = Variables.SPECIAL_FLOW_STOP_COOLTIME;
-						//specialToolCooldown.finishTime = getTimer() + Variables.SPECIAL_FLOW_STOP_COOLTIME;
-						//if(Variables.SPECIAL_FLOW_STOP_COOLTIME < 10) specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_FLOW_STOP_COOLTIME/1000)) + ".0";
-						//else specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_FLOW_STOP_COOLTIME/1000));
-						toolsScreen.addChild(specialToolCooldown);
-						specialToolsCooldownsArray.push(specialToolCooldown);
-						
-						for each(enemy in enemyArray)
-						{
-							var clip:MovieClip = enemy.getChildByName("clip") as MovieClip;
-							clip.gotoAndStop(clip.currentFrame);
-							clip = null;
-						}
-						specialToolsGauge--;
-						for(var gfs:int = specialToolsGaugeArray.length; --gfs >= 0;)
-						{
-							gauge = specialToolsGaugeArray[gfs] as MovieClip;
-							if(gauge.currentFrame < gauge.totalFrames)
-							{
-								cFrame = gauge.currentFrame;
-								gauge.gotoAndStop(1);
-							}
-							else if(gauge.currentFrame >= gauge.totalFrames)
-							{
-								gauge.gotoAndStop(cFrame);
-								break;
-							}
-						}
-					break;
-				
-					case SpecialTools.FLOW_OVERLOAD:
-						for(var i:int = enemyArray.length; --i >= 0;)
-						{
-							enemy = enemyArray[i];
-							enemy.health -= Variables.SPECIAL_FLOW_OVERLOAD_DAMAGE;
-							createExplosion(enemy.x, enemy.y, enemy.levelColor);
-							enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
-						}
-						specialToolCooldown = new SpecialToolsCooldown();
-						specialToolCooldown.x = e.currentTarget.x;
-						specialToolCooldown.y = e.currentTarget.y;
-						specialToolCooldown.gotoAndStop(1);
-						//specialToolCooldown.lifeTime = Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME;
-						//specialToolCooldown.finishTime = getTimer() + Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME;
-						//if(Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME < 10) specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME/1000)) + ".0";
-						//else specialToolCooldown.txtCounter.text = String(Math.round(Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME/1000));
-						toolsScreen.addChild(specialToolCooldown);
-						specialToolsCooldownsArray.push(specialToolCooldown);
-						
-						specialToolsGauge--;
-						for(var gfo:int = specialToolsGaugeArray.length; --gfo >= 0;)
-						{
-							gauge = specialToolsGaugeArray[gfo] as MovieClip;
-							if(gauge.currentFrame < gauge.totalFrames)
-							{
-								cFrame = gauge.currentFrame;
-								gauge.gotoAndStop(1);
-							}
-							else if(gauge.currentFrame >= gauge.totalFrames)
-							{
-								gauge.gotoAndStop(cFrame);
-								break;
-							}
-						}
-					break;
-				
-					case SpecialTools.RELOCATE_TURRET:
-						for each(specTool in specialToolsArray)
-						{
-							specialToolDisableClip = new SpecialToolDisable();
-							specialToolDisableClip.x = specTool.x;
-							specialToolDisableClip.y = specTool.y;
-							specialToolsDisablesArray.push(specialToolDisableClip);
-							toolsScreen.addChild(specialToolDisableClip);
-						}
-						turretRelocatingON = true;
-						cancelToolClip = new CancelSpecialTool();
-						cancelToolClip.x = e.currentTarget.x;
-						cancelToolClip.y = e.currentTarget.y;
-						cancelToolClip.addEventListener(MouseEvent.CLICK, cancelTool, false, 0, true);
-						toolsScreen.addChild(cancelToolClip);
-						for each(var toolA:SpecialTools in specialToolsArray) toolA.removeEventListener(MouseEvent.CLICK, clickTool);
-						
-						for each(var turret:Turret in turretArray)
-						{
-							var tempFlag:AvailableActionFlag = new AvailableActionFlag();
-							tempFlag.x = turret.x;
-							tempFlag.y = turret.y;
-							availableActionFlagsArray.push(tempFlag);
-							turretHolder.addChild(tempFlag);
-						}
-					break;
-				
-					case SpecialTools.ADDITIONAL_MARKER:
-						for each(specTool in specialToolsArray)
-						{
-							specialToolDisableClip = new SpecialToolDisable();
-							specialToolDisableClip.x = specTool.x;
-							specialToolDisableClip.y = specTool.y;
-							specialToolsDisablesArray.push(specialToolDisableClip);
-							toolsScreen.addChild(specialToolDisableClip);
-						}
-						addingMarker = true;
-						cancelToolClip = new CancelSpecialTool();
-						cancelToolClip.x = e.currentTarget.x;
-						cancelToolClip.y = e.currentTarget.y;
-						cancelToolClip.addEventListener(MouseEvent.CLICK, cancelTool, false, 0, true);
-						toolsScreen.addChild(cancelToolClip);
-						for each(var toolB:SpecialTools in specialToolsArray) toolB.removeEventListener(MouseEvent.CLICK, clickTool);
-						
-						for each(var ground:GroundTile in groundArray)
-						{
-							if(ground.nearRoad)
-							{
-								var flag:AvailableActionFlag = new AvailableActionFlag();
-								flag.x = ground.x + ground.width * .5;
-								flag.y = ground.y + ground.height * .5;
-								availableActionFlagsArray.push(flag);
-								groundHolder.addChild(flag);
-							}
-						}
-					break;
-				}
-				enemy = null;
-			}
-		}
-		
-private function specialToolsInWork():void
-		{
-			var cooldown:SpecialToolsCooldown;
-			var gauge:MovieClip;
-			var cFrame:int;
-			
-			specialToolsGauge = 0;
-			for(var i:int = 0; i < specialToolsGaugeArray.length; i++)
-			{
-				gauge = specialToolsGaugeArray[i] as MovieClip;
-				cFrame = gauge.currentFrame;
-				if(cFrame < gauge.totalFrames) 
-				{
-					cFrame++;
-					gauge.gotoAndStop(cFrame);
-					break;
-				}
-				else specialToolsGauge++;
-			}
-			for(var k:int = specialToolsCooldownsArray.length; --k >= 0;)
-			{
-				cooldown = specialToolsCooldownsArray[k];
-				cooldown.waitCounter++;
-				//делим на два и после раунда на 10, чтобы получить десятые секунд и привести в соответсвие то, что считаем через gameTimer, а на выходе нужны секунды с десятыми
-				cooldown.txtCounter.text = String(Math.round((cooldown.timeToWait - cooldown.waitCounter) * .5) * .1);
-				if(cooldown.txtCounter.length == 1) cooldown.txtCounter.appendText(".0");
-				else if((cooldown.timeToWait - cooldown.waitCounter) > 200) cooldown.txtCounter.replaceText(2, cooldown.txtCounter.length, "");
-				cooldown.gotoAndStop(Math.round((cooldown.timeToWait - cooldown.waitCounter) / cooldown.timeToWait * 100));
-				if(cooldown.waitCounter >= cooldown.timeToWait) removeObject(k, specialToolsCooldownsArray);
-				//timeLeft = Math.round((cooldown.finishTime - getTimer()) * .01) * .1;
-				//cooldown.txtCounter.text = timeLeft.toString();
-				//if(cooldown.txtCounter.length == 1) cooldown.txtCounter.appendText(".0");
-				//else if(timeLeft > 10) cooldown.txtCounter.replaceText(2, cooldown.txtCounter.length, "");
-				//cooldown.gotoAndStop(Math.round((timeLeft * 1000) / cooldown.lifeTime * 100));
-				//if(timeLeft <= 0) removeObject(k, specialToolsCooldownsArray);
-			}
-		}
-*
-*
-*/

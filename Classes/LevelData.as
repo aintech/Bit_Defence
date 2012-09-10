@@ -18,10 +18,7 @@
 		public var openChars:Array 		= [];
 		public var openTools:Array			= [];
 		
-		public function LevelData()
-		{
-			
-		}
+		public function LevelData(){}
 		
 		public function makeLevel(level:int):Array
 		{
@@ -93,23 +90,27 @@
 		
 		public function makeEnemies(level:int):Array
 		{
+			// 1 - Speeder
+			// 2 - Worm
+			// 3 - Recoder
 			switch(level)
 			{
 				case 1:
-				levelEnemyWaves = [[1/*, 1, 2, 2*/],
-								   [1, 2],
-								   [1, 2, 1, 2, 1, 1], 
-								   [1, 1, 1, 2, 1, 1, 2, 1],
-								   [1, 1, 1, 1, 1, 1, 1, 1]
-								   ];
+				levelEnemyWaves = [
+										[3, 1/*, 1, 2, 2*/],
+								   	[1, 2],
+								   	[1, 2, 1, 2, 1, 1], 
+								   	[1, 1, 1, 2, 1, 1, 2, 1],
+								   	[1, 1, 1, 1, 1, 1, 1, 1]
+								  		];
 				break;
 				
 				case 2:
 				levelEnemyWaves = [
-								   [1, 1, 1, 1], 
-								   [1, 1, 1, 1, 1, 1],
-								   [1, 1, 1, 1, 1, 1, 1, 1]
-								   ];
+								   	[1, 1, 1, 1], 
+								   	[1, 1, 1, 1, 1, 1],
+								   	[1, 1, 1, 1, 1, 1, 1, 1]
+								   	];
 				break;
 				
 				case 3:

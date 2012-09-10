@@ -7,6 +7,7 @@
 		public var direct:String;
 		public var ID:int;
 		public var tileNumber:int;
+		public var collideWithEnemy:Boolean;
 		
 		public function RoadTile(type:String, xVal:int, yVal:int)
 		{

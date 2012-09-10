@@ -1,7 +1,7 @@
 ﻿package 
-{
-	import flash.events.Event;
+{	
 	import flash.geom.Point;
+	import flash.events.Event;
 	
 	public class Enemy_Worm extends Enemy
 	{
@@ -33,12 +33,11 @@
 			lifeBarDOWN 	= new Point(-50, 0);
 			lifeBarLEFT 	= new Point(0, 30);
 			lifeBarRIGHT 	= new Point(0, -30);
-			
-			addEventListener(Event.ADDED_TO_STAGE, onAdd, false, 0, true);
 		}
 		
-		private function onAdd(e:Event):void
+		override protected function onAdd(e:Event):void
 		{
+			super.onAdd(e);
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;

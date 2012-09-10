@@ -1,8 +1,8 @@
-﻿package 
+﻿package
 {
 	import flash.geom.Point;
 	import flash.events.Event;
-
+	
 	public class Enemy_Speeder extends Enemy
 	{
 		public function Enemy_Speeder()
@@ -33,12 +33,11 @@
 			lifeBarDOWN 	= new Point(-25, 0);
 			lifeBarLEFT 	= new Point(0, 25);
 			lifeBarRIGHT 	= new Point(0, -25);
-			
-			addEventListener(Event.ADDED_TO_STAGE, onAdd, false, 0, true);
 		}
 		
-		private function onAdd(e:Event):void
+		override protected function onAdd(e:Event):void
 		{
+			super.onAdd(e);
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;

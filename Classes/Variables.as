@@ -65,6 +65,8 @@
 		public static var SPECIAL_HACK_REDUCE_MULTIPLY:Number;
 		public static var SPECIAL_FLOW_STOP_DURATION:int;
 		public static var SPECIAL_ADDITIONAL_MARKER_INSTALL_TIME:int;
+		public static var SPECIAL_FALSE_TARGET_PROTECTION:int;
+		public static var SPECIAL_FALSE_TARGET_PROTECTION_LIFE:int;
 		
 		public static var WAVE_DELAY:int;//Wave delay in sec
 		public static var ENEMY_DELAY:int;//enemy appear delay
@@ -137,6 +139,7 @@
 		
 		public static var INTRODUCE_SPEEDER:Boolean;
 		public static var INTRODUCE_WORM:Boolean;
+		public static var INTRODUCE_RECODER:Boolean;
 		
 		public static var INTRODUCE_GUN:Boolean;
 		public static var INTRODUCE_SWARM:Boolean;
@@ -196,17 +199,19 @@
 		
 		 	SPECIAL_TOOL_GAUGE							= 4;
 		
-		 	SPECIAL_ADDITIONAL_MARKER_COOLTIME		= 100;// = 5000 ms / gameTimer(50)
-		 	SPECIAL_FLOW_OVERLOAD_COOLTIME			= 100;
-		 	SPECIAL_FLOW_STOP_COOLTIME					= 100;
-		 	SPECIAL_HACK_REDUCE_COOLTIME 				= 100;
-		 	SPECIAL_RELOCATE_TURRET_COOLTIME			= 100;
-			SPECIAL_FALSE_TARGET_COOLTIME				= 100;
+		 	SPECIAL_ADDITIONAL_MARKER_COOLTIME		= 200;// = 10000 ms / gameTimer(50)
+		 	SPECIAL_FLOW_OVERLOAD_COOLTIME			= 200;
+		 	SPECIAL_FLOW_STOP_COOLTIME					= 200;
+		 	SPECIAL_HACK_REDUCE_COOLTIME 				= 200;
+		 	SPECIAL_RELOCATE_TURRET_COOLTIME			= 200;
+			SPECIAL_FALSE_TARGET_COOLTIME				= 300;
 		
 		 	SPECIAL_FLOW_OVERLOAD_DAMAGE				= 100;
 		 	SPECIAL_HACK_REDUCE_MULTIPLY				= .5;
 		 	SPECIAL_FLOW_STOP_DURATION					= 50;
 		 	SPECIAL_ADDITIONAL_MARKER_INSTALL_TIME = 50;
+			SPECIAL_FALSE_TARGET_PROTECTION			= 50;
+			SPECIAL_FALSE_TARGET_PROTECTION_LIFE	= 160;// 8 sec
 		
 			WAVE_DELAY	= 20;
 			ENEMY_DELAY	= 12;
@@ -284,6 +289,7 @@
 		
 			INTRODUCE_SPEEDER					= false;
 			INTRODUCE_WORM						= false;
+			INTRODUCE_RECODER					= false;
 		
 			INTRODUCE_GUN						= false;
 			INTRODUCE_SWARM					= false;

@@ -13,6 +13,7 @@
 		
 		public static const SPEEDER:String 				= "intro_Speeder";
 		public static const WORM:String					= "intro_Worm";
+		public static const RECODER:String				= "intro_Recoder"
 		
 		public static const ADDITIONAL_MARKER:String = "intro_Additional_Marker";
 		public static const FLOW_OVERLOAD:String		= "intro_Flow_Overload";

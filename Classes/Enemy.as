@@ -20,7 +20,7 @@
 		public static const STATUS_POISON:String 	= "status poison";
 		public static const STATUS_STUN:String		= "status stun";
 		public static const STATUS_FREEZE:String	= "status freeze";
-		public static const STATUS_CLOUD:String		= "status cloud";
+		public static const STATUS_CLOUD:String	= "status cloud";
 		
 		public var baseLevel:int = 1;
 		public var level:int;
@@ -90,6 +90,9 @@
 		public var systemDamage:Number;
 		public var isFalseHacking:Boolean;
 		
+		public var healAmount:int;
+		public var healDistance:int;
+		
 		public function Enemy()
 		{
 			level = baseLevel;
@@ -100,8 +103,9 @@
 			addEventListener(Event.ADDED_TO_STAGE, onAdd, false, 0, true);
 		}
 		
-		private function onAdd(e:Event):void
-		{			
+		protected function onAdd(e:Event):void
+		{	
+			removeEventListener(Event.ADDED_TO_STAGE, onAdd);
 			lifeBar = new LifeBar();
 			addChild(lifeBar);
 			lifeBar.width = getChildByName("clip").width;
