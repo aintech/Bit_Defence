@@ -839,6 +839,15 @@ package
 						}
 					break;
 					
+					case 4:
+						enemy = new Enemy_Protector();
+						if(!Variables.INTRODUCE_PROTECTOR)
+						{
+							introduce(IntroduceScreen.PROTECTOR);
+							Variables.INTRODUCE_PROTECTOR = true;
+						}
+					break;
+					
 					default:
 						enemy = null;
 					break;
@@ -903,7 +912,7 @@ package
 			var enemy:Enemy;
 			var road:RoadTile;
 			var clip:MovieClip;
-			
+			CONTINIUM придумываем как реализовать протектора и других врагов
 			var enemyLength:int = enemyArray.length;
 			
 			for(var i:int = enemyLength; --i >= 0;)
@@ -914,6 +923,7 @@ package
 				clip.gotoAndPlay(clip.currentFrame);
 				
 				if(enemy.thisTurnCloudTouched) enemy.thisTurnCloudTouched = false;
+				if(enemy.isHealing) enemy.removeStatus(Enemy.STATUS_HEAL);
 				
 				for(var r:int = 0; r < roadArray.length; r++)
 				{
@@ -1019,9 +1029,8 @@ package
 				
 				if(enemy.isPoisoned)
 				{
-					enemy.health -= Variables.LAUNCHER_POISON_DAMAGE;
+					enemy.calcDamage(Variables.LAUNCHER_POISON_DAMAGE);
 					createExplosion(enemy.x, enemy.y, enemy.levelColor);
-					enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 					enemy.poisonCounter++;
 					if(enemy.poisonCounter > enemy.maxPoisonCounter) enemy.removeStatus(Enemy.STATUS_POISON);
 				}
@@ -1030,6 +1039,7 @@ package
 				if(enemy.hitTestObject(enemyFinalTarget))
 				{
 					enemy.speed = 0;
+					enemy.xSpeed = enemy.ySpeed = 0;
 					if(systemProtection > 0)
 					{
 						systemProtection -= enemy.systemDamage;
@@ -1047,7 +1057,6 @@ package
 				{
 					if(clip.hitTestObject(falseTarget)) enemy.isFalseHacking = true; 
 				}
-				
 				if(!enemy.isFalseHacking)
 				{
 					enemy.x += enemy.xSpeed;
@@ -1063,14 +1072,26 @@ package
 				
 				if(enemy is Enemy_Recoder)
 				{
+					enemy.graphPoint.graphics.clear();
 					var distan:Number;
 					for(var o:int = enemyArray.length; --o >= 0;)
 					{
-						var otherEnemy:Enemy = enemyArray[o];
-						if(otherEnemy != enemy)
+						var healTarget:Enemy = enemyArray[o];
+						if((healTarget != enemy) && (healTarget.health < healTarget.maxHealth))
 						{
-							distan = Math.sqrt(Math.pow((otherEnemy.x - enemy.x),2) + Math.pow((otherEnemy.y - enemy.y),2));
-							if(distan <= enemy.healDistance) CONTINIUM учим Рекодера лечить ближайшую цель, возможно выбирать из них наиболее побитую;
+							distan = Math.sqrt(Math.pow((healTarget.x - enemy.x),2) + Math.pow((healTarget.y - enemy.y),2));
+							if(distan <= enemy.healDistance)
+							{
+								healTarget.calcDamage(-enemy.healAmount);
+								healTarget.addStatus(Enemy.STATUS_HEAL);
+								enemy.graphPoint.rotation = -enemy.rotation;
+								with(enemy.graphPoint.graphics)
+								{
+									lineStyle(2, 0x00FF00);
+									lineTo(healTarget.x - enemy.x, healTarget.y - enemy.y);
+								}
+							}
+							break;
 						}
 					}
 				}
@@ -1915,16 +1936,14 @@ package
 							}
 							if(turret.level >= 3  && (Math.random() * 100 < Variables.GUN_CRIT_CHANCE))
 							{
-								targetEnemy.health -= turret.damage * Variables.GUN_CRIT_DAMAGE_MULTIPLY + turret.gunAccDamage;
+								targetEnemy.calcDamage(turret.damage * Variables.GUN_CRIT_DAMAGE_MULTIPLY + turret.gunAccDamage);
 								createExplosion(targetEnemy.x, targetEnemy.y, targetEnemy.levelColor, false, true);
 							}
 							else
 							{
-								targetEnemy.health -= turret.damage + turret.gunAccDamage;
+								targetEnemy.calcDamage(turret.damage + turret.gunAccDamage);
 								createExplosion(targetEnemy.x, targetEnemy.y, targetEnemy.levelColor);
 							}
-							
-							targetEnemy.lifeBar.gotoAndStop(Math.floor(targetEnemy.health / targetEnemy.maxHealth * 100));
 						}
 						else if(turret is LauncherTurret)
 						{
@@ -1964,7 +1983,6 @@ package
 							
 							turret.gun.graphics.clear();
 							turret.gun.graphics.lineStyle(2, 0xFF0000);
-							turret.gun.graphics.moveTo(0, 0);
 							turret.gun.graphics.lineTo(targetEnemy.x - turret.x, targetEnemy.y - turret.y);
 							if(turret.level >= 3 && (Math.random() * 100 < Variables.FREEZE_STUN_CHANCE))
 							{
@@ -2046,9 +2064,8 @@ package
 								}
 								else if(!enemy.isPoisoned) enemy.addStatus(Enemy.STATUS_POISON);
 							}
-							enemy.health -= splash.damage;
+							enemy.calcDamage(splash.damage);
 							createExplosion(enemy.x, enemy.y, enemy.levelColor);
-							enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 						}
 					}
 				}
@@ -2110,9 +2127,8 @@ package
 						}
 						else
 						{
-							target.health -= swarm.damage;
+							target.calcDamage(swarm.damage);
 							createExplosion(target.x, target.y, target.levelColor);
-							target.lifeBar.gotoAndStop(Math.floor(target.health / target.maxHealth * 100));
 						}
 						removeObject(m, swarmArray);
 					}
@@ -2188,9 +2204,8 @@ package
 					{
 						if(swSplash.hitZone.hitTestObject(enemy))
 						{
-							enemy.health -= swSplash.damage;
+							enemy.calcDamage(swSplash.damage);
 							createExplosion(enemy.x, enemy.y, enemy.levelColor);
-							enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 						}
 					}
 				}
@@ -2231,9 +2246,8 @@ package
 					if(cloud.hitTestObject(enemy) && !enemy.thisTurnCloudTouched && !enemy.isPoisoned)
 					{
 						enemy.addStatus(Enemy.STATUS_CLOUD);
-						enemy.health -= Variables.LAUNCHER_POISON_CLOUD_DAMAGE;
+						enemy.calcDamage(Variables.LAUNCHER_POISON_CLOUD_DAMAGE);
 						createExplosion(enemy.x, enemy.y, enemy.levelColor, false, false, true);
-						enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 						enemy.thisTurnCloudTouched = true;
 					}
 				}
@@ -2718,9 +2732,8 @@ package
 						for(var i:int = enemyArray.length; --i >= 0;)
 						{
 							enemy = enemyArray[i];
-							enemy.health -= Variables.SPECIAL_FLOW_OVERLOAD_DAMAGE;
+							enemy.calcDamage(Variables.SPECIAL_FLOW_OVERLOAD_DAMAGE);
 							createExplosion(enemy.x, enemy.y, enemy.levelColor);
-							enemy.lifeBar.gotoAndStop(Math.floor(enemy.health / enemy.maxHealth * 100));
 						}
 						specialToolCooldown = new SpecialToolsCooldown();
 						specialToolCooldown.x = e.currentTarget.x;

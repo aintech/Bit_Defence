@@ -21,6 +21,7 @@
 		public static const STATUS_STUN:String		= "status stun";
 		public static const STATUS_FREEZE:String	= "status freeze";
 		public static const STATUS_CLOUD:String	= "status cloud";
+		public static const STATUS_HEAL:String		= "status heal";
 		
 		public var baseLevel:int = 1;
 		public var level:int;
@@ -64,7 +65,6 @@
 		public var baseHackChance:int;
 		public var hackChance:int;
 		
-		public var lifeBarWidth:int;
 		public var lifeBarUP:Point;
 		public var lifeBarDOWN:Point;
 		public var lifeBarRIGHT:Point;
@@ -90,9 +90,12 @@
 		public var systemDamage:Number;
 		public var isFalseHacking:Boolean;
 		
+		public var isHealing:Boolean;
 		public var healAmount:int;
 		public var healDistance:int;
 		
+		public var isHacking:Boolean;
+				
 		public function Enemy()
 		{
 			level = baseLevel;
@@ -108,7 +111,6 @@
 			removeEventListener(Event.ADDED_TO_STAGE, onAdd);
 			lifeBar = new LifeBar();
 			addChild(lifeBar);
-			lifeBar.width = getChildByName("clip").width;
 			lifeBar.gotoAndStop(lifeBar.totalFrames);
 			if(!Settings.LIFEBAR_VISIBLE) lifeBar.visible = false;
 			
@@ -189,6 +191,11 @@
 				case Enemy.STATUS_CLOUD:
 					touchCloud = true;
 				break;
+				
+				case Enemy.STATUS_HEAL:
+					if(isHealing) return;
+					isHealing = true;
+				break;
 			}
 			statusEffect = new StatusEffects(effect);
 			statusEffect.gotoAndStop(effect);
@@ -220,6 +227,10 @@
 				case Enemy.STATUS_CLOUD:
 					touchCloud = false;
 				break;
+				
+				case Enemy.STATUS_HEAL:
+					isHealing = false;
+				break;
 			}
 			for(var i:int = effectsArray.length; --i >= 0;)
 			{
@@ -242,6 +253,16 @@
 				statusEffect = effectsArray[i];
 				statusEffect.x = -(statusEffect.width * .5 * effLength) + (statusEffect.width * i);
 			}
+		}
+		
+		public function calcDamage(value:int):void
+		{
+			health -= value;
+			lifeBar.gotoAndStop(Math.floor(health / maxHealth * 100));
+			//if(lifeBar.currentFrame >= 76) lifeBar.filters = [new GlowFilter(0xFFFFFF, 1, 1, 3)];
+			//else if(lifeBar.currentFrame >= 51) lifeBar.filters = [new GlowFilter(0x00FF00, 1, 1, 3)];
+			//else if(lifeBar.currentFrame >= 26) lifeBar.filters = [new GlowFilter(0xFFFF00, 1, 1, 3)];
+			//else lifeBar.filters = [new GlowFilter(0xFF0000, 1, 1, 3)];
 		}
 	}
 }

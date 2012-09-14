@@ -21,14 +21,13 @@
 			baseSpeed = 7;
 			stoppingSpeed = .7;
 			
-			health = maxHealth = 50;
+			health = maxHealth = 700;
 			speed = baseSpeed;
 			systemDamage = .2;// 4% sec
 			
 			baseHackChance = 10;
 			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);
 			
-			lifeBarWidth 	= 26;
 			lifeBarUP 		= new Point(25, 0);
 			lifeBarDOWN 	= new Point(-25, 0);
 			lifeBarLEFT 	= new Point(0, 25);

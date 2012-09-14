@@ -7,7 +7,7 @@
 	public class Turret extends MovieClip
 	{
 		public static const TURRET_GUN:String 			= "turret_gun";
-		public static const TURRET_LAUNCHER:String 		= "turret_launcher";
+		public static const TURRET_LAUNCHER:String 	= "turret_launcher";
 		public static const TURRET_SWARM:String 		= "turret_swarm";
 		public static const TURRET_FREEZE:String 		= "turret_freeze";
 		public static const TURRET_MAX_LEVEL:int		= 5;

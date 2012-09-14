@@ -1,11 +1,11 @@
 ﻿package 
-{	
+{
 	import flash.geom.Point;
 	import flash.events.Event;
 	
-	public class Enemy_Worm extends Enemy
+	public class Enemy_Protector extends Enemy
 	{
-		public function Enemy_Worm()
+		public function Enemy_Protector()
 		{
 			init();
 		}
@@ -15,23 +15,23 @@
 			HitingPoint.visible = false;
 			TileNumPoint.visible = false;
 			clip.filters = [blurFilter, glowFilter];
-			symbolsDrop = 40 * Variables.SYMBOLS_DROP_MULTIPLE;
-			memoryDrop = 30;
+			symbolsDrop = 30 * Variables.SYMBOLS_DROP_MULTIPLE;
+			memoryDrop = 10;
 			protectDrop = 10;
-			baseSpeed = 3;
-			stoppingSpeed = .3;
+			baseSpeed = 4;
+			stoppingSpeed = .4;
 			
-			health = maxHealth = 3000;
+			health = maxHealth = 2000;
 			speed = baseSpeed;
-			systemDamage = .6;// 12% in sec = .6% in timer tic
+			systemDamage = .1;// 4% sec
 			
-			baseHackChance = 20;
+			baseHackChance = 16;
 			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);
 			
-			lifeBarUP 		= new Point(40, 0);
-			lifeBarDOWN 	= new Point(-50, 0);
-			lifeBarLEFT 	= new Point(0, 30);
-			lifeBarRIGHT 	= new Point(0, -30);
+			lifeBarUP 		= new Point(25, 0);
+			lifeBarDOWN 	= new Point(-25, 0);
+			lifeBarLEFT 	= new Point(0, 25);
+			lifeBarRIGHT 	= new Point(0, -25);
 		}
 		
 		override protected function onAdd(e:Event):void
