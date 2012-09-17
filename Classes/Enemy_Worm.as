@@ -22,6 +22,7 @@
 			stoppingSpeed = .3;
 			
 			health = maxHealth = 3000;
+			shield = 0;
 			speed = baseSpeed;
 			systemDamage = .6;// 12% in sec = .6% in timer tic
 			

@@ -141,6 +141,8 @@
 		public static var INTRODUCE_WORM:Boolean;
 		public static var INTRODUCE_RECODER:Boolean;
 		public static var INTRODUCE_PROTECTOR:Boolean;
+		public static var INTRODUCE_NEIROBOT:Boolean;
+		public static var INTRODUCE_RUNNER:Boolean;
 		
 		public static var INTRODUCE_GUN:Boolean;
 		public static var INTRODUCE_SWARM:Boolean;
@@ -153,6 +155,9 @@
 		public static var INTRODUCE_HACK_REDUCE:Boolean;
 		public static var INTRODUCE_RELOCATE_TURRET:Boolean;
 		public static var INTRODUCE_FALSE_TARGET:Boolean;
+		
+		public static var NUM_NEIROBOTS:int;
+		public static var NUM_PROTECTORS:int;
 		
 		public static function setToDefault():void
 		{
@@ -292,6 +297,8 @@
 			INTRODUCE_WORM						= false;
 			INTRODUCE_RECODER					= false;
 			INTRODUCE_PROTECTOR				= false;
+			INTRODUCE_NEIROBOT				= false;
+			INTRODUCE_RUNNER					= false;
 		
 			INTRODUCE_GUN						= false;
 			INTRODUCE_SWARM					= false;
@@ -304,6 +311,9 @@
 			INTRODUCE_HACK_REDUCE			= false;
 			INTRODUCE_RELOCATE_TURRET		= false;
 			INTRODUCE_FALSE_TARGET			= false;
+			
+			NUM_NEIROBOTS = 0;
+			NUM_PROTECTORS = 0;
 		}
 	}
 }

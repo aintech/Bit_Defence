@@ -3,9 +3,9 @@
 	import flash.geom.Point;
 	import flash.events.Event;
 	
-	public class Enemy_Protector extends Enemy
+	public class Enemy_Runner extends Enemy
 	{
-		public function Enemy_Protector()
+		public function Enemy_Runner()
 		{
 			init();
 		}
@@ -15,18 +15,21 @@
 			HitingPoint.visible = false;
 			TileNumPoint.visible = false;
 			clip.filters = [blurFilter, glowFilter];
-			symbolsDrop = 30 * Variables.SYMBOLS_DROP_MULTIPLE;
-			memoryDrop = 10;
-			protectDrop = 10;
-			baseSpeed = 4;
-			stoppingSpeed = .4;
+			symbolsDrop = 20 * Variables.SYMBOLS_DROP_MULTIPLE;
+			memoryDrop = 15;
+			protectDrop = 5;
+			baseSpeed = 3;
+			stoppingSpeed = 1.8;
+			runnerTargetID = 999;
+			maxSpeed = 12;
+			runnerBrakeDist = 60;
 			
-			health = maxHealth = 2000;
+			health = maxHealth = 1000;
 			shield = 0;
 			speed = baseSpeed;
-			systemDamage = .1;// 4% sec
+			systemDamage = .3;// 6% sec
 			
-			baseHackChance = 16;
+			baseHackChance = 10;
 			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);
 			
 			lifeBarUP 		= new Point(25, 0);
@@ -41,6 +44,12 @@
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;
+		}
+		
+		override public function updateDirection(direct:String):void
+		{
+			super.updateDirection(direct);
+			runnerTargetID--;
 		}
 	}
 }

@@ -39,6 +39,7 @@
 				additionalDamage = 10;
 				additionalRange = 0;
 				additionalReloadTime = 0;
+				additionalMissiles = 1;
 				break;
 				
 				case 2:
@@ -54,6 +55,7 @@
 				additionalDamage = 10;
 				additionalRange = 0;
 				additionalReloadTime = 0;
+				additionalMissiles = 1;
 				break;
 				
 				case 3:
@@ -69,6 +71,7 @@
 				additionalDamage = 20;
 				additionalRange = 0;
 				additionalReloadTime = 0;
+				additionalMissiles = 1;
 				break;
 				
 				case 4:
@@ -84,6 +87,7 @@
 				additionalDamage = 20;
 				additionalRange = 0;
 				additionalReloadTime = 0;
+				additionalMissiles = 1;
 				break;
 				
 				case 5:

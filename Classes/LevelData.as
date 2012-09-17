@@ -94,11 +94,13 @@
 			// 2 - Worm
 			// 3 - Recoder
 			// 4 - Protector
+			// 5 - Neirobot
+			// 6 - Runner
 			switch(level)
 			{
 				case 1:
 				levelEnemyWaves = [
-										[3, 1, 1/*, 3, 1, 1, 3, 2*/],
+										[6,6,6,6,6,6/*, 3, 1, 1, 3, 2*/],
 								   	[1, 2],
 								   	[1, 2, 1, 2, 1, 1], 
 								   	[1, 1, 1, 2, 1, 1, 2, 1],

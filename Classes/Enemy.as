@@ -42,6 +42,7 @@
 		public var xSpeed:Number;
 		public var ySpeed:Number;
 		public var speed:Number;
+		public var maxSpeed:Number;
 		
 		public var maxHealth:int;
 		public var health:int;
@@ -94,7 +95,10 @@
 		public var healAmount:int;
 		public var healDistance:int;
 		
-		public var isHacking:Boolean;
+		public var shield:int;
+		
+		public var runnerTargetID:int;
+		public var runnerBrakeDist:int;
 				
 		public function Enemy()
 		{
@@ -257,12 +261,10 @@
 		
 		public function calcDamage(value:int):void
 		{
+			//if(shield > value) value = 1;
+			//else value -= shield;
 			health -= value;
 			lifeBar.gotoAndStop(Math.floor(health / maxHealth * 100));
-			//if(lifeBar.currentFrame >= 76) lifeBar.filters = [new GlowFilter(0xFFFFFF, 1, 1, 3)];
-			//else if(lifeBar.currentFrame >= 51) lifeBar.filters = [new GlowFilter(0x00FF00, 1, 1, 3)];
-			//else if(lifeBar.currentFrame >= 26) lifeBar.filters = [new GlowFilter(0xFFFF00, 1, 1, 3)];
-			//else lifeBar.filters = [new GlowFilter(0xFF0000, 1, 1, 3)];
 		}
 	}
 }

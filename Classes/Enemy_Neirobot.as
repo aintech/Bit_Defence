@@ -3,9 +3,9 @@
 	import flash.geom.Point;
 	import flash.events.Event;
 	
-	public class Enemy_Protector extends Enemy
+	public class Enemy_Neirobot extends Enemy
 	{
-		public function Enemy_Protector()
+		public function Enemy_Neirobot()
 		{
 			init();
 		}
@@ -15,22 +15,22 @@
 			HitingPoint.visible = false;
 			TileNumPoint.visible = false;
 			clip.filters = [blurFilter, glowFilter];
-			symbolsDrop = 30 * Variables.SYMBOLS_DROP_MULTIPLE;
+			symbolsDrop = 20 * Variables.SYMBOLS_DROP_MULTIPLE;
 			memoryDrop = 10;
-			protectDrop = 10;
+			protectDrop = 510;
 			baseSpeed = 4;
 			stoppingSpeed = .4;
 			
-			health = maxHealth = 2000;
+			health = maxHealth = 1600;
 			shield = 0;
 			speed = baseSpeed;
-			systemDamage = .1;// 4% sec
+			systemDamage = .2 * Variables.NUM_NEIROBOTS;// 4% * num Neirobots  sec
 			
-			baseHackChance = 16;
+			baseHackChance = 15;
 			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);
 			
-			lifeBarUP 		= new Point(25, 0);
-			lifeBarDOWN 	= new Point(-25, 0);
+			lifeBarUP 		= new Point(30, 0);
+			lifeBarDOWN 	= new Point(-30, 0);
 			lifeBarLEFT 	= new Point(0, 25);
 			lifeBarRIGHT 	= new Point(0, -25);
 		}

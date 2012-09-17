@@ -31,9 +31,10 @@
 		public var numMissiles:int;
 		public var numSwarmBombs:int;
 		
-		public var additionalDamage:int = 0;
-		public var additionalRange:int = 0;
+		public var additionalDamage:int 		= 0;
+		public var additionalRange:int 		= 0;
 		public var additionalReloadTime:int = 0;
+		public var additionalMissiles:int 	= 0;
 		
 		public var installingTime:int = 0;
 		public var upgradingTime:int = 0;

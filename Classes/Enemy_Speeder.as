@@ -22,6 +22,7 @@
 			stoppingSpeed = .7;
 			
 			health = maxHealth = 700;
+			shield = 0;
 			speed = baseSpeed;
 			systemDamage = .2;// 4% sec
 			

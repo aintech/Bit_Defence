@@ -5,6 +5,7 @@
 //TODO: сделать прелоадер
 //TODO: Экраны должны плавно переходить друг в друга
 //HELP: ||
+//TODO: Доделать протектора
 
 //СпецТехника:
 //Дополнительный контур защиты - снижает вероятность взлома системы
@@ -192,6 +193,8 @@ package
 		
 		public var falseTarget:EnemyFalseTarget;
 		public var placingFalseTarget:Boolean;
+		
+		public var runnerRoadID:int = 1;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -518,7 +521,7 @@ package
 					blocksHolder.addChild(block);
 					directArray.push(block);
 					roadArray.push(block);
-					
+										
 					if(levelMap[i] == S)
 					{
 						if(block.x < 5 && block.x > -5)//starting from left of screen(direct to right)
@@ -545,6 +548,8 @@ package
 					else if(levelMap[i] == F)
 					{
 						block.tileNumber = 1;
+						block.runID = runnerRoadID;
+						runnerRoadID++;
 						block.txtNum.text = String(block.tileNumber);
 						enemyFinalTarget.x = block.x + block.width * .5;
 						enemyFinalTarget.y = block.y + block.height * .5; 
@@ -598,6 +603,11 @@ package
 								road.tileNumber = roadCounter;
 								road.txtNum.text = String(road.tileNumber);
 								roadCounter++;
+								if(road.direct != "empty"/* && road.direct != "Start"*/)
+								{
+									road.runID = runnerRoadID;
+									runnerRoadID++;
+								}
 							}
 						}
 					}
@@ -804,7 +814,7 @@ package
 		}
 		
 		private function makeEnemies():void
-		{
+		{CONTINIUM создаем цикловика
 			if(enemyTime < enemyLimit) enemyTime++;
 			else
 			{
@@ -846,6 +856,27 @@ package
 							introduce(IntroduceScreen.PROTECTOR);
 							Variables.INTRODUCE_PROTECTOR = true;
 						}
+						Variables.NUM_PROTECTORS++;
+					break;
+					
+					case 5:
+						enemy = new Enemy_Neirobot();
+						if(!Variables.INTRODUCE_NEIROBOT)
+						{
+							introduce(IntroduceScreen.NEIROBOT);
+							Variables.INTRODUCE_NEIROBOT = true;
+						}
+						Variables.NUM_NEIROBOTS++;
+					break;
+					
+					case 6:
+						enemy = new Enemy_Runner();
+						if(!Variables.INTRODUCE_RUNNER)
+						{
+							introduce(IntroduceScreen.RUNNER);
+							Variables.INTRODUCE_RUNNER = true;
+						}
+						if(enemy.runnerTargetID == 999) enemy.runnerTargetID = runnerRoadID;
 					break;
 					
 					default:
@@ -903,6 +934,8 @@ package
 					removeObject(i, enemyArray);
 					enemiesLeft--;
 					updateScoreBoard("txtEnemiesLeft");
+					if(enemy is Enemy_Neirobot) Variables.NUM_NEIROBOTS--;
+					if(enemy is Enemy_Protector) Variables.NUM_PROTECTORS--;
 				}
 			}
 		}
@@ -912,7 +945,8 @@ package
 			var enemy:Enemy;
 			var road:RoadTile;
 			var clip:MovieClip;
-			CONTINIUM придумываем как реализовать протектора и других врагов
+			var distance:Number;
+			
 			var enemyLength:int = enemyArray.length;
 			
 			for(var i:int = enemyLength; --i >= 0;)
@@ -950,8 +984,8 @@ package
 						{
 							var xDest:Number = tempEnemy.x - enemy.x;
 							var yDest:Number = tempEnemy.y - enemy.y;
-							var dist:Number = Math.sqrt(xDest*xDest + yDest*yDest);
-							if(dist <= Variables.FREEZE_MULTY_STUN_DISTANCE)
+							distance = Math.sqrt(xDest*xDest + yDest*yDest);
+							if(distance <= Variables.FREEZE_MULTY_STUN_DISTANCE)
 							{
  								tempEnemy.addStatus(Enemy.STATUS_STUN);
 								
@@ -1073,14 +1107,13 @@ package
 				if(enemy is Enemy_Recoder)
 				{
 					enemy.graphPoint.graphics.clear();
-					var distan:Number;
 					for(var o:int = enemyArray.length; --o >= 0;)
 					{
 						var healTarget:Enemy = enemyArray[o];
-						if((healTarget != enemy) && (healTarget.health < healTarget.maxHealth))
+						if(/*(healTarget != enemy) && */healTarget.health < healTarget.maxHealth)
 						{
-							distan = Math.sqrt(Math.pow((healTarget.x - enemy.x),2) + Math.pow((healTarget.y - enemy.y),2));
-							if(distan <= enemy.healDistance)
+							distance = Math.sqrt(Math.pow(healTarget.x - enemy.x,2) + Math.pow(healTarget.y - enemy.y,2));
+							if(distance <= enemy.healDistance)
 							{
 								healTarget.calcDamage(-enemy.healAmount);
 								healTarget.addStatus(Enemy.STATUS_HEAL);
@@ -1092,6 +1125,28 @@ package
 								}
 							}
 							break;
+						}
+					}
+				}
+				
+				if(enemy is Enemy_Runner && !enemy.isStuned && !enemy.speedUP)
+				{
+					if(enemy.underFreeze) enemy.maxSpeed = 6;
+					else enemy.maxSpeed = 12;
+					
+					for each(var roadTile:RoadTile in roadArray)
+					{
+						if(enemy.runnerTargetID == roadTile.runID)
+						{
+							var xDestin:int = roadTile.x + roadTile.width * .5;
+							var yDestin:int = roadTile.y + roadTile.height * .5;
+							distance = Math.sqrt(Math.pow(xDestin - enemy.x, 2) + Math.pow(yDestin - enemy.y, 2));
+							
+							if(distance > enemy.runnerBrakeDist) enemy.speed += enemy.stoppingSpeed;
+							if(enemy.speed > enemy.maxSpeed) enemy.speed = enemy.maxSpeed;
+							
+							if(distance < enemy.runnerBrakeDist) enemy.speed -= enemy.stoppingSpeed;
+							if(enemy.speed < enemy.baseSpeed) enemy.speed = enemy.baseSpeed;
 						}
 					}
 				}
@@ -1166,7 +1221,8 @@ package
 				baseCharInfo.txtMemoryUse.text 		= "$: " + tempChar.memoryUse;
 				baseCharInfo.txtDamage.text			= tempChar.damage;
 				baseCharInfo.txtRange.text 			= tempChar.range;
-				baseCharInfo.txtReloadTime.text 		= String(Number(Math.round(tempChar.reloadTime * .5) * .1).toFixed(1));
+				baseCharInfo.txtReloadTime.text 		= String(Number(tempChar.reloadTime * .05).toFixed(2));
+				if(tempChar is SwarmTurret) baseCharInfo.txtDamage.appendText("x" + tempChar.numMissiles);
 				
 				baseCharInfo.x = gameWidth;
 				baseCharInfo.y = gameHeight;
@@ -1434,6 +1490,7 @@ package
 			tempChar.updateLevel();
 			
 			confirmTurretCircle.damageTxt.text = tempChar.damage;
+			if(tempChar is SwarmTurret) confirmTurretCircle.damageTxt.appendText("x" + tempChar.numMissiles);
 			var range:int = tempChar.range;
 			rangeCircle = new Shape();
 			rangeCircle.graphics.beginFill(0x00FF00, .3);
@@ -1453,8 +1510,8 @@ package
 			{
 				case "turret_gun":		startInstallTurret(confirmTurretCircle.turretType, Variables.GUN_START_LEVEL, marker.x, marker.y); 		break;
 				case "turret_launcher":	startInstallTurret(confirmTurretCircle.turretType, Variables.LAUNCHER_START_LEVEL, marker.x, marker.y);	break;
-				case "turret_swarm":	startInstallTurret(confirmTurretCircle.turretType, Variables.SWARM_START_LEVEL, marker.x, marker.y);	break;
-				case "turret_freeze":	startInstallTurret(confirmTurretCircle.turretType, Variables.FREEZE_START_LEVEL, marker.x, marker.y);	break;
+				case "turret_swarm":		startInstallTurret(confirmTurretCircle.turretType, Variables.SWARM_START_LEVEL, marker.x, marker.y);		break;
+				case "turret_freeze":	startInstallTurret(confirmTurretCircle.turretType, Variables.FREEZE_START_LEVEL, marker.x, marker.y);		break;
 			}
 			
 			for each(var mark:PlaceMarker in markerArray)
@@ -1791,7 +1848,8 @@ package
 				charInfo.txtCharLevel.text 		= " lvl " + target.level;
 				charInfo.txtDamage.text				= target.damage;
 				charInfo.txtRange.text				= target.range;
-				charInfo.txtReloadTime.text		= String(Number(Math.round(target.reloadTime * .5) * .1).toFixed(1));
+				charInfo.txtReloadTime.text		= String(Number(target.reloadTime * .05).toFixed(2));
+				if(target is SwarmTurret) charInfo.txtDamage.appendText("x" + target.numMissiles);
 				charInfo.x = gameWidth;
 				charInfo.y = gameHeight;
 				charHolder.addChild(charInfo);
@@ -1808,6 +1866,7 @@ package
 			{
 				charInfo.txtDamage.textColor = 0xFFFF00;
 				charInfo.txtDamage.text = String(target.damage + target.additionalDamage);
+				if(target is SwarmTurret) charInfo.txtDamage.appendText("x" + (target.numMissiles + target.additionalMissiles));
 			}
 			if(target.additionalRange != 0)
 			{
@@ -1817,7 +1876,7 @@ package
 			if(target.additionalReloadTime != 0)
 			{
 				charInfo.txtReloadTime.textColor = 0xFFFF00;
-				charInfo.txtReloadTime.text = String(Number(Math.round((target.reloadTime - target.additionalReloadTime) * .5) * .1).toFixed(1));
+				charInfo.txtReloadTime.text = String(Number((target.reloadTime - target.additionalReloadTime) * .05).toFixed(2));
 			}
 		}
 		
@@ -1826,11 +1885,12 @@ package
 			if(charInfo)
 			{
 				var target:Turret = charMenu.target;
-				charInfo.txtDamage.text = target.damage;
-				charInfo.txtRange.text = target.range;
-				charInfo.txtReloadTime.text = String(Number(Math.round(target.reloadTime * .5) * .1).toFixed(1));
-				charInfo.txtDamage.textColor = 0xFFFFFF;
-				charInfo.txtRange.textColor = 0xFFFFFF;
+				charInfo.txtDamage.text 		= target.damage;
+				charInfo.txtRange.text 			= target.range;
+				charInfo.txtReloadTime.text 	= String(Number(target.reloadTime * .05).toFixed(2));
+				if(target is SwarmTurret) charInfo.txtDamage.appendText("x" + target.numMissiles);
+				charInfo.txtDamage.textColor 		= 0xFFFFFF;
+				charInfo.txtRange.textColor 		= 0xFFFFFF;
 				charInfo.txtReloadTime.textColor = 0xFFFFFF;
 			}
 		}
@@ -2589,6 +2649,8 @@ package
 		{
 			enemiesLeft--;
 			updateScoreBoard("txtEnemiesLeft");
+			if(enemy is Enemy_Neirobot) Variables.NUM_NEIROBOTS--;
+			if(enemy is Enemy_Protector) Variables.NUM_PROTECTORS--;
 			enemyArray.splice(i, 1);
 			hackingEnemies.push(enemy);
 			var clip:MovieClip = enemy.getChildByName("clip") as MovieClip;
