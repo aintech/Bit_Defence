@@ -17,6 +17,9 @@
 		public static const PROTECTOR:String			= "intro_Protector";
 		public static const NEIROBOT:String				= "intro_Neirobot";
 		public static const RUNNER:String				= "intro_Runner";
+		public static const CYCLER:String				= "intro_Cycler";
+		public static const EMMITER:String				= "intro_Emmiter";
+		public static const BUG:String					= "intro_Bug";
 		
 		public static const ADDITIONAL_MARKER:String = "intro_Additional_Marker";
 		public static const FLOW_OVERLOAD:String		= "intro_Flow_Overload";
@@ -36,6 +39,94 @@
 		{
 			introduceObject = introduce;
 			buttonMode = true;
+			switch(introduce)
+			{
+				case GUN:
+					Variables.INTRODUCE_GUN = true;
+				break;
+				
+				case SWARM:
+					Variables.INTRODUCE_SWARM = true;
+				break;
+				
+				case LAUNCHER:
+					Variables.INTRODUCE_LAUNCHER = true;
+				break;
+				
+				case FREEZE:
+					Variables.INTRODUCE_FREEZE = true;
+				break;
+				
+				
+				
+				
+				case SPEEDER:
+					Variables.INTRODUCE_SPEEDER = true;
+				break;
+				
+				case WORM:
+					Variables.INTRODUCE_WORM = true;
+				break;
+				
+				case RECODER:
+					Variables.INTRODUCE_RECODER = true;
+				break;
+				
+				case PROTECTOR:
+					Variables.INTRODUCE_PROTECTOR = true;
+				break;
+				
+				case NEIROBOT:
+					Variables.INTRODUCE_NEIROBOT = true;
+				break;
+				
+				case RUNNER:
+					Variables.INTRODUCE_RUNNER = true;
+				break;
+				
+				case CYCLER:
+					Variables.INTRODUCE_CYCLER = true;
+				break;
+				
+				case EMMITER:
+					Variables.INTRODUCE_EMMITER = true;
+				break;
+				
+				case BUG:
+					Variables.INTRODUCE_BUG = true;
+				break;
+				
+				
+				
+				
+				case ADDITIONAL_MARKER:
+					Variables.INTRODUCE_ADDITIONAL_MARKER = true;
+				break;
+				
+				case FLOW_OVERLOAD:
+					Variables.INTRODUCE_FLOW_OVERLOAD = true;
+				break;
+				
+				case FLOW_STOP:
+					Variables.INTRODUCE_FLOW_STOP = true;
+				break;
+				
+				case RELOCATE_TURRET:
+					Variables.INTRODUCE_RELOCATE_TURRET = true;
+				break;
+				
+				case HACK_REDUCE:
+					Variables.INTRODUCE_HACK_REDUCE = true;
+				break;
+				
+				case FALSE_TARGET:
+					Variables.INTRODUCE_FALSE_TARGET = true;
+				break;
+				
+				default:
+					trace("wrong intro: " + introduce);
+				break;
+			}
 		}
 	}
 }

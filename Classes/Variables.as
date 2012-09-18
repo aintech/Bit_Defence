@@ -143,6 +143,9 @@
 		public static var INTRODUCE_PROTECTOR:Boolean;
 		public static var INTRODUCE_NEIROBOT:Boolean;
 		public static var INTRODUCE_RUNNER:Boolean;
+		public static var INTRODUCE_CYCLER:Boolean;
+		public static var INTRODUCE_EMMITER:Boolean;
+		public static var INTRODUCE_BUG:Boolean;
 		
 		public static var INTRODUCE_GUN:Boolean;
 		public static var INTRODUCE_SWARM:Boolean;
@@ -212,7 +215,7 @@
 		 	SPECIAL_RELOCATE_TURRET_COOLTIME			= 200;
 			SPECIAL_FALSE_TARGET_COOLTIME				= 300;
 		
-		 	SPECIAL_FLOW_OVERLOAD_DAMAGE				= 300;
+		 	SPECIAL_FLOW_OVERLOAD_DAMAGE				= 500;
 		 	SPECIAL_HACK_REDUCE_MULTIPLY				= .5;
 		 	SPECIAL_FLOW_STOP_DURATION					= 50;
 		 	SPECIAL_ADDITIONAL_MARKER_INSTALL_TIME = 50;
@@ -299,6 +302,9 @@
 			INTRODUCE_PROTECTOR				= false;
 			INTRODUCE_NEIROBOT				= false;
 			INTRODUCE_RUNNER					= false;
+			INTRODUCE_CYCLER					= false;
+			INTRODUCE_EMMITER					= false;
+			INTRODUCE_BUG						= false;
 		
 			INTRODUCE_GUN						= false;
 			INTRODUCE_SWARM					= false;

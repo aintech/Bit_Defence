@@ -1,20 +1,21 @@
-﻿//TODO: Всем gotoAndStop пусть указывают на кадр с названием а не номером
-//TODO: Оптимизировать MapScreen, чтобы тамошний код не повторялся для каждого уровня
+﻿//OPTIM: Всем gotoAndStop пусть указывают на кадр с названием а не номером
+//OPTIM: Оптимизировать MapScreen, чтобы тамошний код не повторялся для каждого уровня
 //TODO: Каждый вид врага взрывается по-своему
 //TODO: Анимация взлома со всякими полосками бегущими по enemyFinalTarget
 //TODO: сделать прелоадер
-//TODO: Экраны должны плавно переходить друг в друга
+//TODO: Экраны должны плавно переходить друг в друга - анимация экранов
 //HELP: ||
 //TODO: Доделать протектора
+//TODO: сделать scaleX, scaleY всем лайфбарам в зависимости от какой-то константы (например 10000 жизней, если у цели более 10000 жизни - двойной лайфбар)
 
 //СпецТехника:
-//Дополнительный контур защиты - снижает вероятность взлома системы
+------------------------------------------//Дополнительный контур защиты - снижает вероятность взлома системы переделать чтобы уменьшал systemDamage врагов
 //Остановка потока - все враги на время замирают
 //Перегрузка потока - наносятся повреждения всем врагам
 //Переустановка - перестановка турели со всеми апгрейдами на другой маркер
 //Подключение дополнительного маркера - можно создать новый маркер, на который можно установить турель
-//Мины - устанавлваются на дороге и взрывается при прикосновении противника
 //Преграда - фальшивый enemyFinalTarget, который тот должен взломать, чтобы продолжить движение
+------------------------------------------//Мины - устанавлваются на дороге и взрывается при прикосновении противника
 
 //TODO: нажатии кнопки не исчезают, а уменьшаются - для создания анимации
 
@@ -22,9 +23,9 @@
 //TODO: можно настроить, чтобы турели били ближайшего, сильнейшего и т.д.
 //TODO: У каждого врага свое время задержки перед выходом
 
-//TODO: Когда враг дошел до цели, он начинает взлом системы, и когда взломал - тогда и есть шанс вломиться в систему
-
 //BALANCE: разные типы врагов устойчивые к разным турелям заставять игрока применять разные тактики
+
+CONTINIUM - клик на врага - его краткая характеристика, двойной клик - делаем приоритетной целью
 package 
 {
 	import flash.display.MovieClip;
@@ -263,44 +264,28 @@ package
 					character = new GunTurret();
 					charIcon = new CharIcon(Turret.TURRET_GUN);
 					charIcon.gotoAndStop("gunTurret");
-					if(!Variables.INTRODUCE_GUN)
-					{
-						introduce(IntroduceScreen.GUN);
-						Variables.INTRODUCE_GUN = true;
-					}
+					if(!Variables.INTRODUCE_GUN) introduce(IntroduceScreen.GUN);
 					break;
 					
 					case Turret.TURRET_LAUNCHER:
 					character = new LauncherTurret();
 					charIcon = new CharIcon(Turret.TURRET_LAUNCHER);
 					charIcon.gotoAndStop("launcherTurret");
-					if(!Variables.INTRODUCE_LAUNCHER)
-					{
-						introduce(IntroduceScreen.LAUNCHER);
-						Variables.INTRODUCE_LAUNCHER = true;
-					}
+					if(!Variables.INTRODUCE_LAUNCHER) introduce(IntroduceScreen.LAUNCHER);
 					break;
 					
 					case Turret.TURRET_SWARM:
 					character = new SwarmTurret();
 					charIcon = new CharIcon(Turret.TURRET_SWARM);
 					charIcon.gotoAndStop("swarmTurret");
-					if(!Variables.INTRODUCE_SWARM)
-					{
-						introduce(IntroduceScreen.SWARM);
-						Variables.INTRODUCE_SWARM = true;
-					}
+					if(!Variables.INTRODUCE_SWARM) introduce(IntroduceScreen.SWARM);
 					break;
 					
 					case Turret.TURRET_FREEZE:
 					character = new FreezeTurret();
 					charIcon = new CharIcon(Turret.TURRET_FREEZE);
 					charIcon.gotoAndStop("freezeTurret");
-					if(!Variables.INTRODUCE_FREEZE)
-					{
-						introduce(IntroduceScreen.FREEZE);
-						Variables.INTRODUCE_FREEZE = true;
-					}
+					if(!Variables.INTRODUCE_FREEZE) introduce(IntroduceScreen.FREEZE);
 					break;
 				}
 				
@@ -329,61 +314,37 @@ package
 					case SpecialTools.ADDITIONAL_MARKER:
 						toolIcon = new SpecialTools(SpecialTools.ADDITIONAL_MARKER);
 						toolIcon.gotoAndStop("additionalMarker");
-						if(!Variables.INTRODUCE_ADDITIONAL_MARKER)
-						{
-							introduce(IntroduceScreen.ADDITIONAL_MARKER);
-							Variables.INTRODUCE_ADDITIONAL_MARKER = true;
-						}
+						if(!Variables.INTRODUCE_ADDITIONAL_MARKER) introduce(IntroduceScreen.ADDITIONAL_MARKER);
 					break;
 					
 					case SpecialTools.FLOW_OVERLOAD:
 					toolIcon = new SpecialTools(SpecialTools.FLOW_OVERLOAD);
 					toolIcon.gotoAndStop("flowOverload");
-					if(!Variables.INTRODUCE_FLOW_OVERLOAD)
-					{
-						introduce(IntroduceScreen.FLOW_OVERLOAD);
-						Variables.INTRODUCE_FLOW_OVERLOAD = true;
-					}
+					if(!Variables.INTRODUCE_FLOW_OVERLOAD) introduce(IntroduceScreen.FLOW_OVERLOAD);
 					break;
 					
 					case SpecialTools.FLOW_STOP:
 					toolIcon = new SpecialTools(SpecialTools.FLOW_STOP);
 					toolIcon.gotoAndStop("flowStop");
-					if(!Variables.INTRODUCE_FLOW_STOP)
-					{
-						introduce(IntroduceScreen.FLOW_STOP);
-						Variables.INTRODUCE_FLOW_STOP = true;
-					}
+					if(!Variables.INTRODUCE_FLOW_STOP) introduce(IntroduceScreen.FLOW_STOP);
 					break;
 					
 					case SpecialTools.HACK_REDUCE:
 					toolIcon = new SpecialTools(SpecialTools.HACK_REDUCE);
 					toolIcon.gotoAndStop("hackReduce");
-					if(!Variables.INTRODUCE_HACK_REDUCE)
-					{
-						introduce(IntroduceScreen.HACK_REDUCE);
-						Variables.INTRODUCE_HACK_REDUCE = true;
-					}
+					if(!Variables.INTRODUCE_HACK_REDUCE) introduce(IntroduceScreen.HACK_REDUCE);
 					break;
 					
 					case SpecialTools.RELOCATE_TURRET:
 					toolIcon = new SpecialTools(SpecialTools.RELOCATE_TURRET);
 					toolIcon.gotoAndStop("relocateTurret");
-					if(!Variables.INTRODUCE_RELOCATE_TURRET)
-					{
-						introduce(IntroduceScreen.RELOCATE_TURRET);
-						Variables.INTRODUCE_RELOCATE_TURRET = true;
-					}
+					if(!Variables.INTRODUCE_RELOCATE_TURRET) introduce(IntroduceScreen.RELOCATE_TURRET);
 					break;
 					
 					case SpecialTools.FALSE_TARGET:
 						toolIcon = new SpecialTools(SpecialTools.FALSE_TARGET);
 						toolIcon.gotoAndStop("falseTarget");
-						if(!Variables.INTRODUCE_FALSE_TARGET)
-						{
-							introduce(IntroduceScreen.FALSE_TARGET);
-							Variables.INTRODUCE_FALSE_TARGET = true;
-						}
+						if(!Variables.INTRODUCE_FALSE_TARGET) introduce(IntroduceScreen.FALSE_TARGET);
 					break;
 				}
 				
@@ -814,7 +775,7 @@ package
 		}
 		
 		private function makeEnemies():void
-		{CONTINIUM создаем цикловика
+		{
 			if(enemyTime < enemyLimit) enemyTime++;
 			else
 			{
@@ -824,59 +785,45 @@ package
 				{
 					case 1:
 						enemy = new Enemy_Speeder();
-						if(!Variables.INTRODUCE_SPEEDER) 
-						{
-							introduce(IntroduceScreen.SPEEDER);
-							Variables.INTRODUCE_SPEEDER = true;
-						}
+						if(!Variables.INTRODUCE_SPEEDER) introduce(IntroduceScreen.SPEEDER);
 					break;
 					
 					case 2:
 						enemy = new Enemy_Worm();
-						if(!Variables.INTRODUCE_WORM)
-						{
-							introduce(IntroduceScreen.WORM);
-							Variables.INTRODUCE_WORM = true;
-						}
+						if(!Variables.INTRODUCE_WORM) introduce(IntroduceScreen.WORM);
 					break;
 					
 					case 3:
 						enemy = new Enemy_Recoder();
-						if(!Variables.INTRODUCE_RECODER)
-						{
-							introduce(IntroduceScreen.RECODER);
-							Variables.INTRODUCE_RECODER = true;
-						}
+						if(!Variables.INTRODUCE_RECODER) introduce(IntroduceScreen.RECODER);
 					break;
 					
 					case 4:
 						enemy = new Enemy_Protector();
-						if(!Variables.INTRODUCE_PROTECTOR)
-						{
-							introduce(IntroduceScreen.PROTECTOR);
-							Variables.INTRODUCE_PROTECTOR = true;
-						}
+						if(!Variables.INTRODUCE_PROTECTOR) introduce(IntroduceScreen.PROTECTOR);
 						Variables.NUM_PROTECTORS++;
 					break;
 					
 					case 5:
 						enemy = new Enemy_Neirobot();
-						if(!Variables.INTRODUCE_NEIROBOT)
-						{
-							introduce(IntroduceScreen.NEIROBOT);
-							Variables.INTRODUCE_NEIROBOT = true;
-						}
+						if(!Variables.INTRODUCE_NEIROBOT) introduce(IntroduceScreen.NEIROBOT);
 						Variables.NUM_NEIROBOTS++;
 					break;
 					
 					case 6:
 						enemy = new Enemy_Runner();
-						if(!Variables.INTRODUCE_RUNNER)
-						{
-							introduce(IntroduceScreen.RUNNER);
-							Variables.INTRODUCE_RUNNER = true;
-						}
+						if(!Variables.INTRODUCE_RUNNER) introduce(IntroduceScreen.RUNNER);
 						if(enemy.runnerTargetID == 999) enemy.runnerTargetID = runnerRoadID;
+					break;
+					
+					case 7:
+						enemy = new Enemy_Cycler();
+						if(!Variables.INTRODUCE_CYCLER) introduce(IntroduceScreen.CYCLER);
+					break;
+					
+					case 8:
+						enemy = new Enemy_Emmiter();
+						if(!Variables.INTRODUCE_EMMITER) introduce(IntroduceScreen.EMMITER);
 					break;
 					
 					default:
@@ -1070,7 +1017,7 @@ package
 				}
 				if(enemy.touchCloud) enemy.removeStatus(Enemy.STATUS_CLOUD);
 				
-				if(enemy.hitTestObject(enemyFinalTarget))
+				if(enemy.hitTestObject(enemyFinalTarget) && !enemy.isStuned)
 				{
 					enemy.speed = 0;
 					enemy.xSpeed = enemy.ySpeed = 0;
@@ -1089,14 +1036,14 @@ package
 				}
 				if(falseTarget)
 				{
-					if(clip.hitTestObject(falseTarget)) enemy.isFalseHacking = true; 
+					if(clip.hitTestObject(falseTarget) && falseTarget.placed) enemy.isFalseHacking = true; 
 				}
 				if(!enemy.isFalseHacking)
 				{
 					enemy.x += enemy.xSpeed;
 					enemy.y += enemy.ySpeed;
 				}
-				if(enemy.isFalseHacking && falseTarget)
+				if(enemy.isFalseHacking && falseTarget && !enemy.isStuned)
 				{
 					falseTarget.protectAmount -= enemy.systemDamage;
 					clip.gotoAndStop(clip.currentFrame);
@@ -1148,6 +1095,22 @@ package
 							if(distance < enemy.runnerBrakeDist) enemy.speed -= enemy.stoppingSpeed;
 							if(enemy.speed < enemy.baseSpeed) enemy.speed = enemy.baseSpeed;
 						}
+					}
+				}
+				
+				if(enemy is Enemy_Emmiter && !enemy.isFalseHacking && !enemy.hitTestObject(enemyFinalTarget))
+				{
+					enemy.bugsWaitTime++;
+					if(enemy.bugsWaitTime >= enemy.bugsAppearTime)
+					{
+						var bug:Enemy = new Enemy_Bug();
+						bug.x = enemy.x;
+						bug.y = enemy.y;
+						enemyHolder.addChildAt(bug, enemy.parent.getChildIndex(enemy));
+						enemyArray.push(bug);
+						bug.updateDirection(enemy.direction);
+						enemy.bugsWaitTime = 0;
+						enemiesLeft++;
 					}
 				}
 			}
@@ -2137,7 +2100,7 @@ package
 				var swarm:Swarm = swarmArray[m];
 				swarm.lifeTime++;
 				
-				if(swarm.target.health <= 0 && enemyArray.length > 0)
+				if((swarm.target.health <= 0 || swarm.target.alpha < 1) && enemyArray.length > 0)
 				{
 					if(swarm.lostTarget) !swarm.lostTarget;
 					for(var ne:int = enemyArray.length; --ne >= 0;)
@@ -2154,7 +2117,7 @@ package
 						else swarm.target = distEnemyArray[0];
 					}
 				}
-				if(swarm.target.health > 0)
+				if(swarm.target.health > 0 && swarm.target.alpha == 1)
 				{
 					if(swarm.lostTarget) !swarm.lostTarget;
 					var target:MovieClip = swarm.target;
@@ -2194,7 +2157,7 @@ package
 					}
 					if(swarm.ease > 1) swarm.ease--;
 				}
-				else if(swarm.target.health <= 0)
+				else if(swarm.target.health <= 0 || swarm.target.alpha < 1)
 				{
 					if(!swarm.lostTarget)
 					{
@@ -2969,10 +2932,10 @@ package
 			falseTarget.canBePlaced = false;
 			for each(var road:RoadTile in roadArray)
 			{
+				road.collideWithEnemy = false;
 				for each(var enemy:Enemy in enemyArray)
 				{
 					if(enemy.hitTestObject(road)) road.collideWithEnemy = true;
-					else road.collideWithEnemy = false;
 				}
 				if(!road.collideWithEnemy)
 				{

@@ -96,11 +96,13 @@
 			// 4 - Protector
 			// 5 - Neirobot
 			// 6 - Runner
+			// 7 - Cycler
+			// 8 - Emmiter (Emmiter creates Bugs enemies, so here no number for Bug)
 			switch(level)
 			{
 				case 1:
 				levelEnemyWaves = [
-										[6,6,6,6,6,6/*, 3, 1, 1, 3, 2*/],
+										[8/*, 3, 1, 1, 3, 2*/],
 								   	[1, 2],
 								   	[1, 2, 1, 2, 1, 1], 
 								   	[1, 1, 1, 2, 1, 1, 2, 1],

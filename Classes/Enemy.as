@@ -99,6 +99,9 @@
 		
 		public var runnerTargetID:int;
 		public var runnerBrakeDist:int;
+		
+		public var bugsAppearTime:int;
+		public var bugsWaitTime:int;
 				
 		public function Enemy()
 		{
