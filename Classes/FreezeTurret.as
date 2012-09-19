@@ -1,14 +1,10 @@
 ﻿package 
 {
 	public class FreezeTurret extends Turret
-	{		
-		public function FreezeTurret()
+	{
+		override protected function init():void
 		{
-			init();
-		}
-		
-		private function init():void
-		{
+			super.init();
 			maxLevel = Variables.FREEZE_MAX_LEVEL;
 			base = new TurretBase();
 			gun = new FreezeTurret_Gun();

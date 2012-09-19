@@ -2,13 +2,9 @@
 {
 	public class SwarmTurret extends Turret
 	{
-		public function SwarmTurret()
+		override protected function init():void
 		{
-			init();
-		}
-		
-		private function init():void
-		{
+			super.init();
 			maxLevel = Variables.SWARM_MAX_LEVEL;
 			base = new TurretBase();
 			gun = new SwarmTurret_Gun();

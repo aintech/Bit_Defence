@@ -2,13 +2,9 @@
 {
 	public class LauncherTurret extends Turret
 	{
-		public function LauncherTurret()
+		override protected function init():void
 		{
-			init();
-		}
-		
-		private function init():void
-		{
+			super.init();
 			maxLevel = Variables.LAUNCHER_MAX_LEVEL;
 			base = new TurretBase();
 			gun = new LauncherTurret_Gun();

@@ -3,20 +3,13 @@
 	import flash.display.MovieClip;
 
 	public class GunTurret extends Turret
-	{		
-		public function GunTurret()
+	{
+		override protected function init():void
 		{
-			init();
-		}
-		
-		private function init():void
-		{
+			super.init();
 			maxLevel = Variables.GUN_MAX_LEVEL;
 			base = new TurretBase();
-			//gun = new GunTurret_Gun_I();
-			gun = new MovieClip();
 			addChild(base);
-			addChild(gun);	
 			
 			type = Turret.TURRET_GUN;
 			
@@ -43,8 +36,11 @@
 				additionalDamage = 50;
 				additionalRange = 10;
 				additionalReloadTime = 0;
-				removeChild(gun);
-				gun = null;
+				if(gun)
+				{
+					removeChild(gun);
+					gun = null;
+				}
 				gun = new GunTurret_Gun_I();
 				addChild(gun);
 				break;
@@ -61,8 +57,11 @@
 				additionalDamage = 50;
 				additionalRange = 10;
 				additionalReloadTime = 0;
-				removeChild(gun);
-				gun = null;
+				if(gun)
+				{
+					removeChild(gun);
+					gun = null;
+				}
 				gun = new GunTurret_Gun_II();
 				addChild(gun);
 				break;
@@ -79,8 +78,11 @@
 				additionalDamage = 50;
 				additionalRange = 10;
 				additionalReloadTime = 2;
-				removeChild(gun);
-				gun = null;
+				if(gun)
+				{
+					removeChild(gun);
+					gun = null;
+				}
 				gun = new GunTurret_Gun_III();
 				addChild(gun);
 				break;
@@ -97,8 +99,11 @@
 				additionalDamage = 50;
 				additionalRange = 10;
 				additionalReloadTime = 2;
-				removeChild(gun);
-				gun = null;
+				if(gun)
+				{
+					removeChild(gun);
+					gun = null;
+				}
 				gun = new GunTurret_Gun_IV();
 				addChild(gun);
 				break;
@@ -111,8 +116,11 @@
 				upgradeCost = 25;
 				installingTime = 180;
 				uninstallingTime = 180;
-				removeChild(gun);
-				gun = null;
+				if(gun)
+				{
+					removeChild(gun);
+					gun = null;
+				}
 				gun = new GunTurret_Gun_V();
 				addChild(gun);
 				break;

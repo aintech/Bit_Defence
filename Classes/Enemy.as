@@ -23,14 +23,13 @@
 		public static const STATUS_CLOUD:String	= "status cloud";
 		public static const STATUS_HEAL:String		= "status heal";
 		
-		public var baseLevel:int = 1;
-		public var level:int;
+		public var level:int = 3;
 		
 		public var hitPoint:MovieClip;
 		public var graphPoint:GraphicPoint;
 		public var tileNumPoint:MovieClip;
 		
-		protected var levelColors:Array = [NaN, 0x0000ff, 0x22ff22, 0xff0000];
+		protected var levelColors:Array = [NaN, 0x0000FF, 0xFF0000, 0x000000];
 		protected var glowFilter:GlowFilter;
 		protected var blurFilter:BlurFilter;
 		public var levelColor:uint;
@@ -105,17 +104,17 @@
 				
 		public function Enemy()
 		{
-			level = baseLevel;
-			levelColor = levelColors[level];
-			glowFilter = new GlowFilter(levelColor);
-			blurFilter = new BlurFilter(2, 2);
-			
 			addEventListener(Event.ADDED_TO_STAGE, onAdd, false, 0, true);
 		}
 		
-		protected function onAdd(e:Event):void
-		{	
+		private function onAdd(e:Event):void
+		{
 			removeEventListener(Event.ADDED_TO_STAGE, onAdd);
+			init();
+		}
+		
+		protected function init():void
+		{
 			lifeBar = new LifeBar();
 			addChild(lifeBar);
 			lifeBar.gotoAndStop(lifeBar.totalFrames);
@@ -126,7 +125,8 @@
 			statusHolder = new Sprite;
 			addChild(statusHolder);
 			
-			updateDirection(Enemy.STARTING_DIRECTION);
+			buttonMode = true;
+			//cacheAsBitmap = true;
 		}
 		
 		public function updateDirection(direct:String):void
@@ -268,6 +268,27 @@
 			//else value -= shield;
 			health -= value;
 			lifeBar.gotoAndStop(Math.floor(health / maxHealth * 100));
+		}
+		
+		public function updateLevel():void
+		{
+			/*switch(level)
+			{
+				case 1:
+					
+				break;
+				
+				case 2:
+				break;
+				
+				case 3:
+				break;
+				
+				default:
+				breal;
+			}*/
+			glowFilter = new GlowFilter(levelColors[level]);
+			blurFilter = new BlurFilter(2, 2);
 		}
 	}
 }

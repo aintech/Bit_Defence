@@ -4,17 +4,12 @@
 	import flash.events.Event;
 
 	public class Enemy_Recoder extends Enemy
-	{		
-		public function Enemy_Recoder()
+	{
+		override protected function init():void
 		{
-			init();
-		}
-		
-		private function init():void
-		{
+			super.init();
 			HitingPoint.visible = false;
 			TileNumPoint.visible = false;
-			clip.filters = [glowFilter, blurFilter];
 			symbolsDrop = 50 * Variables.SYMBOLS_DROP_MULTIPLE;
 			memoryDrop = 30;
 			protectDrop = 15;
@@ -34,16 +29,18 @@
 			lifeBarLEFT		= new Point(0, 25);
 			lifeBarRIGHT	= new Point(0, -25);
 			
+			hitPoint = this.HitingPoint;
+			graphPoint = this.GraphPoint;
+			tileNumPoint = this.TileNumPoint;
+			
 			healAmount 		= 2;
 			healDistance	= 120;
 		}
 		
-		override protected function onAdd(e:Event):void
+		override public function updateLevel():void
 		{
-			super.onAdd(e);
-			hitPoint = this.HitingPoint;
-			graphPoint = this.GraphPoint;
-			tileNumPoint = this.TileNumPoint;
+			super.updateLevel();
+			clip.filters = [blurFilter, glowFilter];
 		}
 	}
 }

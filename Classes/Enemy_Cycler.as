@@ -5,16 +5,11 @@
 	
 	public class Enemy_Cycler extends Enemy
 	{
-		public function Enemy_Cycler()
+		override protected function init():void
 		{
-			init();
-		}
-		
-		private function init():void
-		{
+			super.init();
 			HitingPoint.visible = false;
 			TileNumPoint.visible = false;
-			clip.filters = [blurFilter, glowFilter];
 			symbolsDrop = 20 * Variables.SYMBOLS_DROP_MULTIPLE;
 			memoryDrop = 15;
 			protectDrop = 10;
@@ -33,11 +28,7 @@
 			lifeBarDOWN 	= new Point(-25, 0);
 			lifeBarLEFT 	= new Point(0, 25);
 			lifeBarRIGHT 	= new Point(0, -25);
-		}
-		
-		override protected function onAdd(e:Event):void
-		{
-			super.onAdd(e);
+			
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;
@@ -48,6 +39,12 @@
 			super.calcDamage(value);
 			systemDamage = Number((health / maxHealth * .5).toFixed(1));
 			if(systemDamage < .1) systemDamage = .1;
+		}
+		
+		override public function updateLevel():void
+		{
+			super.updateLevel();
+			clip.filters = [blurFilter, glowFilter];
 		}
 	}
 }

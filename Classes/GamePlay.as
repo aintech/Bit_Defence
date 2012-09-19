@@ -9,13 +9,13 @@
 //TODO: сделать scaleX, scaleY всем лайфбарам в зависимости от какой-то константы (например 10000 жизней, если у цели более 10000 жизни - двойной лайфбар)
 
 //СпецТехника:
-------------------------------------------//Дополнительный контур защиты - снижает вероятность взлома системы переделать чтобы уменьшал systemDamage врагов
+//------------------------------------------//Дополнительный контур защиты - снижает вероятность взлома системы переделать чтобы уменьшал systemDamage врагов
 //Остановка потока - все враги на время замирают
 //Перегрузка потока - наносятся повреждения всем врагам
 //Переустановка - перестановка турели со всеми апгрейдами на другой маркер
 //Подключение дополнительного маркера - можно создать новый маркер, на который можно установить турель
 //Преграда - фальшивый enemyFinalTarget, который тот должен взломать, чтобы продолжить движение
-------------------------------------------//Мины - устанавлваются на дороге и взрывается при прикосновении противника
+//------------------------------------------//Мины - устанавливаются на дороге и взрывается при прикосновении противника
 
 //TODO: нажатии кнопки не исчезают, а уменьшаются - для создания анимации
 
@@ -25,7 +25,7 @@
 
 //BALANCE: разные типы врагов устойчивые к разным турелям заставять игрока применять разные тактики
 
-CONTINIUM - клик на врага - его краткая характеристика, двойной клик - делаем приоритетной целью
+//TODO: поставить спецспособности на клавиши
 package 
 {
 	import flash.display.MovieClip;
@@ -196,6 +196,8 @@ package
 		public var placingFalseTarget:Boolean;
 		
 		public var runnerRoadID:int = 1;
+		
+		private var enemyFrame:EnemyFrame;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -208,6 +210,7 @@ package
 		
 		private function onAdd(e:Event):void
 		{
+			removeEventListener(Event.ADDED_TO_STAGE, onAdd)
 			init();
 		}
 		
@@ -361,8 +364,7 @@ package
 				specialToolsDisablesArray.push(specialToolDisableClip);
 				toolsScreen.addChild(specialToolDisableClip);
 			}
-			stage.addEventListener(MouseEvent.CLICK, unClickMarker, false, 0, true);					
-			stage.addEventListener(MouseEvent.CLICK, unClickTurret, false, 0, true);
+			stage.addEventListener(MouseEvent.CLICK, unClick, false, 0, true);
 			
 			for(var st:int = 0; st < int(Variables.SPECIAL_TOOL_GAUGE); st++)
 			{
@@ -832,38 +834,92 @@ package
 				}
 				if(enemy)
 				{
+					enemy.addEventListener(MouseEvent.CLICK, clickEnemy, false, 0, true);
+					enemyArray.push(enemy);
+					enemyHolder.addChild(enemy);
 					enemy.direction = Enemy.STARTING_DIRECTION;
 					switch(enemy.direction)
 					{
 						case Enemy.DIR_DOWN:
 							enemy.x = roadStart.x;
 							enemy.y = roadStart.y - enemy.width * .8;
-							enemy.rotation = 90;
 						break;
 							
 						case Enemy.DIR_LEFT:
 							enemy.x = roadStart.x + enemy.width * .8;
 							enemy.y = roadStart.y;
-							enemy.rotation = -180;
 						break;
 							
 						case Enemy.DIR_RIGHT:
 							enemy.x = roadStart.x - enemy.width * .8;
 							enemy.y = roadStart.y;
-							enemy.rotation = 0;
 						break;
 							
 						case Enemy.DIR_UP:
 							enemy.x = roadStart.x;
 							enemy.y = roadStart.y + enemy.width * .8;
-							enemy.rotation = -90;
 						break;
 					}
-					enemyArray.push(enemy);
-					enemyHolder.addChild(enemy);
+					enemy.updateDirection(Enemy.STARTING_DIRECTION);
+					enemy.updateLevel();
 					currentEnemy++;
 					enemyTime = 0;
 				}
+			}
+		}
+		
+		private function clickEnemy(e:MouseEvent):void
+		{
+			e.stopPropagation();
+			unClick(e);
+			var enemy:Enemy = e.currentTarget as Enemy;
+			var clip:MovieClip = enemy.getChildByName("clip") as MovieClip;
+			enemyFrame = new EnemyFrame();
+			enemyFrame.width = clip.width + 10;
+			enemyFrame.height = clip.height + 10;
+			enemy.addChild(enemyFrame);
+			enemyFrame.target = enemy;
+			
+			CONTINIUM - клик на врага - enemyInfo (в первую очередь переделать мувик), в нем кнопка - нажатие на которую делает врага приоритетной целью
+		}
+		
+		private function unClick(e:MouseEvent):void
+		{
+			e.stopPropagation();
+			if(enemyFrame)
+			{
+				enemyFrame.parent.removeChild(enemyFrame);
+				enemyFrame = null;
+			}
+			if(chooseTurretCircle)
+			{
+				chooseTurretCircle.gunBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.launcherBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.freezeBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.swarmBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+				turretHolder.removeChild(chooseTurretCircle);
+				chooseTurretCircle = null;
+			}
+			if(confirmTurretCircle)
+			{
+				confirmTurretCircle.buyTurret.removeEventListener(MouseEvent.CLICK, confirmTurret);
+				confirmTurretCircle.cancelTurret.removeEventListener(MouseEvent.CLICK, cancelTurret);
+				turretHolder.removeChild(confirmTurretCircle);
+				confirmTurretCircle = null;
+			}
+			if(charMenu)
+			{
+				charMenu.sellBtn.removeEventListener(MouseEvent.CLICK, startUninstallTurret);
+				turretHolder.removeChild(charMenu);
+				charMenu = null;
+				charHolder.removeChild(charInfo);
+				charInfo = null;
+			}
+			if(rangeCircle)
+			{
+				rangeCircle.graphics.clear();
+				removeChild(rangeCircle);
+				rangeCircle = null;
 			}
 		}
 				
@@ -877,7 +933,8 @@ package
 					createExplosion(enemy.x, enemy.y, enemy.levelColor, true);
 					if((Math.random() * 100) <= Variables.SYMBOLS_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.symbolsDrop, Drop.DROP_SYMBOLS);
 					if((Math.random() * 100) <= Variables.MEMORY_DROP_CHANCE) drop(enemy.x, enemy.y, enemy.memoryDrop, Drop.DROP_MEMORY);
-					if((Math.random() * 100) <= Variables.PROTECT_DROP_CHANCE && systemProtection < 100) drop(enemy.x, enemy.y, enemy.protectDrop, Drop.DROP_PROTECT); 
+					if((Math.random() * 100) <= Variables.PROTECT_DROP_CHANCE && systemProtection < 100) drop(enemy.x, enemy.y, enemy.protectDrop, Drop.DROP_PROTECT);
+					enemy.removeEventListener(MouseEvent.CLICK, clickEnemy);
 					removeObject(i, enemyArray);
 					enemiesLeft--;
 					updateScoreBoard("txtEnemiesLeft");
@@ -1017,7 +1074,7 @@ package
 				}
 				if(enemy.touchCloud) enemy.removeStatus(Enemy.STATUS_CLOUD);
 				
-				if(enemy.hitTestObject(enemyFinalTarget) && !enemy.isStuned)
+				if(clip.hitTestObject(enemyFinalTarget) && !enemy.isStuned)
 				{
 					enemy.speed = 0;
 					enemy.xSpeed = enemy.ySpeed = 0;
@@ -1098,7 +1155,7 @@ package
 					}
 				}
 				
-				if(enemy is Enemy_Emmiter && !enemy.isFalseHacking && !enemy.hitTestObject(enemyFinalTarget))
+				if(enemy is Enemy_Emmiter && !enemy.isFalseHacking && !clip.hitTestObject(enemyFinalTarget))
 				{
 					enemy.bugsWaitTime++;
 					if(enemy.bugsWaitTime >= enemy.bugsAppearTime)
@@ -1208,33 +1265,7 @@ package
 			if(addingMarker || placingFalseTarget || turretRelocatingON){}
 			else
 			{
-				if(charMenu) unClickTurret(e);
-			
-				if(chooseTurretCircle)
-				{
-					chooseTurretCircle.gunBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-					chooseTurretCircle.launcherBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-					chooseTurretCircle.freezeBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-					chooseTurretCircle.swarmBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-					turretHolder.removeChild(chooseTurretCircle);
-					chooseTurretCircle = null;
-				}
-						
-				if(confirmTurretCircle)
-				{
-					confirmTurretCircle.buyTurret.addEventListener(MouseEvent.CLICK, confirmTurret, false, 0, true);
-					confirmTurretCircle.cancelTurret.addEventListener(MouseEvent.CLICK, cancelTurret, false, 0, true);
-					turretHolder.removeChild(confirmTurretCircle);
-					confirmTurretCircle = null;
-				}
-			
-				if(rangeCircle)
-				{
-					rangeCircle.graphics.clear();
-					removeChild(rangeCircle);
-					rangeCircle = null;
-				}
-			
+				unClick(e);			
 				var charCost:int = e.currentTarget.memoryUse;
 				if(memoryTotal >= (memoryUsed + charCost))
 				{
@@ -1335,7 +1366,7 @@ package
 			if(e.currentTarget.free)
 			{
 				e.stopPropagation();
-				unClickMarker(e);
+				unClick(e);//unClickMarker(e);
 				chooseTurretCircle = new ChooseTurretCircle();
 				chooseTurretCircle.targetMarker = e.currentTarget;
 				
@@ -1514,27 +1545,6 @@ package
 			}
 		}
 		
-		private function unClickMarker(e:MouseEvent):void
-		{
-			e.stopPropagation();
-			if(chooseTurretCircle)
-			{
-				chooseTurretCircle.gunBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.launcherBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.freezeBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.swarmBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				turretHolder.removeChild(chooseTurretCircle);
-				chooseTurretCircle = null;
-			}
-			if(confirmTurretCircle)
-			{
-				confirmTurretCircle.buyTurret.addEventListener(MouseEvent.CLICK, confirmTurret, false, 0, true);
-				confirmTurretCircle.cancelTurret.addEventListener(MouseEvent.CLICK, cancelTurret, false, 0, true);
-				turretHolder.removeChild(confirmTurretCircle);
-				confirmTurretCircle = null;
-			}
-		}
-		
 		private function startInstallTurret(turretType:String, turLevel:int, xVal:int, yVal:int):void
 		{
 			var turret:Turret;
@@ -1572,13 +1582,13 @@ package
 			memoryUsed += turret.memoryUse;
 			updateScoreBoard("txtMemory");
 			
+			turretHolder.addChild(turret);
+			turretHolder.addChild(counter);
 			turret.x = xVal + turret.width * .5;
 			turret.y = yVal + turret.height * .5;
 			counter.x = turret.x;
 			counter.y = turret.y;
 			installingArray.push(counter);
-			turretHolder.addChild(turret);
-			turretHolder.addChild(counter);
 			
 		}
 		
@@ -1737,6 +1747,7 @@ package
 		
 		private function clickTurret(e:MouseEvent):void
 		{
+			unClick(e);
 			if(addingMarker || placingFalseTarget || relocatingTurretChoosen){}
 			else if(turretRelocatingON)
 			{
@@ -1766,12 +1777,10 @@ package
 			}
 			else
 			{
-				if(charMenu) unClickTurret(e);
-				
 				var target:Object = e.currentTarget;
 				e.stopPropagation();
 			
-				target.updateLevel();
+				//target.updateLevel();
 			
 				charMenu = new CharMenu();
 				charMenu.x = target.x;
@@ -1819,7 +1828,7 @@ package
 			
 				showTurretRange(target.range, target.x, target.y);
 			}
-			unClickMarker(e);
+			//unClickMarker(e);
 		}
 		
 		private function showTurretUP(e:MouseEvent):void
@@ -1868,24 +1877,6 @@ package
 			rangeCircle.x = xVal;
 			rangeCircle.y = yVal;
 			addChild(rangeCircle);
-		}
-		
-		private function unClickTurret(e:MouseEvent):void
-		{
-			if(charMenu)
-			{
-				charMenu.sellBtn.removeEventListener(MouseEvent.CLICK, startUninstallTurret);
-				turretHolder.removeChild(charMenu);
-				charMenu = null;
-				charHolder.removeChild(charInfo);
-				charInfo = null;
-			}
-			if(rangeCircle)
-			{
-				rangeCircle.graphics.clear();
-				removeChild(rangeCircle);
-				rangeCircle = null;
-			}
 		}
 				
 		private function checkTurrets():void
@@ -2611,6 +2602,7 @@ package
 		private function checkForHack(enemy:Enemy, i:int):void
 		{
 			enemiesLeft--;
+			enemy.removeEventListener(MouseEvent.CLICK, clickEnemy);
 			updateScoreBoard("txtEnemiesLeft");
 			if(enemy is Enemy_Neirobot) Variables.NUM_NEIROBOTS--;
 			if(enemy is Enemy_Protector) Variables.NUM_PROTECTORS--;
@@ -3070,6 +3062,7 @@ package
 		
 		private function clickMarker(e:MouseEvent):void
 		{
+			unClick(e);
 			if(addingMarker || placingFalseTarget){}
 			else if(turretRelocatingON && !relocatingTurretChoosen){}
 			else if(turretRelocatingON && relocatingTurretChoosen)
@@ -3116,7 +3109,7 @@ package
 				}
 			}
 			else showBuyTurretInfo(e);
-			unClickTurret(e);
+			//unClickTurret(e);
 		}
 		
 		private function removeObject(index:int, group:Array):void
@@ -3129,3 +3122,113 @@ package
 		}
 	}
 }
+
+/*
+private function dragIcon(e:MouseEvent):void
+		{
+			if(addingMarker || placingFalseTarget || turretRelocatingON){}
+			else
+			{
+				if(charMenu) unClickTurret(e);
+			
+				if(chooseTurretCircle)
+				{
+					chooseTurretCircle.gunBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+					chooseTurretCircle.launcherBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+					chooseTurretCircle.freezeBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+					chooseTurretCircle.swarmBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+					turretHolder.removeChild(chooseTurretCircle);
+					chooseTurretCircle = null;
+				}
+						
+				if(confirmTurretCircle)
+				{
+					confirmTurretCircle.buyTurret.removeEventListener(MouseEvent.CLICK, confirmTurret);
+					confirmTurretCircle.cancelTurret.removeEventListener(MouseEvent.CLICK, cancelTurret);
+					turretHolder.removeChild(confirmTurretCircle);
+					confirmTurretCircle = null;
+				}
+			
+				if(rangeCircle)
+				{
+					rangeCircle.graphics.clear();
+					removeChild(rangeCircle);
+					rangeCircle = null;
+				}
+			
+				var charCost:int = e.currentTarget.memoryUse;
+				if(memoryTotal >= (memoryUsed + charCost))
+				{
+					dragCharIcon = new CharIcon(e.currentTarget.charType);
+					dragCharIcon.memoryUse = charCost;
+					dragCharIcon.range = e.currentTarget.range;
+				
+					switch(e.currentTarget.charType)
+					{
+						case Turret.TURRET_GUN:
+							dragCharIcon.gotoAndStop("gunTurret");
+						break;
+				
+						case Turret.TURRET_LAUNCHER:
+							dragCharIcon.gotoAndStop("launcherTurret");
+						break;
+					
+						case Turret.TURRET_SWARM:
+							dragCharIcon.gotoAndStop("swarmTurret");
+						break;
+					
+						case Turret.TURRET_FREEZE:
+							dragCharIcon.gotoAndStop("freezeTurret");
+						break;
+					}
+					dragCharIcon.x = stage.mouseX;
+					dragCharIcon.y = stage.mouseY;
+					addChild(dragCharIcon);
+					dragCharIcon.startDrag();
+					dragging = true;
+				}
+				else trace("not enought memory");
+			
+				stage.addEventListener(MouseEvent.MOUSE_UP, dropIcon, false, 0, true);
+			}
+		}
+
+private function unClickTurret(e:MouseEvent):void
+		{
+			if(charMenu)
+			{
+				charMenu.sellBtn.removeEventListener(MouseEvent.CLICK, startUninstallTurret);
+				turretHolder.removeChild(charMenu);
+				charMenu = null;
+				charHolder.removeChild(charInfo);
+				charInfo = null;
+			}
+			if(rangeCircle)
+			{
+				rangeCircle.graphics.clear();
+				removeChild(rangeCircle);
+				rangeCircle = null;
+			}
+		}
+		
+private function unClickMarker(e:MouseEvent):void
+		{
+			e.stopPropagation();
+			if(chooseTurretCircle)
+			{
+				chooseTurretCircle.gunBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.launcherBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.freezeBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.swarmBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+				turretHolder.removeChild(chooseTurretCircle);
+				chooseTurretCircle = null;
+			}
+			if(confirmTurretCircle)
+			{
+				confirmTurretCircle.buyTurret.addEventListener(MouseEvent.CLICK, confirmTurret, false, 0, true);
+				confirmTurretCircle.cancelTurret.addEventListener(MouseEvent.CLICK, cancelTurret, false, 0, true);
+				turretHolder.removeChild(confirmTurretCircle);
+				confirmTurretCircle = null;
+			}
+		}
+*/

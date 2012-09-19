@@ -5,16 +5,11 @@
 	
 	public class Enemy_Runner extends Enemy
 	{
-		public function Enemy_Runner()
+		override protected function init():void
 		{
-			init();
-		}
-		
-		private function init():void
-		{
+			super.init();
 			HitingPoint.visible = false;
 			TileNumPoint.visible = false;
-			clip.filters = [blurFilter, glowFilter];
 			symbolsDrop = 20 * Variables.SYMBOLS_DROP_MULTIPLE;
 			memoryDrop = 15;
 			protectDrop = 5;
@@ -36,11 +31,7 @@
 			lifeBarDOWN 	= new Point(-25, 0);
 			lifeBarLEFT 	= new Point(0, 25);
 			lifeBarRIGHT 	= new Point(0, -25);
-		}
-		
-		override protected function onAdd(e:Event):void
-		{
-			super.onAdd(e);
+			
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;
@@ -50,6 +41,12 @@
 		{
 			super.updateDirection(direct);
 			runnerTargetID--;
+		}
+		
+		override public function updateLevel():void
+		{
+			super.updateLevel();
+			clip.filters = [blurFilter, glowFilter];
 		}
 	}
 }

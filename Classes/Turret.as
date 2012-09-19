@@ -3,6 +3,7 @@
 	import flash.display.MovieClip;
 	import flash.filters.GlowFilter;
 	import flash.display.Sprite;
+	import flash.events.Event;
 
 	public class Turret extends MovieClip
 	{
@@ -49,8 +50,20 @@
 		
 		public function Turret()
 		{
+			addEventListener(Event.ADDED_TO_STAGE, onAdd, false, 0, true);
+		}
+		
+		public function onAdd(e:Event):void
+		{
+			removeEventListener(Event.ADDED_TO_STAGE, onAdd);
+			init();
+		}
+		
+		protected function init():void
+		{
 			glowFilter = new GlowFilter(0xFFFFFF, 1, 3, 3, 1);
 			this.filters = [glowFilter];
+			buttonMode = true;
 		}
 		
 		public function updateLevel():void

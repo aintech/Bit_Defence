@@ -5,16 +5,11 @@
 	
 	public class Enemy_Worm extends Enemy
 	{
-		public function Enemy_Worm()
+		override protected function init():void
 		{
-			init();
-		}
-		
-		private function init():void
-		{
+			super.init();
 			HitingPoint.visible = false;
 			TileNumPoint.visible = false;
-			clip.filters = [blurFilter, glowFilter];
 			symbolsDrop = 40 * Variables.SYMBOLS_DROP_MULTIPLE;
 			memoryDrop = 30;
 			protectDrop = 10;
@@ -33,14 +28,16 @@
 			lifeBarDOWN 	= new Point(-50, 0);
 			lifeBarLEFT 	= new Point(0, 30);
 			lifeBarRIGHT 	= new Point(0, -30);
-		}
-		
-		override protected function onAdd(e:Event):void
-		{
-			super.onAdd(e);
+			
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;
+		}
+		
+		override public function updateLevel():void
+		{
+			super.updateLevel();
+			clip.filters = [blurFilter, glowFilter];
 		}
 	}
 }
