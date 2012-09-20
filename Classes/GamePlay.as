@@ -26,6 +26,7 @@
 //BALANCE: разные типы врагов устойчивые к разным турелям заставять игрока применять разные тактики
 
 //TODO: поставить спецспособности на клавиши
+//FIX: иногда пропадает rangeCircle
 package 
 {
 	import flash.display.MovieClip;
@@ -69,12 +70,12 @@ package
 		public var backgroundHolder:Sprite 		= new Sprite();
 		public var blocksHolder:Sprite			= new Sprite();
 		public var groundHolder:Sprite 			= new Sprite();
-		public var roadHolder:Sprite				= new Sprite();
+		public var roadHolder:Sprite			= new Sprite();
 		public var markerHolder:Sprite 			= new Sprite();
 		public var enemyHolder:Sprite 			= new Sprite();
 		public var turretHolder:Sprite 			= new Sprite();
 		public var bulletHolder:Sprite 			= new Sprite();
-		public var charHolder:Sprite 				= new Sprite();
+		public var charHolder:Sprite 			= new Sprite();
 		public var userInterface:Sprite			= new Sprite();
 		public var introduceHolder:Sprite		= new Sprite();
 		public var toolGaugeScreen:Sprite		= new Sprite();
@@ -86,7 +87,6 @@ package
 		public var charIcon:MovieClip;
 		public var dragCharIcon:MovieClip;
 		public var dragging:Boolean = false;
-		public var charInfo:MovieClip;
 		
 		public var toolsScreen:MovieClip;
 		public var availableToolsArray:Array = [];
@@ -96,7 +96,7 @@ package
 		public var toolInfo:MovieClip;
 		
 		public var tempChar:MovieClip;
-		public var baseCharInfo:MovieClip;
+		public var infoScreen:InfoScreen;
 		
 		public var chooseTurretCircle:MovieClip;
 		public var confirmTurretCircle:MovieClip;
@@ -116,29 +116,29 @@ package
 		public var enemyLimit:int = Variables.ENEMY_DELAY;//Время задержки появления врагов
 		public var enemiesLeft:int;
 		
-		public var dropArray:Array							= [];
-		public var roadArray:Array							= [];
-		public var enemyArray:Array 						= [];
-		public var swarmArray:Array 						= [];
-		public var rocketArray:Array 						= [];
-		public var splashArray:Array 						= [];
-		public var groundArray:Array						= [];
-		public var directArray:Array 						= [];
-		public var markerArray:Array 						= [];
-		public var turretArray:Array 						= [];
-		public var particleArray:Array 					= [];
-		public var upgradingArray:Array					= [];
-		public var distEnemyArray:Array					= [];
-		public var hackingEnemies:Array					= [];
-		public var installingArray:Array					= [];
-		public var swarmBombsArray:Array					= [];
-		public var bombSplashArray:Array					= [];
-		public var swarmSplashArray:Array				= [];
-		public var poisonCloudsArray:Array				= [];
-		public var uninstallingArray:Array				= [];
-		public var specialToolsArray:Array				= [];
-		public var introScreensArray:Array				= [];
-		public var addMarkerCounterArray:Array			= [];
+		public var dropArray:Array					= [];
+		public var roadArray:Array					= [];
+		public var enemyArray:Array 				= [];
+		public var swarmArray:Array 				= [];
+		public var rocketArray:Array 				= [];
+		public var splashArray:Array 				= [];
+		public var groundArray:Array				= [];
+		public var directArray:Array 				= [];
+		public var markerArray:Array 				= [];
+		public var turretArray:Array 				= [];
+		public var particleArray:Array 				= [];
+		public var upgradingArray:Array				= [];
+		public var distEnemyArray:Array				= [];
+		public var hackingEnemies:Array				= [];
+		public var installingArray:Array			= [];
+		public var swarmBombsArray:Array			= [];
+		public var bombSplashArray:Array			= [];
+		public var swarmSplashArray:Array			= [];
+		public var poisonCloudsArray:Array			= [];
+		public var uninstallingArray:Array			= [];
+		public var specialToolsArray:Array			= [];
+		public var introScreensArray:Array			= [];
+		public var addMarkerCounterArray:Array		= [];
 		public var specialToolsGaugeArray:Array		= [];
 		public var specialToolsDisablesArray:Array	= [];
 		public var availableActionFlagsArray:Array	= [];
@@ -299,8 +299,9 @@ package
 				charIcon.range = character.range;
 				charIcon.memoryUse = character.memoryUse;
 				character = null;
-				charIcon.addEventListener(MouseEvent.MOUSE_OVER, showBaseCharInfo, false, 0, true);
-				charIcon.addEventListener(MouseEvent.MOUSE_OUT, hideBaseCharInfo, false, 0, true);
+				charIcon.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+				charIcon.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+				charIcon.addEventListener(MouseEvent.MOUSE_OUT, showInfoCircleOrTurret, false, 0, true);
 				charIcon.addEventListener(MouseEvent.MOUSE_DOWN, dragIcon, false, 0, true);
 			}
 			
@@ -871,7 +872,7 @@ package
 		private function clickEnemy(e:MouseEvent):void
 		{
 			e.stopPropagation();
-			unClick(e);
+			unClick();
 			var enemy:Enemy = e.currentTarget as Enemy;
 			var clip:MovieClip = enemy.getChildByName("clip") as MovieClip;
 			enemyFrame = new EnemyFrame();
@@ -879,13 +880,12 @@ package
 			enemyFrame.height = clip.height + 10;
 			enemy.addChild(enemyFrame);
 			enemyFrame.target = enemy;
-			
-			CONTINIUM - клик на врага - enemyInfo (в первую очередь переделать мувик), в нем кнопка - нажатие на которую делает врага приоритетной целью
+			showEnemyInfo(e);
 		}
 		
-		private function unClick(e:MouseEvent):void
+		private function unClick(e:MouseEvent = null):void
 		{
-			e.stopPropagation();
+			//e.stopPropagation();
 			if(enemyFrame)
 			{
 				enemyFrame.parent.removeChild(enemyFrame);
@@ -893,10 +893,22 @@ package
 			}
 			if(chooseTurretCircle)
 			{
-				chooseTurretCircle.gunBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.launcherBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.freezeBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.swarmBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				
+				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				
+				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				
+				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				
 				turretHolder.removeChild(chooseTurretCircle);
 				chooseTurretCircle = null;
 			}
@@ -912,8 +924,6 @@ package
 				charMenu.sellBtn.removeEventListener(MouseEvent.CLICK, startUninstallTurret);
 				turretHolder.removeChild(charMenu);
 				charMenu = null;
-				charHolder.removeChild(charInfo);
-				charInfo = null;
 			}
 			if(rangeCircle)
 			{
@@ -921,6 +931,7 @@ package
 				removeChild(rangeCircle);
 				rangeCircle = null;
 			}
+			if(infoScreen) removeInfoScreen();
 		}
 				
 		private function checkEnemies():void
@@ -1202,11 +1213,102 @@ package
 			introduceHolder.addChild(introScreen);
 		}
 				
-		private function showBaseCharInfo(e:MouseEvent):void
+		private function showBaseTurretInfo(e:MouseEvent):void
 		{
-			if(!charInfo)
+			if(infoScreen) removeInfoScreen();
+			
+			var type:String;
+			if(e.currentTarget.charType) type = e.currentTarget.charType;
+			else type = e.currentTarget.name;
+			
+			switch(type)
 			{
-				switch(e.currentTarget.charType)
+				case Turret.TURRET_GUN:
+					tempChar = new GunTurret();
+					if(Variables.UPGRADE_GUN_MASTERED) tempChar.level = 3;
+				break;
+					
+				case Turret.TURRET_LAUNCHER:
+					tempChar = new LauncherTurret();
+					if(Variables.UPGRADE_LAUNCHER_MASTERED) tempChar.level = 3;
+				break;
+					
+				case Turret.TURRET_SWARM:
+					tempChar = new SwarmTurret();
+					if(Variables.UPGRADE_SWARM_MASTERED) tempChar.level = 3;
+				break;
+					
+				case Turret.TURRET_FREEZE:
+					tempChar = new FreezeTurret();
+					if(Variables.UPGRADE_FREEZE_MASTERED) tempChar.level = 3;
+				break;
+			}
+				
+			tempChar.updateLevel();
+			
+			infoScreen = new InfoScreen();
+			infoScreen.gotoAndStop("turret")
+				
+			if(type == Turret.TURRET_GUN) infoScreen.txtName.text 			= "Gun";
+			else if(type == Turret.TURRET_LAUNCHER) infoScreen.txtName.text = "Launcher";
+			else if(type == Turret.TURRET_SWARM) infoScreen.txtName.text 	= "Swarm";
+			else if(type == Turret.TURRET_FREEZE) infoScreen.txtName.text 	= "Freeze";
+				
+			infoScreen.txtLevelOrCost.text 		= "$: " + tempChar.memoryUse;
+			infoScreen.txtDamage.text			= tempChar.damage;
+			infoScreen.txtRange.text 			= tempChar.range;
+			infoScreen.txtReloadTime.text 		= String(Number(tempChar.reloadTime * .05).toFixed(2));
+			if(tempChar is SwarmTurret) infoScreen.txtDamage.appendText("x" + tempChar.numMissiles);
+				
+			infoScreen.x = gameWidth;
+			infoScreen.y = gameHeight;
+			charHolder.addChild(infoScreen);
+		}
+		
+		private function showTurretInfo(e:MouseEvent):void
+		{
+			if(infoScreen) removeInfoScreen();
+			var char:Turret = e.currentTarget as Turret;
+			
+			infoScreen = new InfoScreen();
+			infoScreen.gotoAndStop("turret")
+				
+			if(char.type == Turret.TURRET_GUN) infoScreen.txtName.text 				= "Gun";
+			else if(char.type == Turret.TURRET_LAUNCHER) infoScreen.txtName.text 	= "Launcher";
+			else if(char.type == Turret.TURRET_SWARM) infoScreen.txtName.text 		= "Swarm";
+			else if(char.type == Turret.TURRET_FREEZE) infoScreen.txtName.text 		= "Freeze";
+				
+			infoScreen.txtLevelOrCost.text 		= "$: " + char.memoryUse;
+			infoScreen.txtDamage.text			= String(char.damage);
+			infoScreen.txtRange.text 			= String(char.range);
+			infoScreen.txtReloadTime.text 		= String(Number(char.reloadTime * .05).toFixed(2));
+			if(char is SwarmTurret) infoScreen.txtDamage.appendText("x" + char.numMissiles);
+				
+			infoScreen.x = gameWidth;
+			infoScreen.y = gameHeight;
+			charHolder.addChild(infoScreen);
+		}
+		
+		private function showEnemyInfo(e:MouseEvent):void
+		{
+			CONTINIUM - infoScreen с врагом и кнопкой приоритета
+		}
+				
+		private function removeInfoScreen(e:MouseEvent = null):void
+		{
+			if(infoScreen)
+			{
+				infoScreen.parent.removeChild(infoScreen);
+				infoScreen = null;
+			}
+		}
+		
+		private function showInfoCircleOrTurret(e:MouseEvent):void
+		{
+			if(infoScreen) removeInfoScreen();
+			if(confirmTurretCircle)
+			{
+				switch(confirmTurretCircle.turretType)
 				{
 					case Turret.TURRET_GUN:
 						tempChar = new GunTurret();
@@ -1230,33 +1332,50 @@ package
 				}
 				
 				tempChar.updateLevel();
+			
+				infoScreen = new InfoScreen();
+				infoScreen.gotoAndStop("turret")
 				
-				baseCharInfo = new BaseCharInfo();
+				if(confirmTurretCircle.turretType == Turret.TURRET_GUN) infoScreen.txtName.text 			= "Gun";
+				else if(confirmTurretCircle.turretType == Turret.TURRET_LAUNCHER) infoScreen.txtName.text 	= "Launcher";
+				else if(confirmTurretCircle.turretType == Turret.TURRET_SWARM) infoScreen.txtName.text 		= "Swarm";
+				else if(confirmTurretCircle.turretType == Turret.TURRET_FREEZE) infoScreen.txtName.text 	= "Freeze";
 				
-				if(e.currentTarget.charType == Turret.TURRET_GUN) baseCharInfo.txtCharType.text = "Gun";
-				else if(e.currentTarget.charType == Turret.TURRET_LAUNCHER) baseCharInfo.txtCharType.text = "Launcher";
-				else if(e.currentTarget.charType == Turret.TURRET_SWARM) baseCharInfo.txtCharType.text = "Swarm";
-				else if(e.currentTarget.charType == Turret.TURRET_FREEZE) baseCharInfo.txtCharType.text = "Freeze";
+				infoScreen.txtLevelOrCost.text 		= "$: " + tempChar.memoryUse;
+				infoScreen.txtDamage.text			= tempChar.damage;
+				infoScreen.txtRange.text 			= tempChar.range;
+				infoScreen.txtReloadTime.text 		= String(Number(tempChar.reloadTime * .05).toFixed(2));
+				if(tempChar is SwarmTurret) infoScreen.txtDamage.appendText("x" + tempChar.numMissiles);
 				
-				baseCharInfo.txtMemoryUse.text 		= "$: " + tempChar.memoryUse;
-				baseCharInfo.txtDamage.text			= tempChar.damage;
-				baseCharInfo.txtRange.text 			= tempChar.range;
-				baseCharInfo.txtReloadTime.text 		= String(Number(tempChar.reloadTime * .05).toFixed(2));
-				if(tempChar is SwarmTurret) baseCharInfo.txtDamage.appendText("x" + tempChar.numMissiles);
-				
-				baseCharInfo.x = gameWidth;
-				baseCharInfo.y = gameHeight;
-				charHolder.addChild(baseCharInfo);
+				infoScreen.x = gameWidth;
+				infoScreen.y = gameHeight;
+				charHolder.addChild(infoScreen);
 			}
-		}
-		
-		private function hideBaseCharInfo(e:MouseEvent):void
-		{
-			if(baseCharInfo)
+			if(charMenu)
 			{
-				charHolder.removeChild(baseCharInfo);
-				baseCharInfo = null;
-				tempChar = null;
+				var char:Turret = charMenu.target;
+			
+				infoScreen = new InfoScreen();
+				infoScreen.gotoAndStop("turret")
+				
+				if(char.type == Turret.TURRET_GUN) infoScreen.txtName.text 				= "Gun";
+				else if(char.type == Turret.TURRET_LAUNCHER) infoScreen.txtName.text 	= "Launcher";
+				else if(char.type == Turret.TURRET_SWARM) infoScreen.txtName.text 		= "Swarm";
+				else if(char.type == Turret.TURRET_FREEZE) infoScreen.txtName.text 		= "Freeze";
+				
+				infoScreen.txtLevelOrCost.text 		= "$: " + char.memoryUse;
+				infoScreen.txtDamage.text			= String(char.damage);
+				infoScreen.txtRange.text 			= String(char.range);
+				infoScreen.txtReloadTime.text 		= String(Number(char.reloadTime * .05).toFixed(2));
+				if(char is SwarmTurret) infoScreen.txtDamage.appendText("x" + char.numMissiles);
+				
+				infoScreen.x = gameWidth;
+				infoScreen.y = gameHeight;
+				charHolder.addChild(infoScreen);
+			}
+			if(enemyFrame)
+			{
+				//возвращаем infoScreen про enemy
 			}
 		}
 		
@@ -1366,26 +1485,29 @@ package
 			if(e.currentTarget.free)
 			{
 				e.stopPropagation();
-				unClick(e);//unClickMarker(e);
 				chooseTurretCircle = new ChooseTurretCircle();
 				chooseTurretCircle.targetMarker = e.currentTarget;
 				
-				chooseTurretCircle.gunBtn.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-				chooseTurretCircle.launcherBtn.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-				chooseTurretCircle.freezeBtn.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-				chooseTurretCircle.swarmBtn.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
+				chooseTurretCircle.turret_gun.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
+				chooseTurretCircle.turret_gun.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+				chooseTurretCircle.turret_gun.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+				
+				chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
+				chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+				chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+				
+				chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
+				chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+				chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+				
+				chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
+				chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+				chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
 				
 				
 				chooseTurretCircle.x = e.currentTarget.x + e.currentTarget.width * .5;
 				chooseTurretCircle.y = e.currentTarget.y + e.currentTarget.height * .5;
 				turretHolder.addChild(chooseTurretCircle);
-			
-				if(rangeCircle)
-				{
-					rangeCircle.graphics.clear();
-					removeChild(rangeCircle);
-					rangeCircle = null;
-				}
 			}
 		}
 		
@@ -1394,7 +1516,7 @@ package
 			switch(e.currentTarget.name)
 			{
 				
-				case "gunBtn":
+				case "turret_gun":
 				if(memoryTotal < (memoryUsed + Variables.GUN_TURRET_COST))
 				{
 					e.stopPropagation();
@@ -1403,7 +1525,7 @@ package
 				}
 				break;
 				
-				case "launcherBtn":
+				case "turret_launcher":
 				if(memoryTotal < (memoryUsed + Variables.LAUNCHER_TURRET_COST))
 				{
 					e.stopPropagation();
@@ -1412,7 +1534,7 @@ package
 				}
 				break;
 				
-				case "swarmBtn":
+				case "turret_swarm":
 				if(memoryTotal < (memoryUsed + Variables.SWARM_TURRET_COST))
 				{
 					e.stopPropagation();
@@ -1421,13 +1543,17 @@ package
 				}
 				break;
 				
-				case "freezeBtn":
+				case "turret_freeze":
 				if(memoryTotal < (memoryUsed + Variables.FREEZE_TURRET_COST))
 				{
 					e.stopPropagation();
 					trace("not enought memory");
 					return;
 				}
+				break;
+				
+				default:
+					trace("wrong name: " + e.currentTarget.name + " in buyTurret");
 				break;
 			}
 			e.stopPropagation();
@@ -1437,10 +1563,22 @@ package
 			
 			if(chooseTurretCircle)
 			{
-				chooseTurretCircle.gunBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.launcherBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.freezeBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.swarmBtn.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				
+				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				
+				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				
+				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.CLICK, buyTurret);
+				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				
 				turretHolder.removeChild(chooseTurretCircle);
 				chooseTurretCircle = null;
 			}
@@ -1453,27 +1591,27 @@ package
 			
 			switch(e.currentTarget.name)
 			{
-				case "gunBtn":
+				case "turret_gun":
 				tempChar = new GunTurret();
 				if(Variables.UPGRADE_GUN_MASTERED) tempChar.level = 3;
 				confirmTurretCircle.turretType = Turret.TURRET_GUN;
 				break;
 				
-				case "launcherBtn":
+				case "turret_launcher":
 				tempChar = new LauncherTurret();
 				confirmTurretCircle.abilityTxt.text = "Splash";
 				if(Variables.UPGRADE_LAUNCHER_MASTERED) tempChar.level = 3;
 				confirmTurretCircle.turretType = Turret.TURRET_LAUNCHER;
 				break;
 				
-				case "swarmBtn":
+				case "turret_swarm":
 				tempChar = new SwarmTurret();
 				confirmTurretCircle.abilityTxt.text = "Swarm";
 				if(Variables.UPGRADE_SWARM_MASTERED) tempChar.level = 3;
 				confirmTurretCircle.turretType = Turret.TURRET_SWARM;
 				break;
 				
-				case "freezeBtn":
+				case "turret_freeze":
 				tempChar = new FreezeTurret();
 				confirmTurretCircle.abilityTxt.text = "Freeze";
 				if(Variables.UPGRADE_FREEZE_MASTERED) tempChar.level = 3;
@@ -1504,8 +1642,8 @@ package
 			{
 				case "turret_gun":		startInstallTurret(confirmTurretCircle.turretType, Variables.GUN_START_LEVEL, marker.x, marker.y); 		break;
 				case "turret_launcher":	startInstallTurret(confirmTurretCircle.turretType, Variables.LAUNCHER_START_LEVEL, marker.x, marker.y);	break;
-				case "turret_swarm":		startInstallTurret(confirmTurretCircle.turretType, Variables.SWARM_START_LEVEL, marker.x, marker.y);		break;
-				case "turret_freeze":	startInstallTurret(confirmTurretCircle.turretType, Variables.FREEZE_START_LEVEL, marker.x, marker.y);		break;
+				case "turret_swarm":	startInstallTurret(confirmTurretCircle.turretType, Variables.SWARM_START_LEVEL, marker.x, marker.y);	break;
+				case "turret_freeze":	startInstallTurret(confirmTurretCircle.turretType, Variables.FREEZE_START_LEVEL, marker.x, marker.y);	break;
 			}
 			
 			for each(var mark:PlaceMarker in markerArray)
@@ -1523,16 +1661,28 @@ package
 			
 			if(confirmTurretCircle)
 			{
-				confirmTurretCircle.buyTurret.addEventListener(MouseEvent.CLICK, confirmTurret, false, 0, true);
-				confirmTurretCircle.cancelTurret.addEventListener(MouseEvent.CLICK, cancelTurret, false, 0, true);
+				confirmTurretCircle.buyTurret.removeEventListener(MouseEvent.CLICK, confirmTurret);
+				confirmTurretCircle.cancelTurret.removeEventListener(MouseEvent.CLICK, cancelTurret);
 				turretHolder.removeChild(confirmTurretCircle);
 				confirmTurretCircle = null;
 			}
 			
-			chooseTurretCircle.gunBtn.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-			chooseTurretCircle.launcherBtn.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-			chooseTurretCircle.freezeBtn.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-			chooseTurretCircle.swarmBtn.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
+			chooseTurretCircle.turret_gun.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
+			chooseTurretCircle.turret_gun.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+			chooseTurretCircle.turret_gun.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+				
+			chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
+			chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+			chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+				
+			chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
+			chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+			chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+			
+			chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
+			chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+			chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+				
 			chooseTurretCircle.x = e.currentTarget.parent.x;
 			chooseTurretCircle.y = e.currentTarget.parent.y;
 			turretHolder.addChild(chooseTurretCircle);
@@ -1547,6 +1697,12 @@ package
 		
 		private function startInstallTurret(turretType:String, turLevel:int, xVal:int, yVal:int):void
 		{
+			if(rangeCircle)
+			{
+				rangeCircle.graphics.clear();
+				removeChild(rangeCircle);
+				rangeCircle = null;
+			}
 			var turret:Turret;
 			switch(turretType)
 			{
@@ -1747,7 +1903,7 @@ package
 		
 		private function clickTurret(e:MouseEvent):void
 		{
-			unClick(e);
+			unClick();
 			if(addingMarker || placingFalseTarget || relocatingTurretChoosen){}
 			else if(turretRelocatingON)
 			{
@@ -1780,7 +1936,7 @@ package
 				var target:Object = e.currentTarget;
 				e.stopPropagation();
 			
-				//target.updateLevel();
+				target.updateLevel();
 			
 				charMenu = new CharMenu();
 				charMenu.x = target.x;
@@ -1809,26 +1965,12 @@ package
 			
 				charMenu.sellBtn.addEventListener(MouseEvent.CLICK, startUninstallTurret, false, 0, true);
 				turretHolder.addChild(charMenu);
-			
-				charInfo = new CharInfo();
-			
-				if(target is GunTurret) charInfo.txtCharType.text = "Gun";
-				else if(target is LauncherTurret) charInfo.txtCharType.text = "Launcher";
-				else if(target is SwarmTurret) charInfo.txtCharType.text = "Swarm";
-				else if(target is FreezeTurret) charInfo.txtCharType.text = "Freeze";
 				
-				charInfo.txtCharLevel.text 		= " lvl " + target.level;
-				charInfo.txtDamage.text				= target.damage;
-				charInfo.txtRange.text				= target.range;
-				charInfo.txtReloadTime.text		= String(Number(target.reloadTime * .05).toFixed(2));
-				if(target is SwarmTurret) charInfo.txtDamage.appendText("x" + target.numMissiles);
-				charInfo.x = gameWidth;
-				charInfo.y = gameHeight;
-				charHolder.addChild(charInfo);
-			
+				showTurretInfo(e);
+				infoScreen.txtLevelOrCost.text = "lvl " + target.level;
+				
 				showTurretRange(target.range, target.x, target.y);
 			}
-			//unClickMarker(e);
 		}
 		
 		private function showTurretUP(e:MouseEvent):void
@@ -1836,34 +1978,34 @@ package
 			var target:Turret = charMenu.target;
 			if(target.additionalDamage != 0)
 			{
-				charInfo.txtDamage.textColor = 0xFFFF00;
-				charInfo.txtDamage.text = String(target.damage + target.additionalDamage);
-				if(target is SwarmTurret) charInfo.txtDamage.appendText("x" + (target.numMissiles + target.additionalMissiles));
+				infoScreen.txtDamage.textColor = 0xFFFF00;
+				infoScreen.txtDamage.text = String(target.damage + target.additionalDamage);
+				if(target is SwarmTurret) infoScreen.txtDamage.appendText("x" + (target.numMissiles + target.additionalMissiles));
 			}
 			if(target.additionalRange != 0)
 			{
-				charInfo.txtRange.textColor = 0xFFFF00;
-				charInfo.txtRange.text = String(target.range + target.additionalRange);
+				infoScreen.txtRange.textColor = 0xFFFF00;
+				infoScreen.txtRange.text = String(target.range + target.additionalRange);
 			}
 			if(target.additionalReloadTime != 0)
 			{
-				charInfo.txtReloadTime.textColor = 0xFFFF00;
-				charInfo.txtReloadTime.text = String(Number((target.reloadTime - target.additionalReloadTime) * .05).toFixed(2));
+				infoScreen.txtReloadTime.textColor = 0xFFFF00;
+				infoScreen.txtReloadTime.text = String(Number((target.reloadTime - target.additionalReloadTime) * .05).toFixed(2));
 			}
 		}
 		
 		private function hideTurretUP(e:MouseEvent):void
 		{
-			if(charInfo)
+			if(infoScreen)
 			{
 				var target:Turret = charMenu.target;
-				charInfo.txtDamage.text 		= target.damage;
-				charInfo.txtRange.text 			= target.range;
-				charInfo.txtReloadTime.text 	= String(Number(target.reloadTime * .05).toFixed(2));
-				if(target is SwarmTurret) charInfo.txtDamage.appendText("x" + target.numMissiles);
-				charInfo.txtDamage.textColor 		= 0xFFFFFF;
-				charInfo.txtRange.textColor 		= 0xFFFFFF;
-				charInfo.txtReloadTime.textColor = 0xFFFFFF;
+				infoScreen.txtDamage.text 			= String(target.damage);
+				infoScreen.txtRange.text 			= String(target.range);
+				infoScreen.txtReloadTime.text 		= String(Number(target.reloadTime * .05).toFixed(2));
+				if(target is SwarmTurret) infoScreen.txtDamage.appendText("x" + target.numMissiles);
+				infoScreen.txtDamage.textColor 		= 0xFFFFFF;
+				infoScreen.txtRange.textColor 		= 0xFFFFFF;
+				infoScreen.txtReloadTime.textColor 	= 0xFFFFFF;
 			}
 		}
 		
@@ -3062,7 +3204,7 @@ package
 		
 		private function clickMarker(e:MouseEvent):void
 		{
-			unClick(e);
+			unClick();
 			if(addingMarker || placingFalseTarget){}
 			else if(turretRelocatingON && !relocatingTurretChoosen){}
 			else if(turretRelocatingON && relocatingTurretChoosen)
@@ -3109,7 +3251,6 @@ package
 				}
 			}
 			else showBuyTurretInfo(e);
-			//unClickTurret(e);
 		}
 		
 		private function removeObject(index:int, group:Array):void

@@ -8,7 +8,7 @@
 		
 		public function PlaceMarker()
 		{
-			// constructor code
+			buttonMode = true;
 		}
 	}
 }
