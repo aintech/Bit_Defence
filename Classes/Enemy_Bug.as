@@ -8,6 +8,7 @@
 		override protected function init():void
 		{
 			super.init();
+			type = "Bug";
 			HitingPoint.visible = false;
 			TileNumPoint.visible = false;
 			symbolsDrop = 10 * Variables.SYMBOLS_DROP_MULTIPLE;
@@ -16,10 +17,10 @@
 			baseSpeed = 8;
 			stoppingSpeed = .8;
 			
-			health = maxHealth = 200;
+			health = baseMaxHealth = maxHealth = 200;
 			shield = 0;
 			speed = baseSpeed;
-			systemDamage = .1;// 2% sec
+			systemDamage = baseSystemDamage = .1;// 2% sec
 			
 			baseHackChance = 4;
 			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);
@@ -34,6 +35,9 @@
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;
+			
+			health += baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+			maxHealth += baseMaxHealth * Variables.NUM_PROTECTORS * .1;
 		}
 		
 		override public function updateLevel():void

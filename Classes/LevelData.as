@@ -13,9 +13,9 @@
 		private var R:String = Enemy.DIR_RIGHT;
 		private var L:String = Enemy.DIR_LEFT;
 		
-		public var levelMapArray:Array 	= [];
-		public var levelEnemyWaves:Array = [];
-		public var openChars:Array 		= [];
+		public var levelMapArray:Array 		= [];
+		public var levelEnemyWaves:Array 	= [];
+		public var openChars:Array 			= [];
 		public var openTools:Array			= [];
 		
 		public function LevelData(){}
@@ -102,12 +102,12 @@
 			{
 				case 1:
 				levelEnemyWaves = [
-										[1, 7, 3/*, 3, 1, 1, 3, 2*/],
+									[6, 4, 2, 3, 8, 6, 4],
 								   	[1, 2],
 								   	[1, 2, 1, 2, 1, 1], 
 								   	[1, 1, 1, 2, 1, 1, 2, 1],
 								   	[1, 1, 1, 1, 1, 1, 1, 1]
-								  		];
+								  	];
 				break;
 				
 				case 2:
@@ -167,19 +167,19 @@
 			switch(level)
 			{
 				case 1:
-					openTools = [SpecialTools.HACK_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET];
+					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET];
 				break;
 				
 				case 2:
-					openTools = [SpecialTools.HACK_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET];
+					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET];
 				break;
 				
 				case 3:
-					openTools = [SpecialTools.HACK_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET];
+					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET];
 				break;
 				
 				default:
-					openTools = [SpecialTools.HACK_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET];
+					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET];
 				break;
 			}
 			return openTools;

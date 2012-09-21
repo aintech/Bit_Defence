@@ -8,6 +8,7 @@
 		override protected function init():void
 		{
 			super.init();
+			type = "Recoder";
 			HitingPoint.visible = false;
 			TileNumPoint.visible = false;
 			symbolsDrop = 50 * Variables.SYMBOLS_DROP_MULTIPLE;
@@ -16,10 +17,10 @@
 			baseSpeed = 5;
 			stoppingSpeed = .5;
 			
-			health = maxHealth = 500;
+			health = baseMaxHealth = maxHealth = 500;
 			shield = 0;
 			speed = baseSpeed;
-			systemDamage = .4;
+			systemDamage = baseSystemDamage = .4;
 			
 			baseHackChance = 10;
 			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);
@@ -33,8 +34,11 @@
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;
 			
+			health += baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+			maxHealth += baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+			
 			healAmount 		= 2;
-			healDistance	= 120;
+			healDistance	= 200;
 		}
 		
 		override public function updateLevel():void

@@ -9,7 +9,7 @@
 //TODO: сделать scaleX, scaleY всем лайфбарам в зависимости от какой-то константы (например 10000 жизней, если у цели более 10000 жизни - двойной лайфбар)
 
 //СпецТехника:
-//------------------------------------------//Дополнительный контур защиты - снижает вероятность взлома системы переделать чтобы уменьшал systemDamage врагов
+//Дополнительный контур защиты - снижает systemDamage врагов
 //Остановка потока - все враги на время замирают
 //Перегрузка потока - наносятся повреждения всем врагам
 //Переустановка - перестановка турели со всеми апгрейдами на другой маркер
@@ -198,6 +198,11 @@ package
 		public var runnerRoadID:int = 1;
 		
 		private var enemyFrame:EnemyFrame;
+		
+		public var systemDamReduceTime:int = 0;
+		public var systemDamReduceInAction:Boolean;
+		
+		public var priorityMark:PriorityMark = new PriorityMark();;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -301,7 +306,7 @@ package
 				character = null;
 				charIcon.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
 				charIcon.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
-				charIcon.addEventListener(MouseEvent.MOUSE_OUT, showInfoCircleOrTurret, false, 0, true);
+				charIcon.addEventListener(MouseEvent.MOUSE_OUT, showChooseInfo, false, 0, true);
 				charIcon.addEventListener(MouseEvent.MOUSE_DOWN, dragIcon, false, 0, true);
 			}
 			
@@ -333,10 +338,10 @@ package
 					if(!Variables.INTRODUCE_FLOW_STOP) introduce(IntroduceScreen.FLOW_STOP);
 					break;
 					
-					case SpecialTools.HACK_REDUCE:
-					toolIcon = new SpecialTools(SpecialTools.HACK_REDUCE);
-					toolIcon.gotoAndStop("hackReduce");
-					if(!Variables.INTRODUCE_HACK_REDUCE) introduce(IntroduceScreen.HACK_REDUCE);
+					case SpecialTools.SYS_DAMAGE_REDUCE:
+					toolIcon = new SpecialTools(SpecialTools.SYS_DAMAGE_REDUCE);
+					toolIcon.gotoAndStop("sysDamReduce");
+					if(!Variables.INTRODUCE_SYS_DAMAGE_REDUCE) introduce(IntroduceScreen.SYS_DAMAGE_REDUCE);
 					break;
 					
 					case SpecialTools.RELOCATE_TURRET:
@@ -775,6 +780,22 @@ package
 					for each(var enemy:Enemy in enemyArray) enemy.isFalseHacking = false;
 				}
 			}
+			if(systemDamReduceInAction)
+			{
+				systemDamReduceTime++;
+				if(systemDamReduceTime >= Variables.SPECIAL_SYS_DAMAGE_REDUCE_TIME)
+				{
+					systemDamReduceInAction = false;
+					systemDamReduceTime = 0;
+					Variables.SPECIAL_SYS_DAMAGE_MULTIPLY = 1;
+					for each(enemy in enemyArray)
+					{
+						enemy.systemDamage = enemy.baseSystemDamage * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
+						if(enemy is Enemy_Neirobot) enemy.systemDamage = enemy.baseSystemDamage * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY * Variables.NUM_NEIROBOTS;
+						if(infoScreen && infoScreen.target == enemy) infoScreen.txtSystemDamage.text = String(enemy.systemDamage);
+					}
+				}
+			}
 		}
 		
 		private function makeEnemies():void
@@ -804,7 +825,6 @@ package
 					case 4:
 						enemy = new Enemy_Protector();
 						if(!Variables.INTRODUCE_PROTECTOR) introduce(IntroduceScreen.PROTECTOR);
-						Variables.NUM_PROTECTORS++;
 					break;
 					
 					case 5:
@@ -816,7 +836,6 @@ package
 					case 6:
 						enemy = new Enemy_Runner();
 						if(!Variables.INTRODUCE_RUNNER) introduce(IntroduceScreen.RUNNER);
-						if(enemy.runnerTargetID == 999) enemy.runnerTargetID = runnerRoadID;
 					break;
 					
 					case 7:
@@ -865,6 +884,33 @@ package
 					enemy.updateLevel();
 					currentEnemy++;
 					enemyTime = 0;
+					enemy.systemDamage = enemy.baseSystemDamage * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
+					
+					if(enemy is Enemy_Protector)
+					{
+						var tempEnemy:Enemy;
+						for each(tempEnemy in enemyArray)
+						{
+							tempEnemy.health -= tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+							tempEnemy.maxHealth -= tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+						}
+						Variables.NUM_PROTECTORS++;
+						for each(tempEnemy in enemyArray)
+						{
+							tempEnemy.health += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+							tempEnemy.maxHealth += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+							if(infoScreen && infoScreen.target == tempEnemy) infoScreen.txtLife.text = String(tempEnemy.health);
+						}
+					}
+					if(enemy is Enemy_Runner) enemy.runnerTargetID = runnerRoadID-1;
+					if(enemy is Enemy_Neirobot)
+					{
+						for each(var neiro:Enemy_Neirobot in enemyArray)
+						{
+							neiro.systemDamage = neiro.baseSystemDamage * Variables.NUM_NEIROBOTS * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
+							if(infoScreen && infoScreen.target == neiro) infoScreen.txtSystemDamage.text = String(neiro.systemDamage);
+						}
+					}
 				}
 			}
 		}
@@ -949,8 +995,32 @@ package
 					removeObject(i, enemyArray);
 					enemiesLeft--;
 					updateScoreBoard("txtEnemiesLeft");
-					if(enemy is Enemy_Neirobot) Variables.NUM_NEIROBOTS--;
-					if(enemy is Enemy_Protector) Variables.NUM_PROTECTORS--;
+					if(enemy is Enemy_Neirobot)
+					{
+						Variables.NUM_NEIROBOTS--;
+						for each(var neiro:Enemy_Neirobot in enemyArray)
+						{
+							neiro.systemDamage = neiro.baseSystemDamage * Variables.NUM_NEIROBOTS * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
+							if(infoScreen && infoScreen.target == neiro) infoScreen.txtSystemDamage.text = String(neiro.systemDamage);
+						}
+					}
+					if(enemy is Enemy_Protector)
+					{
+						var tempEnemy:Enemy;
+						for each(tempEnemy in enemyArray)
+						{
+							tempEnemy.health -= tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+							tempEnemy.maxHealth -= tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+						}
+						Variables.NUM_PROTECTORS--;
+						for each(tempEnemy in enemyArray)
+						{
+							tempEnemy.health += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+							tempEnemy.maxHealth += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+							if(infoScreen && infoScreen.target == tempEnemy) infoScreen.txtLife.text = String(tempEnemy.health);
+						}
+					}
+					if(infoScreen && infoScreen.target == enemy) removeInfoScreen();
 				}
 			}
 		}
@@ -1079,6 +1149,7 @@ package
 				if(enemy.isPoisoned)
 				{
 					enemy.calcDamage(Variables.LAUNCHER_POISON_DAMAGE);
+					if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
 					createExplosion(enemy.x, enemy.y, enemy.levelColor);
 					enemy.poisonCounter++;
 					if(enemy.poisonCounter > enemy.maxPoisonCounter) enemy.removeStatus(Enemy.STATUS_POISON);
@@ -1119,18 +1190,18 @@ package
 					if(falseTarget.protectAmount <= 0) falseTarget.txtProtection.text = "0.0 %";
 				}
 				
-				if(enemy is Enemy_Recoder)
+				if(enemy is Enemy_Recoder && !enemy.isStuned)
 				{
-					enemy.graphPoint.graphics.clear();
 					for(var o:int = enemyArray.length; --o >= 0;)
 					{
 						var healTarget:Enemy = enemyArray[o];
-						if(/*(healTarget != enemy) && */healTarget.health < healTarget.maxHealth)
+						if(healTarget.health < healTarget.maxHealth)
 						{
 							distance = Math.sqrt(Math.pow(healTarget.x - enemy.x,2) + Math.pow(healTarget.y - enemy.y,2));
 							if(distance <= enemy.healDistance)
 							{
 								healTarget.calcDamage(-enemy.healAmount);
+								if(infoScreen && infoScreen.target == healTarget) infoScreen.txtLife.text = String(healTarget.health);
 								healTarget.addStatus(Enemy.STATUS_HEAL);
 								enemy.graphPoint.rotation = -enemy.rotation;
 								with(enemy.graphPoint.graphics)
@@ -1247,6 +1318,7 @@ package
 			tempChar.updateLevel();
 			
 			infoScreen = new InfoScreen();
+			infoScreen.target = tempChar;
 			infoScreen.gotoAndStop("turret")
 				
 			if(type == Turret.TURRET_GUN) infoScreen.txtName.text 			= "Gun";
@@ -1271,6 +1343,7 @@ package
 			var char:Turret = e.currentTarget as Turret;
 			
 			infoScreen = new InfoScreen();
+			infoScreen.target = char;
 			infoScreen.gotoAndStop("turret")
 				
 			if(char.type == Turret.TURRET_GUN) infoScreen.txtName.text 				= "Gun";
@@ -1283,7 +1356,7 @@ package
 			infoScreen.txtRange.text 			= String(char.range);
 			infoScreen.txtReloadTime.text 		= String(Number(char.reloadTime * .05).toFixed(2));
 			if(char is SwarmTurret) infoScreen.txtDamage.appendText("x" + char.numMissiles);
-				
+			
 			infoScreen.x = gameWidth;
 			infoScreen.y = gameHeight;
 			charHolder.addChild(infoScreen);
@@ -1291,7 +1364,24 @@ package
 		
 		private function showEnemyInfo(e:MouseEvent):void
 		{
-			CONTINIUM - infoScreen с врагом и кнопкой приоритета
+			if(infoScreen) removeInfoScreen();
+			var char:Enemy = e.currentTarget as Enemy;
+			
+			infoScreen = new InfoScreen();
+			infoScreen.target = char;
+			infoScreen.gotoAndStop("enemy");
+			
+			infoScreen.txtName.text 		= char.type;
+			infoScreen.txtLife.text 		= String(char.health);
+			infoScreen.txtSpeed.text 		= String(char.baseSpeed);
+			infoScreen.txtSystemDamage.text = String(char.systemDamage);
+			infoScreen.txtHackChance.text 	= String(char.hackChance);
+			
+			infoScreen.setPriorityBtn.addEventListener(MouseEvent.CLICK, setPriorityEnemy, false, 0, true);
+			
+			infoScreen.x = gameWidth;
+			infoScreen.y = gameHeight;
+			charHolder.addChild(infoScreen);
 		}
 				
 		private function removeInfoScreen(e:MouseEvent = null):void
@@ -1303,7 +1393,7 @@ package
 			}
 		}
 		
-		private function showInfoCircleOrTurret(e:MouseEvent):void
+		private function showChooseInfo(e:MouseEvent):void
 		{
 			if(infoScreen) removeInfoScreen();
 			if(confirmTurretCircle)
@@ -1334,6 +1424,7 @@ package
 				tempChar.updateLevel();
 			
 				infoScreen = new InfoScreen();
+				infoScreen.target = tempChar;
 				infoScreen.gotoAndStop("turret")
 				
 				if(confirmTurretCircle.turretType == Turret.TURRET_GUN) infoScreen.txtName.text 			= "Gun";
@@ -1356,6 +1447,7 @@ package
 				var char:Turret = charMenu.target;
 			
 				infoScreen = new InfoScreen();
+				infoScreen.target = char;
 				infoScreen.gotoAndStop("turret")
 				
 				if(char.type == Turret.TURRET_GUN) infoScreen.txtName.text 				= "Gun";
@@ -1375,8 +1467,36 @@ package
 			}
 			if(enemyFrame)
 			{
-				//возвращаем infoScreen про enemy
+				infoScreen = new InfoScreen();
+				infoScreen.target = enemyFrame.target;
+				infoScreen.gotoAndStop("enemy");
+			
+				infoScreen.txtName.text 		= enemyFrame.target.type;
+				infoScreen.txtLife.text 		= String(enemyFrame.target.health);
+				infoScreen.txtSpeed.text 		= String(enemyFrame.target.baseSpeed);
+				infoScreen.txtSystemDamage.text = String(enemyFrame.target.systemDamage);
+				infoScreen.txtHackChance.text 	= String(enemyFrame.target.hackChance);
+				
+				infoScreen.x = gameWidth;
+				infoScreen.y = gameHeight;
+				charHolder.addChild(infoScreen);
 			}
+		}
+		
+		public function setPriorityEnemy(e:MouseEvent):void
+		{
+			e.stopPropagation();
+			for each(var enemy:Enemy in enemyArray)
+			{
+				if(enemy.isPriority)
+				{
+					enemy.isPriority = false;
+					enemy.removeChild(priorityMark);
+				}
+			}
+			e.currentTarget.parent.target.isPriority = true;
+			e.currentTarget.parent.target.addChild(priorityMark);
+			CONTINIUM - заставляем врагов реагировать на приоритетную цель
 		}
 		
 		private function dragIcon(e:MouseEvent):void
@@ -2093,11 +2213,13 @@ package
 							if(turret.level >= 3  && (Math.random() * 100 < Variables.GUN_CRIT_CHANCE))
 							{
 								targetEnemy.calcDamage(turret.damage * Variables.GUN_CRIT_DAMAGE_MULTIPLY + turret.gunAccDamage);
+								if(infoScreen && infoScreen.target == targetEnemy) infoScreen.txtLife.text = String(targetEnemy.health);
 								createExplosion(targetEnemy.x, targetEnemy.y, targetEnemy.levelColor, false, true);
 							}
 							else
 							{
 								targetEnemy.calcDamage(turret.damage + turret.gunAccDamage);
+								if(infoScreen && infoScreen.target == targetEnemy) infoScreen.txtLife.text = String(targetEnemy.health);
 								createExplosion(targetEnemy.x, targetEnemy.y, targetEnemy.levelColor);
 							}
 						}
@@ -2221,6 +2343,7 @@ package
 								else if(!enemy.isPoisoned) enemy.addStatus(Enemy.STATUS_POISON);
 							}
 							enemy.calcDamage(splash.damage);
+							if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
 							createExplosion(enemy.x, enemy.y, enemy.levelColor);
 						}
 					}
@@ -2284,6 +2407,7 @@ package
 						else
 						{
 							target.calcDamage(swarm.damage);
+							if(infoScreen && infoScreen.target == target) infoScreen.txtLife.text = target.health;
 							createExplosion(target.x, target.y, target.levelColor);
 						}
 						removeObject(m, swarmArray);
@@ -2361,6 +2485,7 @@ package
 						if(swSplash.hitZone.hitTestObject(enemy))
 						{
 							enemy.calcDamage(swSplash.damage);
+							if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
 							createExplosion(enemy.x, enemy.y, enemy.levelColor);
 						}
 					}
@@ -2403,6 +2528,7 @@ package
 					{
 						enemy.addStatus(Enemy.STATUS_CLOUD);
 						enemy.calcDamage(Variables.LAUNCHER_POISON_CLOUD_DAMAGE);
+						if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
 						createExplosion(enemy.x, enemy.y, enemy.levelColor, false, false, true);
 						enemy.thisTurnCloudTouched = true;
 					}
@@ -2746,8 +2872,32 @@ package
 			enemiesLeft--;
 			enemy.removeEventListener(MouseEvent.CLICK, clickEnemy);
 			updateScoreBoard("txtEnemiesLeft");
-			if(enemy is Enemy_Neirobot) Variables.NUM_NEIROBOTS--;
-			if(enemy is Enemy_Protector) Variables.NUM_PROTECTORS--;
+			if(enemy is Enemy_Neirobot)
+			{
+				Variables.NUM_NEIROBOTS--;
+				for each(var neiro:Enemy_Neirobot in enemyArray)
+				{
+					neiro.systemDamage = neiro.baseSystemDamage * Variables.NUM_NEIROBOTS * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
+					if(infoScreen && infoScreen.target == neiro) infoScreen.txtSystemDamage.text = String(neiro.systemDamage);
+				}
+			}
+			if(enemy is Enemy_Protector)
+			{
+				var tempEnemy:Enemy;
+				for each(tempEnemy in enemyArray)
+				{
+					tempEnemy.health -= tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+					tempEnemy.maxHealth -= tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+				}
+				Variables.NUM_PROTECTORS--;
+				for each(tempEnemy in enemyArray)
+				{
+					tempEnemy.health += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+					tempEnemy.maxHealth += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+					if(infoScreen && infoScreen.target == tempEnemy) infoScreen.txtLife.text = String(tempEnemy.health);
+				}
+			}
+			if(infoScreen && infoScreen.target == enemy) removeInfoScreen();
 			enemyArray.splice(i, 1);
 			hackingEnemies.push(enemy);
 			var clip:MovieClip = enemy.getChildByName("clip") as MovieClip;
@@ -2814,22 +2964,21 @@ package
 				
 				switch(e.currentTarget.type)
 				{
-					case SpecialTools.HACK_REDUCE:
-						for(var b:int = enemyArray.length; --b >= 0;)
+					case SpecialTools.SYS_DAMAGE_REDUCE:
+						Variables.SPECIAL_SYS_DAMAGE_MULTIPLY = .5;
+						for each(enemy in enemyArray)
 						{
-							enemy = enemyArray[b];
-							if(!enemy.hackChanceDecreased)
-							{
-								enemy.hackChance *= Variables.SPECIAL_HACK_REDUCE_MULTIPLY;
-								enemy.hackChanceDecreased = true;
-							}
+							enemy.systemDamage = enemy.baseSystemDamage * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
+							if(enemy is Enemy_Neirobot) enemy.systemDamage = enemy.baseSystemDamage * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY * Variables.NUM_NEIROBOTS;
 						}
+						systemDamReduceInAction = true;
+						if(infoScreen && infoScreen.target == enemy) infoScreen.txtSystemDamage.text = String(enemy.systemDamage);
 						specialToolCooldown = new SpecialToolsCooldown();
 						specialToolCooldown.x = e.currentTarget.x;
 						specialToolCooldown.y = e.currentTarget.y;
 						specialToolCooldown.gotoAndStop(1);
-						specialToolCooldown.timeToWait = Variables.SPECIAL_HACK_REDUCE_COOLTIME;
-						if(Variables.SPECIAL_HACK_REDUCE_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
+						specialToolCooldown.timeToWait = Variables.SPECIAL_SYS_DAMAGE_REDUCE_COOLTIME;
+						if(Variables.SPECIAL_SYS_DAMAGE_REDUCE_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
 						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						toolsScreen.addChild(specialToolCooldown);
 						specialToolsCooldownsArray.push(specialToolCooldown);
@@ -2892,6 +3041,7 @@ package
 						{
 							enemy = enemyArray[i];
 							enemy.calcDamage(Variables.SPECIAL_FLOW_OVERLOAD_DAMAGE);
+							if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
 							createExplosion(enemy.x, enemy.y, enemy.levelColor);
 						}
 						specialToolCooldown = new SpecialToolsCooldown();

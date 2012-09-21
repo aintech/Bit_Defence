@@ -8,6 +8,7 @@
 		override protected function init():void
 		{
 			super.init();
+			type = "Neirobot";
 			HitingPoint.visible = false;
 			TileNumPoint.visible = false;
 			symbolsDrop = 20 * Variables.SYMBOLS_DROP_MULTIPLE;
@@ -16,10 +17,10 @@
 			baseSpeed = 4;
 			stoppingSpeed = .4;
 			
-			health = maxHealth = 1600;
+			health = baseMaxHealth = maxHealth = 1600;
 			shield = 0;
 			speed = baseSpeed;
-			systemDamage = .2 * Variables.NUM_NEIROBOTS;// 4% * num Neirobots  sec
+			systemDamage = baseSystemDamage = .2;// 4% sec
 			
 			baseHackChance = 15;
 			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);
@@ -32,6 +33,9 @@
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;
+			
+			health += baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+			maxHealth += baseMaxHealth * Variables.NUM_PROTECTORS * .1;
 		}
 		
 		override public function updateLevel():void

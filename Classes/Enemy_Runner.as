@@ -8,6 +8,7 @@
 		override protected function init():void
 		{
 			super.init();
+			type = "Runner";
 			HitingPoint.visible = false;
 			TileNumPoint.visible = false;
 			symbolsDrop = 20 * Variables.SYMBOLS_DROP_MULTIPLE;
@@ -19,10 +20,10 @@
 			maxSpeed = 12;
 			runnerBrakeDist = 60;
 			
-			health = maxHealth = 1000;
+			health = baseMaxHealth = maxHealth = 1000;
 			shield = 0;
 			speed = baseSpeed;
-			systemDamage = .3;// 6% sec
+			systemDamage = baseSystemDamage = .3;// 6% sec
 			
 			baseHackChance = 10;
 			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);
@@ -35,6 +36,9 @@
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;
+			
+			health += baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+			maxHealth += baseMaxHealth * Variables.NUM_PROTECTORS * .1;
 		}
 		
 		override public function updateDirection(direct:String):void

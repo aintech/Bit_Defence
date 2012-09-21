@@ -8,6 +8,7 @@
 		override protected function init():void
 		{
 			super.init();
+			type = "Emmiter";
 			HitingPoint.visible = false;
 			TileNumPoint.visible = false;
 			symbolsDrop = 20 * Variables.SYMBOLS_DROP_MULTIPLE;
@@ -16,10 +17,10 @@
 			baseSpeed = 4;
 			stoppingSpeed = .4;
 			
-			health = maxHealth = 10000;
+			health = baseMaxHealth = maxHealth = 10000;
 			shield = 0;
 			speed = baseSpeed;
-			systemDamage = .3;// 6% sec
+			systemDamage = baseSystemDamage = .3;// 6% sec
 			bugsAppearTime = 30;// каждые 1,5 сек появляется Bug
 			bugsWaitTime = 0;
 			
@@ -34,6 +35,9 @@
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;
+			
+			health += baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+			maxHealth += baseMaxHealth * Variables.NUM_PROTECTORS * .1;
 		}
 		
 		override public function updateLevel():void

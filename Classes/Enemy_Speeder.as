@@ -8,6 +8,7 @@
 		override protected function init():void
 		{
 			super.init();
+			type = "Speeder";
 			HitingPoint.visible = false;
 			TileNumPoint.visible = false;
 			symbolsDrop = 20 * Variables.SYMBOLS_DROP_MULTIPLE;
@@ -16,10 +17,10 @@
 			baseSpeed = 7;
 			stoppingSpeed = .7;
 			
-			health = maxHealth = 700;
+			health = baseMaxHealth = maxHealth = 700;
 			shield = 0;
 			speed = baseSpeed;
-			systemDamage = .2;// 4% sec
+			systemDamage = baseSystemDamage = .2;// 4% sec
 			
 			baseHackChance = 10;
 			hackChance = baseHackChance - ((baseHackChance * Variables.HACK_PROTECT_LEVEL) / 100);
@@ -32,6 +33,9 @@
 			hitPoint = this.HitingPoint;
 			graphPoint = this.GraphPoint;
 			tileNumPoint = this.TileNumPoint;
+			
+			health += baseMaxHealth * Variables.NUM_PROTECTORS * .1;
+			maxHealth += baseMaxHealth * Variables.NUM_PROTECTORS * .1;
 		}
 		
 		override public function updateLevel():void

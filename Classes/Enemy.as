@@ -20,10 +20,11 @@
 		public static const STATUS_POISON:String 	= "status poison";
 		public static const STATUS_STUN:String		= "status stun";
 		public static const STATUS_FREEZE:String	= "status freeze";
-		public static const STATUS_CLOUD:String	= "status cloud";
+		public static const STATUS_CLOUD:String		= "status cloud";
 		public static const STATUS_HEAL:String		= "status heal";
 		
-		public var level:int = 3;
+		public var level:int = 1;
+		public var type:String;
 		
 		public var hitPoint:MovieClip;
 		public var graphPoint:GraphicPoint;
@@ -43,8 +44,9 @@
 		public var speed:Number;
 		public var maxSpeed:Number;
 		
-		public var maxHealth:int;
 		public var health:int;
+		public var baseMaxHealth:int;
+		public var maxHealth:int;
 		public var lifeBar:MovieClip;
 		public var ID:int = 11111;
 		
@@ -87,6 +89,7 @@
 		public var statusEffect:StatusEffects;
 		public var effectsArray:Array = [];
 		
+		public var baseSystemDamage:Number;
 		public var systemDamage:Number;
 		public var isFalseHacking:Boolean;
 		
@@ -101,6 +104,8 @@
 		
 		public var bugsAppearTime:int;
 		public var bugsWaitTime:int;
+		
+		public var isPriority:Boolean;
 				
 		public function Enemy()
 		{
@@ -267,26 +272,12 @@
 			//if(shield > value) value = 1;
 			//else value -= shield;
 			health -= value;
+			if(health < 0) health = 0;
 			lifeBar.gotoAndStop(Math.floor(health / maxHealth * 100));
 		}
 		
 		public function updateLevel():void
 		{
-			/*switch(level)
-			{
-				case 1:
-					
-				break;
-				
-				case 2:
-				break;
-				
-				case 3:
-				break;
-				
-				default:
-				breal;
-			}*/
 			glowFilter = new GlowFilter(levelColors[level]);
 			blurFilter = new BlurFilter(2, 2);
 		}
