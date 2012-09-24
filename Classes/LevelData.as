@@ -26,7 +26,7 @@
 			{
 				case 1:
 				levelMapArray = [
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 G, R, P, P, P, P, D, G, G, G, G, G, G, G, G,
 								 G, P, M, G, G, M, P, G, G, G, G, G, G, G, G,
@@ -35,7 +35,7 @@
 								 G, G, M, P, G, M, P, M, G, M, P, M, G, G, G,
 								 S, P, P, U, G, G, R, P, P, P, U, G, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G
+								 //G, G, G, G, G, G, G, G, G, G, G, G, G, G, G
 								 ];
 				break;
 				
@@ -50,7 +50,7 @@
 								 G, G, M, G, G, G, M, P, M, G, M, P, M, G, G,
 								 G, G, G, G, G, G, G, R, P, P, P, U, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 //G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 ];
 				break;
 				
@@ -65,7 +65,7 @@
 								 G, G, M, G, G, G, M, P, M, G, M, P, M, G, G,
 								 G, G, G, G, G, G, G, R, P, P, P, U, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 //G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 ];
 				break;		
 				
@@ -80,7 +80,7 @@
 								 G, G, M, G, G, G, M, P, M, G, M, P, M, G, G,
 								 G, G, G, G, G, G, G, R, P, P, P, U, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 //G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 ];
 				break;
 			}
@@ -167,19 +167,19 @@
 			switch(level)
 			{
 				case 1:
-					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET];
+					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET, SpecialTools.MINES];
 				break;
 				
 				case 2:
-					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET];
+					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET, SpecialTools.MINES];
 				break;
 				
 				case 3:
-					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET];
+					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET, SpecialTools.MINES];
 				break;
 				
 				default:
-					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET];
+					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET, SpecialTools.MINES];
 				break;
 			}
 			return openTools;

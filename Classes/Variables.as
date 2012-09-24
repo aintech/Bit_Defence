@@ -60,6 +60,7 @@
 		public static var SPECIAL_SYS_DAMAGE_REDUCE_COOLTIME:int;
 		public static var SPECIAL_RELOCATE_TURRET_COOLTIME:int;
 		public static var SPECIAL_FALSE_TARGET_COOLTIME:int;
+		public static var SPECIAL_MINES_COOLTIME:int;
 		
 		public static var SPECIAL_FLOW_OVERLOAD_DAMAGE:int;
 		public static var SPECIAL_SYS_DAMAGE_MULTIPLY:Number;
@@ -68,6 +69,9 @@
 		public static var SPECIAL_ADDITIONAL_MARKER_INSTALL_TIME:int;
 		public static var SPECIAL_FALSE_TARGET_PROTECTION:int;
 		public static var SPECIAL_FALSE_TARGET_PROTECTION_LIFE:int;
+		public static var SPECIAL_MINES_NUMBER:int;
+		public static var SPECIAL_MINES_DAMAGE:int;
+		public static var SPECIAL_MINES_DISTANCE:int;
 		
 		public static var WAVE_DELAY:int;//Wave delay in sec
 		public static var ENEMY_DELAY:int;//enemy appear delay
@@ -159,6 +163,7 @@
 		public static var INTRODUCE_SYS_DAMAGE_REDUCE:Boolean;
 		public static var INTRODUCE_RELOCATE_TURRET:Boolean;
 		public static var INTRODUCE_FALSE_TARGET:Boolean;
+		public static var INTRODUCE_MINES:Boolean;
 		
 		public static var NUM_NEIROBOTS:int;
 		public static var NUM_PROTECTORS:int;
@@ -215,14 +220,18 @@
 		 	SPECIAL_SYS_DAMAGE_REDUCE_COOLTIME 		= 200;
 		 	SPECIAL_RELOCATE_TURRET_COOLTIME		= 200;
 			SPECIAL_FALSE_TARGET_COOLTIME			= 300;
+			SPECIAL_MINES_COOLTIME					= 200;
 		
-		 	SPECIAL_FLOW_OVERLOAD_DAMAGE			= 500;
+		 	SPECIAL_FLOW_OVERLOAD_DAMAGE			= 1000;
 		 	SPECIAL_SYS_DAMAGE_MULTIPLY				= 1;
 			SPECIAL_SYS_DAMAGE_REDUCE_TIME			= 160;//должно быть меньше чем SPECIAL_SYS_DAMAGE_REDUCE_COOLTIME
-		 	SPECIAL_FLOW_STOP_DURATION				= 50;
+		 	SPECIAL_FLOW_STOP_DURATION				= 100;
 		 	SPECIAL_ADDITIONAL_MARKER_INSTALL_TIME 	= 50;
 			SPECIAL_FALSE_TARGET_PROTECTION			= 50;
 			SPECIAL_FALSE_TARGET_PROTECTION_LIFE	= 160;// 8 sec
+			SPECIAL_MINES_NUMBER					= 5;
+			SPECIAL_MINES_DAMAGE					= 400;
+			SPECIAL_MINES_DISTANCE					= 150;
 		
 			WAVE_DELAY	= 20;
 			ENEMY_DELAY	= 12;
@@ -319,6 +328,7 @@
 			INTRODUCE_SYS_DAMAGE_REDUCE	= false;
 			INTRODUCE_RELOCATE_TURRET	= false;
 			INTRODUCE_FALSE_TARGET		= false;
+			INTRODUCE_MINES				= false;
 			
 			NUM_NEIROBOTS = 0;
 			NUM_PROTECTORS = 0;

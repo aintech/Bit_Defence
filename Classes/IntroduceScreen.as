@@ -27,6 +27,7 @@
 		public static const RELOCATE_TURRET:String		= "intro_Relocate_Turret";
 		public static const SYS_DAMAGE_REDUCE:String	= "intro_Sys_Damage_Reduce";
 		public static const FALSE_TARGET:String			= "intro_False_Target";
+		public static const MINES:String				= "intro_Mines";
 		
 		public var introduceObject:String;
 		public var comingOut:Boolean 			= true;
@@ -121,6 +122,10 @@
 				
 				case FALSE_TARGET:
 					Variables.INTRODUCE_FALSE_TARGET = true;
+				break;
+				
+				case MINES:
+					Variables.INTRODUCE_MINES = true;
 				break;
 				
 				default:

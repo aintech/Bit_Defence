@@ -11,6 +11,7 @@
 		public function CharIcon(type:String)
 		{
 			charType = type;
+			mouseChildren = false;
 		}
 	}
 }

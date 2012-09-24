@@ -10,6 +10,7 @@
 		public static const RELOCATE_TURRET:String		= "relocate turret";
 		public static const ADDITIONAL_MARKER:String	= "additional marker";
 		public static const FALSE_TARGET:String			= "false target";
+		public static const MINES:String				= "mines";
 		
 		public var counter:int = 0;
 		public var timeWait:int;
@@ -19,6 +20,7 @@
 		public function SpecialTools(type:String)
 		{
 			this.type = type;
+			buttonMode = true;
 		}
 	}
 }
