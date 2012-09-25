@@ -7,7 +7,7 @@
 	import flash.events.KeyboardEvent;
 
 	public class Main extends MovieClip
-	{		
+	{	
 		public var menuScreen:MovieClip;
 		public var settingsScreen:MovieClip;
 		public var optionsScreen:MovieClip;
@@ -27,17 +27,17 @@
 		public var availableLevel:int = 1;
 		public var level:int = 1;
 		
-		public function Main()
+		public function init():void
 		{
 			stageH = stage.stageHeight;
 			stageW = stage.stageWidth;
 			stage.stageFocusRect = false;
 			
 			menuScreen = new MenuScreen();
-			stage.focus = menuScreen;
+			addChild(menuScreen);
 			menuScreen.addEventListener(CustomEvents.START_GAME, onGameStart, false, 0, true);
 			menuScreen.addEventListener(CustomEvents.SHOW_SETTINGS, showSettingsScreen, false, 0, true);
-			addChild(menuScreen);
+			stage.focus = menuScreen;
 		}
 		
 		private function showSettingsScreen(e:CustomEvents):void

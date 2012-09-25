@@ -366,8 +366,6 @@ package
 				
 				toolsScreen.addChild(toolIcon);
 				toolIcon.x = s * 62;
-				toolIcon.keyToActivate = s + 1;
-				trace(toolIcon.keyToActivate);
 				toolIcon.y = (-toolIcon.height - toolIconYOffset) + toolIcon.height * .5;
 				toolIcon.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
 				toolIcon.addEventListener(MouseEvent.MOUSE_OVER, showToolInfo, false, 0, true);
@@ -382,7 +380,6 @@ package
 				specialToolsDisablesArray.push(specialToolDisableClip);
 				toolsScreen.addChild(specialToolDisableClip);
 			}
-			stage.addEventListener(KeyboardEvent.KEY_DOWN, useSpecialTool, false, 0, true);
 			stage.addEventListener(MouseEvent.CLICK, unClick, false, 0, true);
 			
 			for(var st:int = 0; st < int(Variables.SPECIAL_TOOL_GAUGE); st++)

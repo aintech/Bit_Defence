@@ -13,6 +13,12 @@
 		
 		private function onAdd(e:Event):void
 		{
+			removeEventListener(Event.ADDED_TO_STAGE, onAdd);
+			init();
+		}
+		
+		private function init():void
+		{
 			startBtn.addEventListener(MouseEvent.CLICK, onClickStart, false, 0, true);
 			settingsBtn.addEventListener(MouseEvent.CLICK, onClickSettings, false, 0, true);
 		}
