@@ -3,13 +3,18 @@
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.display.MovieClip;
+	import flash.filters.DropShadowFilter;
 	import flash.display.SimpleButton;
 
 	public class MapScreen extends MovieClip
 	{
+		public var numLevels:int = 10;
+		public var levelData:LevelData;
 		public var mapLevel:int;
 		public var optionsBtn:SimpleButton;
 		public var upBtn:SimpleButton;
+		public var levelBtn:LevelBtn;
+		public var choosedLevel:int;
 		
 		public function MapScreen(openLevels:int)
 		{
@@ -30,118 +35,27 @@
 			upBtn.addEventListener(MouseEvent.CLICK, onClickUpdates, false, 0, true);
 			addChild(upBtn);
 			
-			levelBtn_1.levelTxt.text = "1";
-			levelBtn_2.levelTxt.text = "2";
-			levelBtn_3.levelTxt.text = "3";
-			levelBtn_4.levelTxt.text = "4";
-			levelBtn_5.levelTxt.text = "5";
-			
-			levelBtn_1.levelTxt.mouseEnabled = false;
-			levelBtn_2.levelTxt.mouseEnabled = false;
-			levelBtn_3.levelTxt.mouseEnabled = false;
-			levelBtn_4.levelTxt.mouseEnabled = false;
-			levelBtn_5.levelTxt.mouseEnabled = false;
-									
-			switch(mapLevel)
+			for(var i:int = 1; i <= numLevels; i++)
 			{
-				case 1:
-				levelBtn_1.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_1.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_1.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_1.buttonMode = true;
+				levelBtn = new LevelBtn(i);
+				levelBtn.x = Main.STAGE_WIDTH * .3;
+				levelBtn.y = 520 - i * 40;
+				if(mapLevel >= i)
+				{
+					levelBtn.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
+					levelBtn.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
+					levelBtn.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
+					levelBtn.gotoAndStop(i+1);
+					levelBtn.buttonMode = true;
+					levelBtn.mouseChildren = true;
+					levelBtn.mouseEnabled = true;
+				}
+				else levelBtn.gotoAndStop("level_Closed");
 				
-				levelBtn_2.gotoAndStop(4);
-				levelBtn_3.gotoAndStop(4);
-				levelBtn_4.gotoAndStop(4);
-				levelBtn_5.gotoAndStop(4);
-				break;
+				levelBtn.alpha = .7;
+				addChild(levelBtn);
 				
-				case 2:
-				levelBtn_1.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_1.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_1.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_1.buttonMode = true;
-				
-				levelBtn_2.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_2.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_2.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_2.buttonMode = true;
-				
-				levelBtn_3.gotoAndStop(4);
-				levelBtn_4.gotoAndStop(4);
-				levelBtn_5.gotoAndStop(4);
-				break;
-				
-				case 3:
-				levelBtn_1.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_1.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_1.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_1.buttonMode = true;
-				
-				levelBtn_2.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_2.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_2.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_2.buttonMode = true;
-				
-				levelBtn_3.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_3.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_3.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_3.buttonMode = true;
-				
-				levelBtn_4.gotoAndStop(4);
-				levelBtn_5.gotoAndStop(4);
-				break;
-				
-				case 4:
-				levelBtn_1.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_1.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_1.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_1.buttonMode = true;
-				
-				levelBtn_2.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_2.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_2.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_2.buttonMode = true;
-				
-				levelBtn_3.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_3.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_3.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_3.buttonMode = true;
-				
-				levelBtn_4.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_4.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_4.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_4.buttonMode = true;
-				
-				levelBtn_5.gotoAndStop(4);
-				break;
-				
-				case 5:
-				levelBtn_1.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_1.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_1.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_1.buttonMode = true;
-				
-				levelBtn_2.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_2.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_2.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_2.buttonMode = true;
-				
-				levelBtn_3.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_3.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_3.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_3.buttonMode = true;
-				
-				levelBtn_4.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_4.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_4.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_4.buttonMode = true;
-				
-				levelBtn_5.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
-				levelBtn_5.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
-				levelBtn_5.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
-				levelBtn_5.buttonMode = true;
-				break;
+				levelBtn.filters = [new DropShadowFilter(4, 0)];
 			}
 		}
 		
@@ -162,38 +76,21 @@
 		
 		private function onMouseOver(e:MouseEvent):void
 		{
-			e.currentTarget.gotoAndStop(2);
+			e.stopPropagation();
+			e.currentTarget.alpha = 1;
+			e.currentTarget.scaleX = e.currentTarget.scaleY = 1.05;
 		}
 		
 		private function onMouseOut(e:MouseEvent):void
 		{
-			e.currentTarget.gotoAndStop(1);
+			e.stopPropagation();
+			e.currentTarget.alpha = .7;
+			e.currentTarget.scaleX = e.currentTarget.scaleY = 1;
 		}
 		
 		public function onLevelClick(e:MouseEvent):void
 		{
-			switch(e.currentTarget.name)
-			{
-				case "levelBtn_1":
-				mapLevel = 1;
-				break;
-				
-				case "levelBtn_2":
-				mapLevel = 2;
-				break;
-				
-				case "levelBtn_3":
-				mapLevel = 3;
-				break;
-				
-				case "levelBtn_4":
-				mapLevel = 4;
-				break;
-				
-				case "levelBtn_5":
-				mapLevel = 5;
-				break;
-			}
+			choosedLevel = e.currentTarget.level;
 			dispatchEvent(new CustomEvents(CustomEvents.NEW_LEVEL));
 		}
 	}

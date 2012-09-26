@@ -20,8 +20,8 @@
 		public var gameWinScreen:MovieClip;
 		public var sourceScreen:String;
 		
-		public var stageH:int;
-		public var stageW:int;
+		public static const STAGE_HEIGHT:int 	= 600;
+		public static const STAGE_WIDTH:int 	= 900;
 		
 		public var maxLevels:int = 5;
 		public var availableLevel:int = 1;
@@ -29,8 +29,6 @@
 		
 		public function init():void
 		{
-			stageH = stage.stageHeight;
-			stageW = stage.stageWidth;
 			stage.stageFocusRect = false;
 			
 			menuScreen = new MenuScreen();
@@ -132,7 +130,7 @@
 		
 		private function onChooseLevel(e:CustomEvents):void
 		{
-			level = e.currentTarget.mapLevel;
+			level = e.currentTarget.choosedLevel;
 			mapScreen.removeEventListener(CustomEvents.NEW_LEVEL, onChooseLevel);
 			mapScreen.removeEventListener(CustomEvents.SHOW_OPTIONS, showOptions);
 			mapScreen.removeEventListener(CustomEvents.SHOW_UPDATES, onShowUpgrades);
@@ -155,7 +153,7 @@
 			removeChild(levelBriefingScreen);
 			levelBriefingScreen = null;
 			
-			playScreen = new GamePlay(level, stageW, stageH);
+			playScreen = new GamePlay(level, STAGE_WIDTH, STAGE_HEIGHT);
 			stage.focus = playScreen;
 			playScreen.addEventListener(CustomEvents.LEVEL_WIN, onLevelWin, false, 0, true);
 			playScreen.addEventListener(CustomEvents.LEVEL_LOSE, onLevelLose, false, 0, true);
@@ -300,7 +298,7 @@
 				removeChild(playScreen);
 				playScreen = null;
 				
-				playScreen = new GamePlay(level, stageW, stageH);
+				playScreen = new GamePlay(level, STAGE_WIDTH, STAGE_HEIGHT);
 				stage.focus = playScreen;
 				playScreen.addEventListener(CustomEvents.LEVEL_WIN, onLevelWin, false, 0, true);
 				playScreen.addEventListener(CustomEvents.LEVEL_LOSE, onLevelLose, false, 0, true);

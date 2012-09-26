@@ -57,7 +57,6 @@ package
 		
 		public var currentLevel:int;
 		public var currentWave:int = 1;
-		public var levelData:LevelData = new LevelData();
 		
 		public var levelMap:Array = [];
 		public var enemyWaves:Array = [];
@@ -222,11 +221,11 @@ package
 		
 		private function init():void
 		{
-			levelMap = levelData.makeLevel(currentLevel);
-			enemyWaves = levelData.makeEnemies(currentLevel);
-			availableCharArray = levelData.levelChars(currentLevel);
-			availableToolsArray = levelData.levelTools(currentLevel);
-			memoryTotal = levelData.levelMemory(currentLevel);			
+			levelMap 			= LevelData.makeLevel(currentLevel);
+			enemyWaves 			= LevelData.makeEnemies(currentLevel);
+			availableCharArray 	= LevelData.levelChars(currentLevel);
+			availableToolsArray = LevelData.levelTools(currentLevel);
+			memoryTotal 		= LevelData.levelMemory(currentLevel);			
 			
 			addChild(backgroundHolder);
 			addChild(roadHolder);
@@ -3200,6 +3199,7 @@ package
 							availableActionFlagsArray.push(tempFlag);
 							turretHolder.addChild(tempFlag);
 						}
+						hideToolInfo();
 					break;
 				
 					case SpecialTools.ADDITIONAL_MARKER:
@@ -3236,6 +3236,7 @@ package
 								groundHolder.addChild(flag);
 							}
 						}
+						hideToolInfo();
 					break;
 					
 					case SpecialTools.FALSE_TARGET:
@@ -3267,6 +3268,7 @@ package
 						falseTarget.txtLife.text = String(falseTarget.lifeTime) + ".0 s";
 						turretHolder.addChild(falseTarget);
 						falseTarget.addEventListener(MouseEvent.CLICK, placeFalseTarget, false, 0, true);
+						hideToolInfo();
 					break;
 					
 					case SpecialTools.MINES:
@@ -3333,7 +3335,7 @@ package
 			}
 		}
 		
-		private function hideToolInfo(e:MouseEvent):void
+		private function hideToolInfo(e:MouseEvent = null):void
 		{
 			if(toolInfo)
 			{

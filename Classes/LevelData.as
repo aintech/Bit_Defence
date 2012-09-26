@@ -1,32 +1,26 @@
 ﻿package 
 {
 	public class LevelData
-	{
-		private var P:String = "Road";
-		private var G:String = "Ground";
-		private var M:String = "PlaceMarker";
-		
-		private var S:String = "Start";
-		private var F:String = "Finish";
-		private var U:String = Enemy.DIR_UP;
-		private var D:String = Enemy.DIR_DOWN;
-		private var R:String = Enemy.DIR_RIGHT;
-		private var L:String = Enemy.DIR_LEFT;
-		
-		public var levelMapArray:Array 		= [];
-		public var levelEnemyWaves:Array 	= [];
-		public var openChars:Array 			= [];
-		public var openTools:Array			= [];
-		
-		public function LevelData(){}
-		
-		public function makeLevel(level:int):Array
+	{				
+		public static function makeLevel(level:int):Array
 		{
+			var P:String = "Road";
+			var G:String = "Ground";
+			var M:String = "PlaceMarker";
+		
+			var S:String = "Start";
+			var F:String = "Finish";
+			var U:String = Enemy.DIR_UP;
+			var D:String = Enemy.DIR_DOWN;
+			var R:String = Enemy.DIR_RIGHT;
+			var L:String = Enemy.DIR_LEFT;
+		
+			var levelMapArray:Array;
 			switch(level)
 			{
 				case 1:
 				levelMapArray = [
-								G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 G, R, P, P, P, P, D, G, G, G, G, G, G, G, G,
 								 G, P, M, G, G, M, P, G, G, G, G, G, G, G, G,
@@ -35,7 +29,6 @@
 								 G, G, M, P, G, M, P, M, G, M, P, M, G, G, G,
 								 S, P, P, U, G, G, R, P, P, P, U, G, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 //G, G, G, G, G, G, G, G, G, G, G, G, G, G, G
 								 ];
 				break;
 				
@@ -50,7 +43,6 @@
 								 G, G, M, G, G, G, M, P, M, G, M, P, M, G, G,
 								 G, G, G, G, G, G, G, R, P, P, P, U, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 //G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 ];
 				break;
 				
@@ -65,7 +57,6 @@
 								 G, G, M, G, G, G, M, P, M, G, M, P, M, G, G,
 								 G, G, G, G, G, G, G, R, P, P, P, U, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 //G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 ];
 				break;		
 				
@@ -80,15 +71,13 @@
 								 G, G, M, G, G, G, M, P, M, G, M, P, M, G, G,
 								 G, G, G, G, G, G, G, R, P, P, P, U, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 //G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 ];
 				break;
 			}
-			
 			return levelMapArray;
 		}
 		
-		public function makeEnemies(level:int):Array
+		public static function makeEnemies(level:int):Array
 		{
 			// 1 - Speeder
 			// 2 - Worm
@@ -98,6 +87,8 @@
 			// 6 - Runner
 			// 7 - Cycler
 			// 8 - Emmiter (Emmiter creates Bugs enemies, so here no number for Bug)
+			
+			var levelEnemyWaves:Array;
 			switch(level)
 			{
 				case 1:
@@ -138,8 +129,9 @@
 			return levelEnemyWaves;
 		}
 		
-		public function levelChars(level:int):Array
+		public static function levelChars(level:int):Array
 		{
+			var openChars:Array;
 			switch(level)
 			{
 				case 1:
@@ -158,12 +150,12 @@
 				openChars = [Turret.TURRET_GUN, Turret.TURRET_LAUNCHER, Turret.TURRET_SWARM, Turret.TURRET_FREEZE];
 				break;
 			}
-			
 			return openChars;
 		}
 		
-		public function levelTools(level:int):Array
+		public static function levelTools(level:int):Array
 		{
+			var openTools:Array;
 			switch(level)
 			{
 				case 1:
@@ -185,7 +177,7 @@
 			return openTools;
 		}
 		
-		public function levelMemory(level:int):int
+		public static function levelMemory(level:int):int
 		{
 			var memory:int;
 			switch(level)
@@ -207,6 +199,54 @@
 				break;
 			}
 			return memory;
+		}
+		
+		public static function levelColors(level:int):uint
+		{
+			var color:uint;
+			switch(level)
+			{
+				case 1:
+					color = 0x0066FF;
+				break;
+				
+				case 2:
+					color = 0x0000FF;
+				break;
+				
+				case 3:
+					color = 0x000066;
+				break;
+				
+				case 4:
+					color = 0x00FF66;
+				break;
+				
+				case 5:
+					color = 0x00FF00;
+				break;
+				
+				case 6:
+					color = 0xFFFF00;
+				break;
+				
+				case 7:
+					color = 0xFF00FF;
+				break;
+				
+				case 8:
+					color = 0x00FFFF;
+				break;
+				
+				case 9:
+					color = 0xFF9900;
+				break;
+				
+				case 10:
+					color = 0xFF0000;
+				break;
+			}
+			return color;
 		}
 	}
 }
