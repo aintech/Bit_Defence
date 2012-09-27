@@ -43,7 +43,7 @@ package
 	import flash.events.KeyboardEvent;
 
 	public class GamePlay extends MovieClip
-	{
+	{CONTINIUM - переделываем этот экран + userIntrface в игровом окне
 		private var P:String = "Road";
 		private var G:String = "Ground";
 		private var M:String = "PlaceMarker";

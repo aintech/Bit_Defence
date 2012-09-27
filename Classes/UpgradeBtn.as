@@ -5,9 +5,9 @@
 	public class UpgradeBtn extends MovieClip
 	{
 		public var achieved:Boolean 		= false;
-		public var canBeAchieved:Boolean = false;
+		public var canBeAchieved:Boolean 	= false;
 		
-		public var mouseIsOver:Boolean	= false;
+		public var mouseIsOver:Boolean		= false;
 		
 		public function UpgradeBtn()
 		{

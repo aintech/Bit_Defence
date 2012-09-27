@@ -4,17 +4,22 @@
 	import flash.events.MouseEvent;
 	import flash.display.MovieClip;
 	import flash.filters.DropShadowFilter;
-	import flash.display.SimpleButton;
+	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
+	import flash.text.TextFormat;
+	import flash.filters.GlowFilter;
 
 	public class MapScreen extends MovieClip
 	{
 		public var numLevels:int = 10;
-		public var levelData:LevelData;
 		public var mapLevel:int;
-		public var optionsBtn:SimpleButton;
-		public var upBtn:SimpleButton;
+		public var optionsBtn:Button;
+		public var upgradesBtn:Button;
 		public var levelBtn:LevelBtn;
 		public var choosedLevel:int;
+		
+		private var blockName:TextField;
+		private var blockFormat:TextFormat;
 		
 		public function MapScreen(openLevels:int)
 		{
@@ -25,21 +30,38 @@
 		public function onAdd(e:Event):void
 		{
 			addEventListener(MouseEvent.CLICK, stageFocus, false, 0, true);
-			optionsBtn = new OptionsGear();
-			optionsBtn.x = stage.stageWidth - optionsBtn.width;
+			
+			blockFormat = new TextFormat("Digital-7", 60, 0xFFFFFF)
+			
+			blockName = new TextField();
+			blockName.defaultTextFormat = blockFormat;
+			blockName.autoSize = TextFieldAutoSize.CENTER;
+			blockName.text = "DATA BLOCK - 01";
+			blockName.selectable = false;
+			blockName.x = Main.STAGE_WIDTH * .3 - blockName.width * .5;
+			blockName.y = 20;
+			blockName.filters = [new GlowFilter(0xFF0000)];
+			addChild(blockName);
+			
+			optionsBtn = new Button("OPTIONS");
+			optionsBtn.scaleX = optionsBtn.scaleY = .6;
+			optionsBtn.x = Main.STAGE_WIDTH - optionsBtn.width - optionsBtn.offset;
+			optionsBtn.y = optionsBtn.offset;
 			optionsBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
 			addChild(optionsBtn);
 			
-			upBtn = new GotoUpgradesBtn();
-			upBtn.x = stage.stageWidth - optionsBtn.width - upBtn.width;
-			upBtn.addEventListener(MouseEvent.CLICK, onClickUpdates, false, 0, true);
-			addChild(upBtn);
+			upgradesBtn = new Button("UPGRADES");
+			upgradesBtn.scaleX = upgradesBtn.scaleY = .6;
+			upgradesBtn.x = optionsBtn.x - upgradesBtn.width - upgradesBtn.offset;
+			upgradesBtn.y = upgradesBtn.offset;
+			upgradesBtn.addEventListener(MouseEvent.CLICK, onClickUpdates, false, 0, true);
+			addChild(upgradesBtn);
 			
 			for(var i:int = 1; i <= numLevels; i++)
 			{
 				levelBtn = new LevelBtn(i);
 				levelBtn.x = Main.STAGE_WIDTH * .3;
-				levelBtn.y = 520 - i * 40;
+				levelBtn.y = 550 - i * 40;
 				if(mapLevel >= i)
 				{
 					levelBtn.addEventListener(MouseEvent.CLICK, onLevelClick, false, 0, true);
@@ -66,7 +88,7 @@
 		
 		private function onClickUpdates(e:MouseEvent):void
 		{
-			dispatchEvent(new CustomEvents(CustomEvents.SHOW_UPDATES));
+			dispatchEvent(new CustomEvents(CustomEvents.SHOW_UPGRADES));
 		}
 		
 		private function onClickOptions(e:MouseEvent):void

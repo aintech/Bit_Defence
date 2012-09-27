@@ -6,12 +6,15 @@
 	import flash.display.MovieClip;
 	import flash.filters.GlowFilter;
 
-	public class BuyUpgradesScreen extends MovieClip
+	public class UpgradesScreen extends MovieClip
 	{
 		public var buttonsArray:Array = [];
 		public var linksArray:Array	= [];
 		public var descript:MovieClip;
 		public var pressedUpgrades:Array = [];
+		
+		private var undoBtn:Button;
+		private var closeBtn:Button;
 		
 		
 		private const gun_III_descript:String					= "  you can upgrade your gun up to level 3";
@@ -46,7 +49,7 @@
 		private const multy_stun_descript:String				= "  stun multiple enemies";
 		private const freeze_mastered_descript:String			= "  freeze installation starts from level 3";
 		
-		public function BuyUpgradesScreen()
+		public function UpgradesScreen()
 		{
 			addEventListener(Event.ADDED_TO_STAGE, onAdd, false, 0, true);
 		}
@@ -58,7 +61,20 @@
 		
 		private function init():void
 		{
-			cancelUpgradesBtn.addEventListener(MouseEvent.CLICK, disposeUpgrades, false, 0, true);
+			closeBtn = new Button("CLOSE");
+			closeBtn.scaleX = closeBtn.scaleY = .6;
+			closeBtn.x = Main.STAGE_WIDTH - closeBtn.width - closeBtn.offset;
+			closeBtn.y = closeBtn.offset;
+			closeBtn.addEventListener(MouseEvent.CLICK, closeUpgrades, false, 0, true);
+			addChild(closeBtn);
+			
+			undoBtn = new Button("UNDO");
+			undoBtn.scaleX = undoBtn.scaleY = .6;
+			undoBtn.x = closeBtn.x - undoBtn.width - undoBtn.offset;
+			undoBtn.y = undoBtn.offset;
+			undoBtn.addEventListener(MouseEvent.CLICK, undoChanges, false, 0, true);
+			addChild(undoBtn);
+			
 			txtSymbols.text = "Symbols: " + String(Variables.SYMBOLS);	
 			
 			descript = new UpgradeDescription();
@@ -554,7 +570,7 @@
 			stage.focus = this;
 		}
 		
-		private function disposeUpgrades(e:MouseEvent):void
+		private function undoChanges(e:MouseEvent):void
 		{
 			for(var i:int = pressedUpgrades.length; --i >= 0;)
 			{
@@ -740,6 +756,11 @@
 			txtSymbols.text = "Symbols: " + String(Variables.SYMBOLS);
 			checkBtns();
 			stage.focus = this;
+		}
+		
+		private function closeUpgrades(e:MouseEvent):void
+		{
+			dispatchEvent(new CustomEvents(CustomEvents.CLOSE_UPGRADES));
 		}
 	}
 }

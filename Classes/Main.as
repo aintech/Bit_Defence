@@ -12,7 +12,7 @@
 		public var settingsScreen:MovieClip;
 		public var optionsScreen:MovieClip;
 		public var mapScreen:MovieClip;
-		public var buyUpgradesScreen:MovieClip;
+		public var upgradesScreen:MovieClip;
 		public var levelBriefingScreen:MovieClip;
 		public var playScreen:MovieClip;
 		public var levelWinScreen:MovieClip;
@@ -90,7 +90,7 @@
 			stage.focus = mapScreen;
 			mapScreen.addEventListener(CustomEvents.NEW_LEVEL, onChooseLevel, false ,0, true);
 			mapScreen.addEventListener(CustomEvents.SHOW_OPTIONS, showOptions, false, 0, true);
-			mapScreen.addEventListener(CustomEvents.SHOW_UPDATES, onShowUpgrades, false, 0, true);
+			mapScreen.addEventListener(CustomEvents.SHOW_UPGRADES, onShowUpgrades, false, 0, true);
 			mapScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
 			addChild(mapScreen);
 			Variables.setToDefault();
@@ -100,30 +100,30 @@
 		{
 			mapScreen.removeEventListener(CustomEvents.NEW_LEVEL, onChooseLevel);
 			mapScreen.removeEventListener(CustomEvents.SHOW_OPTIONS, showOptions);
-			mapScreen.removeEventListener(CustomEvents.SHOW_UPDATES, onShowUpgrades);
+			mapScreen.removeEventListener(CustomEvents.SHOW_UPGRADES, onShowUpgrades);
 			mapScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
 			removeChild(mapScreen);
 			mapScreen = null;
 			
-			buyUpgradesScreen = new BuyUpgradesScreen();
-			stage.focus = buyUpgradesScreen;
-			buyUpgradesScreen.backToMapBtn.addEventListener(MouseEvent.CLICK, backToMap, false, 0, true);
-			buyUpgradesScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
-			addChild(buyUpgradesScreen);
+			upgradesScreen = new UpgradesScreen();
+			stage.focus = upgradesScreen;
+			upgradesScreen.addEventListener(CustomEvents.CLOSE_UPGRADES, backToMap, false, 0, true);
+			upgradesScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
+			addChild(upgradesScreen);
 		}
 		
-		private function backToMap(e:MouseEvent):void
+		private function backToMap(e:CustomEvents):void
 		{
-			buyUpgradesScreen.backToMapBtn.removeEventListener(MouseEvent.CLICK, backToMap);
-			buyUpgradesScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
-			removeChild(buyUpgradesScreen);
-			buyUpgradesScreen = null;
+			upgradesScreen.removeEventListener(CustomEvents.CLOSE_UPGRADES, backToMap);
+			upgradesScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
+			removeChild(upgradesScreen);
+			upgradesScreen = null;
 			
 			mapScreen = new MapScreen(availableLevel);
 			stage.focus = mapScreen;
 			mapScreen.addEventListener(CustomEvents.NEW_LEVEL, onChooseLevel, false ,0, true);
 			mapScreen.addEventListener(CustomEvents.SHOW_OPTIONS, showOptions, false, 0, true);
-			mapScreen.addEventListener(CustomEvents.SHOW_UPDATES, onShowUpgrades, false, 0, true);
+			mapScreen.addEventListener(CustomEvents.SHOW_UPGRADES, onShowUpgrades, false, 0, true);
 			mapScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
 			addChild(mapScreen);
 		}
@@ -133,7 +133,7 @@
 			level = e.currentTarget.choosedLevel;
 			mapScreen.removeEventListener(CustomEvents.NEW_LEVEL, onChooseLevel);
 			mapScreen.removeEventListener(CustomEvents.SHOW_OPTIONS, showOptions);
-			mapScreen.removeEventListener(CustomEvents.SHOW_UPDATES, onShowUpgrades);
+			mapScreen.removeEventListener(CustomEvents.SHOW_UPGRADES, onShowUpgrades);
 			mapScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
 			removeChild(mapScreen);
 			mapScreen = null;
@@ -224,7 +224,7 @@
 					}
 				}
 				else if(e.target is GamePlay) showOptions(null);
-				else if(e.target is BuyUpgradesScreen) backToMap(null);
+				else if(e.target is UpgradesScreen) backToMap(null);
 			}
 		}
 		
@@ -329,7 +329,7 @@
 				stage.focus = mapScreen;
 				mapScreen.addEventListener(CustomEvents.NEW_LEVEL, onChooseLevel, false, 0, true);
 				mapScreen.addEventListener(CustomEvents.SHOW_OPTIONS, showOptions, false, 0, true);
-				mapScreen.addEventListener(CustomEvents.SHOW_UPDATES, onShowUpgrades, false, 0, true);
+				mapScreen.addEventListener(CustomEvents.SHOW_UPGRADES, onShowUpgrades, false, 0, true);
 				mapScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
 				addChild(mapScreen);
 				break;
@@ -348,7 +348,7 @@
 				{
 					mapScreen.removeEventListener(CustomEvents.NEW_LEVEL, onChooseLevel);
 					mapScreen.removeEventListener(CustomEvents.SHOW_OPTIONS, showOptions);
-					mapScreen.removeEventListener(CustomEvents.SHOW_UPDATES, onShowUpgrades);
+					mapScreen.removeEventListener(CustomEvents.SHOW_UPGRADES, onShowUpgrades);
 					mapScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
 					removeChild(mapScreen);
 					mapScreen = null;
@@ -391,7 +391,7 @@
 			stage.focus = mapScreen;
 			mapScreen.addEventListener(CustomEvents.NEW_LEVEL, onChooseLevel, false, 0, true);
 			mapScreen.addEventListener(CustomEvents.SHOW_OPTIONS, showOptions, false, 0, true);
-			mapScreen.addEventListener(CustomEvents.SHOW_UPDATES, onShowUpgrades, false, 0, true);
+			mapScreen.addEventListener(CustomEvents.SHOW_UPGRADES, onShowUpgrades, false, 0, true);
 			mapScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
 			addChild(mapScreen);
 		}
@@ -421,7 +421,7 @@
 			stage.focus = mapScreen;
 			mapScreen.addEventListener(CustomEvents.NEW_LEVEL, onChooseLevel, false, 0, true);
 			mapScreen.addEventListener(CustomEvents.SHOW_OPTIONS, showOptions, false, 0, true);
-			mapScreen.addEventListener(CustomEvents.SHOW_UPDATES, onShowUpgrades, false, 0, true);
+			mapScreen.addEventListener(CustomEvents.SHOW_UPGRADES, onShowUpgrades, false, 0, true);
 			mapScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
 			addChild(mapScreen);
 		}
