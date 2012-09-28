@@ -41,9 +41,11 @@ package
 	import flash.filters.ColorMatrixFilter;
 	import flash.display.Graphics;
 	import flash.events.KeyboardEvent;
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 
 	public class GamePlay extends MovieClip
-	{CONTINIUM - переделываем этот экран + userIntrface в игровом окне
+	{
 		private var P:String = "Road";
 		private var G:String = "Ground";
 		private var M:String = "PlaceMarker";
@@ -76,8 +78,13 @@ package
 		public var bulletHolder:Sprite 			= new Sprite();
 		public var charHolder:Sprite 			= new Sprite();
 		public var userInterface:Sprite			= new Sprite();
+		public var oldInterface:Sprite			= new Sprite();
 		public var introduceHolder:Sprite		= new Sprite();
 		public var toolGaugeScreen:Sprite		= new Sprite();
+		
+		private var gunMonitor:Bitmap;
+		private var toolsMonitor:Bitmap;
+		private var infoMonitor:Bitmap;
 		
 		public var charScreen:MovieClip;
 		public var availableCharArray:Array = [];
@@ -239,12 +246,13 @@ package
 			addChild(turretHolder);
 			addChild(bulletHolder);
 			addChild(charHolder);
-			addChild(userInterface);
+			userInterface.y = Main.STAGE_HEIGHT; addChild(userInterface);
+			addChild(oldInterface);
 			addChild(introduceHolder); introduceHolder.y = 90;
-			userInterface.addChild(scoreBoard);
+			oldInterface.addChild(scoreBoard);
 			
 			optionsGearBtn = new OptionsGear();
-			userInterface.addChild(optionsGearBtn);
+			oldInterface.addChild(optionsGearBtn);
 			optionsGearBtn.x = gameWidth - optionsGearBtn.width;
 			optionsGearBtn.addEventListener(MouseEvent.CLICK, showOptions, false, 0, true);
 			
@@ -397,13 +405,13 @@ package
 			startLevelBtn.addEventListener(MouseEvent.CLICK, startLevel, false, 0, true);
 			startLevelBtn.gotoAndStop(1);
 			startLevelBtn.buttonMode = true;
-			userInterface.addChild(startLevelBtn);
+			oldInterface.addChild(startLevelBtn);
 			
 			startBanner = new Banner();
 			startBanner.x = startLevelBtn.x + startLevelBtn.width * .7;
 			startBanner.y = startLevelBtn.y + startLevelBtn.height * .7;
 			startBanner.gotoAndStop("start");
-			userInterface.addChild(startBanner);
+			oldInterface.addChild(startBanner);
 			
 			scoreBoard.x = startLevelBtn.width + 5;
 			updateScoreBoard("txtWave");
@@ -427,6 +435,18 @@ package
 			nextWaveTimer = new Timer(1000, int(Variables.WAVE_DELAY));
 			nextWaveTimer.addEventListener(TimerEvent.TIMER, countWaveDelay, false, 0, true);
 			nextWaveTimer.addEventListener(TimerEvent.TIMER_COMPLETE, waveDelayComplete, false, 0, true);
+			
+			gunMonitor = new Bitmap(new Monitor_4x1(0, 0));
+			toolsMonitor = new Bitmap(new Monitor_7x1(0, 0));
+			infoMonitor = new Bitmap(new Monitor_4x1(0, 0));
+			
+			gunMonitor.y = toolsMonitor.y = infoMonitor.y = -gunMonitor.height;
+			toolsMonitor.x = gunMonitor.width;
+			infoMonitor.x = toolsMonitor.x + toolsMonitor.width;
+			
+			userInterface.addChild(gunMonitor);
+			userInterface.addChild(toolsMonitor);
+			userInterface.addChild(infoMonitor);
 		}
 		
 		public function startLevel(e:MouseEvent):void
@@ -643,7 +663,7 @@ package
 			}
 			else if(levelStarted && startBanner)
 			{
-				userInterface.removeChild(startBanner);
+				oldInterface.removeChild(startBanner);
 				startBanner = null;
 			}
 						
@@ -2700,7 +2720,7 @@ package
 			drop.dropAmaunt = dropAmaunt;
 			drop.addEventListener(MouseEvent.CLICK, pickUpDrop, false, 0, true);
 			dropArray.push(drop);
-			userInterface.addChild(drop);
+			oldInterface.addChild(drop);
 			
 			switch(drop.dropType)
 			{
@@ -2870,12 +2890,12 @@ package
 			startWaveBtn.timeCounter.mouseEnabled = false;
 			startWaveBtn.addEventListener(MouseEvent.CLICK, onClickNextWave, false, 0, true);
 			startWaveBtn.timeCounter.text = Variables.WAVE_DELAY;
-			userInterface.addChild(startWaveBtn);
+			oldInterface.addChild(startWaveBtn);
 			
 			startWaveBtnArrow = new StartWaveBtnArrow();
 			startWaveBtnArrow.x = startWaveBtn.x - startWaveBtn.width + 5;
 			startWaveBtnArrow.y = startWaveBtn.y;
-			userInterface.addChild(startWaveBtnArrow);
+			oldInterface.addChild(startWaveBtnArrow);
 		
 			waveTimerInAction = true;
 			nextWaveTimer.start();
@@ -2895,10 +2915,10 @@ package
 			waveTimerInAction = false;
 			
 			startWaveBtn.removeEventListener(MouseEvent.CLICK, onClickNextWave);
-			userInterface.removeChild(startWaveBtn);
+			oldInterface.removeChild(startWaveBtn);
 			startWaveBtn = null;
 			
-			userInterface.removeChild(startWaveBtnArrow);
+			oldInterface.removeChild(startWaveBtnArrow);
 			startWaveBtnArrow = null;
 			
 			currentWave++;
@@ -2914,10 +2934,10 @@ package
 			waveTimerInAction = false;
 			
 			startWaveBtn.removeEventListener(MouseEvent.CLICK, onClickNextWave);
-			userInterface.removeChild(startWaveBtn);
+			oldInterface.removeChild(startWaveBtn);
 			startWaveBtn = null;
 			
-			userInterface.removeChild(startWaveBtnArrow);
+			oldInterface.removeChild(startWaveBtnArrow);
 			startWaveBtnArrow = null;
 			
 			currentWave++;

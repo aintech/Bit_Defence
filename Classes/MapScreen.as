@@ -35,6 +35,7 @@
 			
 			blockName = new TextField();
 			blockName.defaultTextFormat = blockFormat;
+			blockName.embedFonts = true;
 			blockName.autoSize = TextFieldAutoSize.CENTER;
 			blockName.text = "DATA BLOCK - 01";
 			blockName.selectable = false;

@@ -56,6 +56,7 @@
 			
 			field = new TextField();
 			field.defaultTextFormat = format;
+			field.embedFonts = true;
 			field.text = btnLabel;
 			field.selectable = false;
 			field.autoSize = TextFieldAutoSize.CENTER;
