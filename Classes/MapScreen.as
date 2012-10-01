@@ -44,15 +44,13 @@
 			blockName.filters = [new GlowFilter(0xFF0000)];
 			addChild(blockName);
 			
-			optionsBtn = new Button("OPTIONS");
-			optionsBtn.scaleX = optionsBtn.scaleY = .6;
+			optionsBtn = new Button("OPTIONS", true);
 			optionsBtn.x = Main.STAGE_WIDTH - optionsBtn.width - optionsBtn.offset;
 			optionsBtn.y = optionsBtn.offset;
 			optionsBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
 			addChild(optionsBtn);
 			
-			upgradesBtn = new Button("UPGRADES");
-			upgradesBtn.scaleX = upgradesBtn.scaleY = .6;
+			upgradesBtn = new Button("UPGRADES", true);
 			upgradesBtn.x = optionsBtn.x - upgradesBtn.width - upgradesBtn.offset;
 			upgradesBtn.y = upgradesBtn.offset;
 			upgradesBtn.addEventListener(MouseEvent.CLICK, onClickUpdates, false, 0, true);

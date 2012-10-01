@@ -1,6 +1,9 @@
 ﻿package 
 {
 	import flash.display.MovieClip;
+	import flash.filters.GlowFilter;
+	import flash.display.Shape;
+	import flash.events.MouseEvent;
 
 	public class SpecialTools extends MovieClip
 	{
@@ -16,11 +19,55 @@
 		public var timeWait:int;
 		
 		public var type:String;
+		private var border:Shape;
+		public var unable:Boolean = false;
+		public var inAction:Boolean = false;
 		
 		public function SpecialTools(type:String)
 		{
 			this.type = type;
+			mouseChildren = false;
+			
+			border = new Shape();
+			border.graphics.lineStyle(2, 0xFFFFFF);
+			border.graphics.moveTo(0, 0);
+			border.graphics.lineTo(width, 0);
+			border.graphics.lineTo(width, height);
+			border.graphics.lineTo(0, height);
+			border.graphics.lineTo(0, 0);
+			addChild(border);
+			border.visible = false;
+		}
+		
+		private function onOver(e:MouseEvent):void
+		{
+			border.visible = true;
+			filters = [new GlowFilter(0x0000FF, 10, 10)];
+		}
+		
+		private function onOut(e:MouseEvent):void
+		{
+			border.visible = false;
+			filters = [new GlowFilter(0x0000FF)];
+		}
+		
+		public function setUnable():void
+		{
+			unable = true;
+			addEventListener(MouseEvent.MOUSE_OVER, onOver, false, 0, true);
+			addEventListener(MouseEvent.MOUSE_OUT, onOut, false, 0, true);
+			filters = [new GlowFilter(0x0000FF)];
 			buttonMode = true;
+		}
+		
+		public function setDisable():void
+		{
+			unable = false;
+			removeEventListener(MouseEvent.MOUSE_OVER, onOver);
+			removeEventListener(MouseEvent.MOUSE_OUT, onOut);
+			filters = [];
+			buttonMode = false;
+			border.visible = false;
 		}
 	}
 }

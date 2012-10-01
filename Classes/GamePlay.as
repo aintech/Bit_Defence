@@ -82,22 +82,20 @@ package
 		public var introduceHolder:Sprite		= new Sprite();
 		public var toolGaugeScreen:Sprite		= new Sprite();
 		
-		private var gunMonitor:Bitmap;
-		private var toolsMonitor:Bitmap;
-		private var infoMonitor:Bitmap;
+		private var userMonitors:Bitmap;
 		
 		public var charScreen:MovieClip;
 		public var availableCharArray:Array = [];
-		public var charIconXOffset:int = 3;
-		public var charIconYOffset:int = 3;
+		//public var charIconXOffset:int = 10;
+		//public var charIconYOffset:int = 5;
 		public var charIcon:MovieClip;
 		public var dragCharIcon:MovieClip;
 		public var dragging:Boolean = false;
 		
 		public var toolsScreen:MovieClip;
 		public var availableToolsArray:Array = [];
-		public var toolIconXOffset:int = 3;
-		public var toolIconYOffset:int = 3;
+		//public var toolIconXOffset:int = 3;
+		//public var toolIconYOffset:int = 3;
 		public var toolIcon:SpecialTools;
 		public var toolInfo:SpecialToolInfo;
 		
@@ -245,8 +243,8 @@ package
 			enemyFinalTarget = new EnemyFinalTarget(); addChild(enemyFinalTarget);
 			addChild(turretHolder);
 			addChild(bulletHolder);
-			addChild(charHolder);
 			userInterface.y = Main.STAGE_HEIGHT; addChild(userInterface);
+			addChild(charHolder);
 			addChild(oldInterface);
 			addChild(introduceHolder); introduceHolder.y = 90;
 			oldInterface.addChild(scoreBoard);
@@ -265,9 +263,9 @@ package
 			roadHolder.addChild(road);
 			
 			charScreen = new CharScreen();
-			charScreen.x = 0;
-			charScreen.y = gameHeight;
-			charHolder.addChild(charScreen);
+			charScreen.x = 13;
+			charScreen.y = -8;
+			userInterface.addChild(charScreen);
 			
 			for(var i:int = 0; i < availableCharArray.length; i++)
 			{
@@ -306,8 +304,8 @@ package
 				}
 				
 				charScreen.addChild(charIcon);
-				charIcon.x = i * charIcon.width + charIconXOffset;
-				charIcon.y = -charIcon.height - charIconYOffset;
+				charIcon.x = i * charIcon.width;
+				charIcon.y = -charIcon.height;
 				character.updateLevel();
 				charIcon.range = character.range;
 				charIcon.memoryUse = character.memoryUse;
@@ -319,9 +317,9 @@ package
 			}
 			
 			toolsScreen = new ToolsScreen();
-			toolsScreen.x = charScreen.width + 50;
-			toolsScreen.y = gameHeight;
-			charHolder.addChild(toolsScreen);
+			toolsScreen.x = 227;
+			toolsScreen.y = -8;
+			userInterface.addChild(toolsScreen);
 			
 			for(var s:int = 0; s < availableToolsArray.length; s++)
 			{
@@ -372,20 +370,14 @@ package
 				}
 				
 				toolsScreen.addChild(toolIcon);
-				toolIcon.x = s * 62;
-				toolIcon.y = (-toolIcon.height - toolIconYOffset) + toolIcon.height * .5;
-				toolIcon.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
+				toolIcon.x = s * toolIcon.width;
+				toolIcon.y = -toolIcon.height;
+				toolIcon.setDisable();
 				toolIcon.addEventListener(MouseEvent.MOUSE_OVER, showToolInfo, false, 0, true);
 				toolIcon.addEventListener(MouseEvent.MOUSE_OUT, hideToolInfo, false, 0, true);
 				toolIcon.addEventListener(MouseEvent.MOUSE_MOVE, moveToolInfo, false, 0, true);
 				toolIcon.mouseEnabled = true;
 				specialToolsArray.push(toolIcon);
-				
-				specialToolDisableClip = new SpecialToolDisable();
-				specialToolDisableClip.x = toolIcon.x;
-				specialToolDisableClip.y = toolIcon.y;
-				specialToolsDisablesArray.push(specialToolDisableClip);
-				toolsScreen.addChild(specialToolDisableClip);
 			}
 			stage.addEventListener(MouseEvent.CLICK, unClick, false, 0, true);
 			
@@ -393,13 +385,13 @@ package
 			{
 				var toolGauge:SpecialToolsGauge = new SpecialToolsGauge();
 				toolGaugeScreen.addChild(toolGauge);
-				toolGauge.x = st * (toolGauge.width - 5) + 15;
-				toolGauge.y = -65 - toolGauge.height;
+				toolGauge.x = st * toolGauge.width;
 				toolGauge.gotoAndStop(toolGauge.totalFrames);
 				specialToolsGaugeArray.push(toolGauge);
 			}
 			toolsScreen.addChild(toolGaugeScreen);
 			toolGaugeScreen.x = toolsScreen.width * .5 - toolGaugeScreen.width * .5;
+			toolGaugeScreen.y = -toolsScreen.height;
 			
 			startLevelBtn = new StartLevelBtn();
 			startLevelBtn.addEventListener(MouseEvent.CLICK, startLevel, false, 0, true);
@@ -436,17 +428,9 @@ package
 			nextWaveTimer.addEventListener(TimerEvent.TIMER, countWaveDelay, false, 0, true);
 			nextWaveTimer.addEventListener(TimerEvent.TIMER_COMPLETE, waveDelayComplete, false, 0, true);
 			
-			gunMonitor = new Bitmap(new Monitor_4x1(0, 0));
-			toolsMonitor = new Bitmap(new Monitor_7x1(0, 0));
-			infoMonitor = new Bitmap(new Monitor_4x1(0, 0));
-			
-			gunMonitor.y = toolsMonitor.y = infoMonitor.y = -gunMonitor.height;
-			toolsMonitor.x = gunMonitor.width;
-			infoMonitor.x = toolsMonitor.x + toolsMonitor.width;
-			
-			userInterface.addChild(gunMonitor);
-			userInterface.addChild(toolsMonitor);
-			userInterface.addChild(infoMonitor);
+			userMonitors = new Bitmap(new UserMonitors(0, 0));
+			userMonitors.y = -userMonitors.height;
+			userInterface.addChildAt(userMonitors, 0);
 		}
 		
 		public function startLevel(e:MouseEvent):void
@@ -454,8 +438,41 @@ package
 			startLevelBtn.removeEventListener(MouseEvent.CLICK, startLevel);
 			startLevelBtn.gotoAndStop(2);				
 			levelStarted = true;
-			
-			for(var i:int = specialToolsDisablesArray.length; --i >= 0;) removeObject(i, specialToolsDisablesArray);
+			setToolEnable(null, true);
+		}
+		
+		private function setToolEnable(tool:SpecialTools = null, allTools:Boolean = false):void
+		{
+			if(allTools)
+			{
+				for each(var specTool:SpecialTools in specialToolsArray)
+				{
+					specTool.setUnable();
+					specTool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
+				}
+			}
+			else
+			{
+				tool.setUnable();
+				tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
+			}
+		}
+		
+		private function setToolDisable(tool:SpecialTools = null, allTools:Boolean = false):void
+		{
+			if(allTools)
+			{
+				for each(var specTool:SpecialTools in specialToolsArray)
+				{
+					specTool.setDisable();
+					specTool.removeEventListener(MouseEvent.CLICK, clickTool);
+				}
+			}
+			else
+			{
+				tool.setDisable();
+				tool.removeEventListener(MouseEvent.CLICK, clickTool);
+			}
 		}
 		
 		private function startWave():void
@@ -791,8 +808,12 @@ package
 				result = Math.round((cooldown.timeToWait - cooldown.waitCounter) * .5) * .1;
 				cooldown.txtCounter.text = String(result.toFixed(1));
 				if((cooldown.timeToWait - cooldown.waitCounter) >= 200) cooldown.txtCounter.replaceText(2, cooldown.txtCounter.length, "");
-				cooldown.gotoAndStop(Math.round((cooldown.timeToWait - cooldown.waitCounter) / cooldown.timeToWait * 100));
-				if(cooldown.waitCounter >= cooldown.timeToWait) removeObject(k, specialToolsCooldownsArray);
+				if(cooldown.waitCounter >= cooldown.timeToWait)
+				{
+					if(!turretRelocatingON && !addingMarker && !placingFalseTarget) setToolEnable(cooldown.tool);
+					cooldown.tool.inAction = false;
+					removeObject(k, specialToolsCooldownsArray);
+				}
 			}
 			
 			if(falseTarget)
@@ -3076,10 +3097,11 @@ package
 				var enemy:Enemy;
 				var cFrame:int = 1;
 				var gauge:MovieClip;
+				var tool:SpecialTools = e.currentTarget as SpecialTools;
 				var specTool:SpecialTools;
 				var i:int = 0;
 				
-				switch(e.currentTarget.type)
+				switch(tool.type)
 				{
 					case SpecialTools.SYS_DAMAGE_REDUCE:
 						Variables.SPECIAL_SYS_DAMAGE_MULTIPLY = .5;
@@ -3089,15 +3111,19 @@ package
 							if(enemy is Enemy_Neirobot) enemy.systemDamage = enemy.baseSystemDamage * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY * Variables.NUM_NEIROBOTS;
 						}
 						systemDamReduceInAction = true;
+						
 						if(infoScreen && infoScreen.target == enemy) infoScreen.txtSystemDamage.text = String(enemy.systemDamage);
-						specialToolCooldown = new SpecialToolsCooldown();
-						specialToolCooldown.x = e.currentTarget.x;
-						specialToolCooldown.y = e.currentTarget.y;
-						specialToolCooldown.gotoAndStop(1);
+						
+						setToolDisable(tool);
+						tool.inAction = true;
+						
+						specialToolCooldown = new SpecialToolsCooldown(tool);
 						specialToolCooldown.timeToWait = Variables.SPECIAL_SYS_DAMAGE_REDUCE_COOLTIME;
 						if(Variables.SPECIAL_SYS_DAMAGE_REDUCE_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
 						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						toolsScreen.addChild(specialToolCooldown);
+						specialToolCooldown.x = e.currentTarget.x + e.currentTarget.width * .5;
+						specialToolCooldown.y = e.currentTarget.y + e.currentTarget.width * .5;
 						specialToolsCooldownsArray.push(specialToolCooldown);
 						
 						specialToolsGauge--;
@@ -3119,23 +3145,27 @@ package
 				
 					case SpecialTools.FLOW_STOP:
 						flowStopInAction = true;
-						flowStopCounter = Variables.SPECIAL_FLOW_STOP_DURATION;
-						specialToolCooldown = new SpecialToolsCooldown();
-						specialToolCooldown.x = e.currentTarget.x;
-						specialToolCooldown.y = e.currentTarget.y;
-						specialToolCooldown.gotoAndStop(1);
-						specialToolCooldown.timeToWait = Variables.SPECIAL_FLOW_STOP_COOLTIME;
-						if(Variables.SPECIAL_FLOW_STOP_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
-						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
-						toolsScreen.addChild(specialToolCooldown);
-						specialToolsCooldownsArray.push(specialToolCooldown);
-						
 						for each(enemy in enemyArray)
 						{
 							var clip:MovieClip = enemy.getChildByName("clip") as MovieClip;
 							clip.gotoAndStop(clip.currentFrame);
 							clip = null;
 						}
+						flowStopCounter = Variables.SPECIAL_FLOW_STOP_DURATION;
+						
+						setToolDisable(tool);
+						tool.inAction = true;
+						
+						specialToolCooldown = new SpecialToolsCooldown(tool);
+						specialToolCooldown.timeToWait = Variables.SPECIAL_FLOW_STOP_COOLTIME;
+						if(Variables.SPECIAL_FLOW_STOP_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
+						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
+						toolsScreen.addChild(specialToolCooldown);
+						specialToolCooldown.x = e.currentTarget.x + e.currentTarget.width * .5;
+						specialToolCooldown.y = e.currentTarget.y + e.currentTarget.width * .5;
+						specialToolsCooldownsArray.push(specialToolCooldown);
+						
+						
 						specialToolsGauge--;
 						for(i = specialToolsGaugeArray.length; --i >= 0;)
 						{
@@ -3161,14 +3191,17 @@ package
 							if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
 							createExplosion(enemy.x, enemy.y, enemy.levelColor);
 						}
-						specialToolCooldown = new SpecialToolsCooldown();
-						specialToolCooldown.x = e.currentTarget.x;
-						specialToolCooldown.y = e.currentTarget.y;
-						specialToolCooldown.gotoAndStop(1);
+						
+						setToolDisable(tool);
+						tool.inAction = true;
+						
+						specialToolCooldown = new SpecialToolsCooldown(tool);
 						specialToolCooldown.timeToWait = Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME;
 						if(Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
 						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						toolsScreen.addChild(specialToolCooldown);
+						specialToolCooldown.x = e.currentTarget.x + e.currentTarget.width * .5;
+						specialToolCooldown.y = e.currentTarget.y + e.currentTarget.width * .5;
 						specialToolsCooldownsArray.push(specialToolCooldown);
 						
 						specialToolsGauge--;
@@ -3189,13 +3222,9 @@ package
 					break;
 				
 					case SpecialTools.RELOCATE_TURRET:
-						for each(specTool in specialToolsArray)
+						for each(specTool in specialToolsArray) 
 						{
-							specialToolDisableClip = new SpecialToolDisable();
-							specialToolDisableClip.x = specTool.x;
-							specialToolDisableClip.y = specTool.y;
-							specialToolsDisablesArray.push(specialToolDisableClip);
-							toolsScreen.addChild(specialToolDisableClip);
+							if(!specTool.inAction) setToolDisable(specTool);
 						}
 						turretRelocatingON = true;
 						cancelToolClip = new CancelSpecialTool();
@@ -3203,13 +3232,6 @@ package
 						cancelToolClip.y = e.currentTarget.y;
 						cancelToolClip.addEventListener(MouseEvent.CLICK, cancelTool, false, 0, true);
 						toolsScreen.addChild(cancelToolClip);
-						for each(specTool in specialToolsArray)
-						{
-							specTool.removeEventListener(MouseEvent.CLICK, clickTool);
-							specTool.removeEventListener(MouseEvent.MOUSE_OVER, showToolInfo);
-							specTool.removeEventListener(MouseEvent.MOUSE_OUT, hideToolInfo);
-							specTool.removeEventListener(MouseEvent.MOUSE_MOVE, moveToolInfo);
-						}
 						
 						for each(var turret:Turret in turretArray)
 						{
@@ -3223,6 +3245,7 @@ package
 					break;
 				
 					case SpecialTools.ADDITIONAL_MARKER:
+						CONTINIUM - доделываем остальные спецтехники, турели тоже должны быть дисабле если уровень еще не начился или не хватает памяти на них
 						for each(specTool in specialToolsArray)
 						{
 							specialToolDisableClip = new SpecialToolDisable();
@@ -3313,7 +3336,7 @@ package
 							emptyRoadsArray.splice(rand, 1);
 							minesArray.push(mine);
 						}
-						specialToolCooldown = new SpecialToolsCooldown();
+						/*specialToolCooldown = new SpecialToolsCooldown();
 						specialToolCooldown.x = e.currentTarget.x;
 						specialToolCooldown.y = e.currentTarget.y;
 						specialToolCooldown.gotoAndStop(1);
@@ -3321,7 +3344,7 @@ package
 						if(Variables.SPECIAL_MINES_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
 						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						toolsScreen.addChild(specialToolCooldown);
-						specialToolsCooldownsArray.push(specialToolCooldown);
+						specialToolsCooldownsArray.push(specialToolCooldown);*/
 						
 						specialToolsGauge--;
 						for(i = specialToolsGaugeArray.length; --i >= 0;)
@@ -3411,7 +3434,7 @@ package
 				{ 
 					if(tool.type == SpecialTools.FALSE_TARGET)
 					{
-						specialToolCooldown = new SpecialToolsCooldown();
+						/*specialToolCooldown = new SpecialToolsCooldown();
 						specialToolCooldown.x = tool.x;
 						specialToolCooldown.y = tool.y;
 						specialToolCooldown.gotoAndStop(1);
@@ -3419,7 +3442,7 @@ package
 						if(Variables.SPECIAL_FALSE_TARGET_COOLTIME >= 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
 						toolsScreen.addChild(specialToolCooldown);
-						specialToolsCooldownsArray.push(specialToolCooldown);
+						specialToolsCooldownsArray.push(specialToolCooldown);*/
 					} 
 					tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
 					tool.addEventListener(MouseEvent.MOUSE_OVER, showToolInfo, false, 0, true);
@@ -3457,12 +3480,9 @@ package
 		{
 			cancelToolClip.parent.removeChild(cancelToolClip);
 			cancelToolClip = null;
-			for each(var tool:SpecialTools in specialToolsArray)
+			for each(var tool:SpecialTools in specialToolsArray) 
 			{
-				tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
-				tool.addEventListener(MouseEvent.MOUSE_OVER, showToolInfo, false, 0, true);
-				tool.addEventListener(MouseEvent.MOUSE_OUT, hideToolInfo, false, 0, true);
-				tool.addEventListener(MouseEvent.MOUSE_MOVE, moveToolInfo, false, 0, true);
+				if(!tool.inAction) setToolEnable(tool);
 			}
 			addingMarker = false;
 			turretRelocatingON = false;
@@ -3502,7 +3522,7 @@ package
 				{ 
 					if(tool.type == SpecialTools.ADDITIONAL_MARKER)
 					{
-						specialToolCooldown = new SpecialToolsCooldown();
+						/*specialToolCooldown = new SpecialToolsCooldown();
 						specialToolCooldown.x = tool.x;
 						specialToolCooldown.y = tool.y;
 						specialToolCooldown.gotoAndStop(1);
@@ -3510,7 +3530,7 @@ package
 						if(Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
 						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						toolsScreen.addChild(specialToolCooldown);
-						specialToolsCooldownsArray.push(specialToolCooldown);
+						specialToolsCooldownsArray.push(specialToolCooldown);*/
 					} 
 					tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
 					tool.addEventListener(MouseEvent.MOUSE_OVER, showToolInfo, false, 0, true);
@@ -3591,7 +3611,6 @@ package
 				startUninstallTurret(e);
 				e.currentTarget.free = false;
 				
-				for(var i:int = specialToolsDisablesArray.length; --i >= 0;) removeObject(i, specialToolsDisablesArray);
 				for(var f:int = availableActionFlagsArray.length; --f >= 0;) removeObject(f, availableActionFlagsArray);
 				
 				specialToolsGauge--;
@@ -3615,20 +3634,18 @@ package
 				{ 
 					if(tool.type == SpecialTools.RELOCATE_TURRET)
 					{
-						specialToolCooldown = new SpecialToolsCooldown();
-						specialToolCooldown.x = tool.x;
-						specialToolCooldown.y = tool.y;
-						specialToolCooldown.gotoAndStop(1);
+						tool.inAction = true;
+						setToolDisable(tool);
+						specialToolCooldown = new SpecialToolsCooldown(tool);
 						specialToolCooldown.timeToWait = Variables.SPECIAL_RELOCATE_TURRET_COOLTIME;
 						if(Variables.SPECIAL_RELOCATE_TURRET_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
 						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						toolsScreen.addChild(specialToolCooldown);
+						specialToolCooldown.x = tool.x + tool.width * .5;
+						specialToolCooldown.y = tool.y + tool.width * .5;
 						specialToolsCooldownsArray.push(specialToolCooldown);
-					} 
-					tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
-					tool.addEventListener(MouseEvent.MOUSE_OVER, showToolInfo, false, 0, true);
-					tool.addEventListener(MouseEvent.MOUSE_OUT, hideToolInfo, false, 0, true);
-					tool.addEventListener(MouseEvent.MOUSE_MOVE, moveToolInfo, false, 0, true);
+					}
+					else if(!tool.inAction) setToolEnable(tool);
 				}
 			}
 			else showBuyTurretInfo(e);

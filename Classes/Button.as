@@ -26,7 +26,7 @@
 		private var btnHeight:int = 55;
 		public var offset:int = 5;
 		
-		public function Button(label:String = "BUTTON")
+		public function Button(label:String = "BUTTON", smallBtn:Boolean = false)
 		{
 			btnLabel = label;
 			addEventListener(MouseEvent.MOUSE_OVER, overButton, false, 0, true);
@@ -69,6 +69,8 @@
 			timer = new Timer(50, btnLabel.length);
 			timer.addEventListener(TimerEvent.TIMER, textAnimation, false, 0, true);
 			timer.start();
+			
+			if(smallBtn) scaleX = scaleY = .6;
 		}
 		
 		private function textAnimation(e:Event):void
