@@ -7,7 +7,7 @@
 
 	public class SpecialTools extends MovieClip
 	{
-		public static const SYS_DAMAGE_REDUCE:String 	= "system damage reduce";
+		public static const SYS_DAMAGE_REDUCE:String 	= "damage reduce";
 		public static const FLOW_STOP:String			= "flow stop";
 		public static const FLOW_OVERLOAD:String		= "flow overload";
 		public static const RELOCATE_TURRET:String		= "relocate turret";
@@ -20,8 +20,9 @@
 		
 		public var type:String;
 		private var border:Shape;
-		public var unable:Boolean = false;
+		public var enable:Boolean = false;
 		public var inAction:Boolean = false;
+		public var cooltime:int;
 		
 		public function SpecialTools(type:String)
 		{
@@ -51,9 +52,9 @@
 			filters = [new GlowFilter(0x0000FF)];
 		}
 		
-		public function setUnable():void
+		public function setEnable():void
 		{
-			unable = true;
+			enable = true;
 			addEventListener(MouseEvent.MOUSE_OVER, onOver, false, 0, true);
 			addEventListener(MouseEvent.MOUSE_OUT, onOut, false, 0, true);
 			filters = [new GlowFilter(0x0000FF)];
@@ -62,12 +63,22 @@
 		
 		public function setDisable():void
 		{
-			unable = false;
+			enable = false;
 			removeEventListener(MouseEvent.MOUSE_OVER, onOver);
 			removeEventListener(MouseEvent.MOUSE_OUT, onOut);
 			filters = [];
 			buttonMode = false;
 			border.visible = false;
+		}
+		
+		public function toolDescription():String
+		{
+			var descript:String = "tool descript";
+			switch(type)
+			{
+				
+			}
+			return descript;
 		}
 	}
 }

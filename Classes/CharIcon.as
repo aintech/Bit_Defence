@@ -8,8 +8,10 @@
 	public class CharIcon extends MovieClip
 	{
 		public var charType:String;
+		public var damage:int;
 		public var memoryUse:int;
 		public var range:int;
+		
 		private var border:Shape;
 		
 		public function CharIcon(type:String)
@@ -41,6 +43,21 @@
 		{
 			border.visible = false;
 			filters = [new GlowFilter(0x0000FF)];
+		}
+		
+		public function setEnable():void
+		{
+			addEventListener(MouseEvent.MOUSE_OVER, onOver, false, 0, true);
+			addEventListener(MouseEvent.MOUSE_OUT, onOut, false, 0, true);
+			filters = [new GlowFilter(0x0000FF)];
+		}
+		
+		public function setDisable():void
+		{
+			removeEventListener(MouseEvent.MOUSE_OVER, onOver);
+			removeEventListener(MouseEvent.MOUSE_OUT, onOut);
+			filters = [];
+			border.visible = false;
 		}
 	}
 }

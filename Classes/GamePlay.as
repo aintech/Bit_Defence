@@ -25,6 +25,7 @@
 //BALANCE: разные типы врагов устойчивые к разным турелям заставять игрока применять разные тактики
 
 //FIX: иногда пропадает rangeCircle
+//FIX: если срабатывает спецтехника, вроде переноса турели, и при этом заканчивается гаудж, остальные техники все равно загораются синим, хоть и не работают
 package 
 {
 	import flash.display.MovieClip;
@@ -43,6 +44,7 @@ package
 	import flash.events.KeyboardEvent;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
+	import flash.filters.GlowFilter;
 
 	public class GamePlay extends MovieClip
 	{
@@ -86,16 +88,12 @@ package
 		
 		public var charScreen:MovieClip;
 		public var availableCharArray:Array = [];
-		//public var charIconXOffset:int = 10;
-		//public var charIconYOffset:int = 5;
 		public var charIcon:MovieClip;
 		public var dragCharIcon:MovieClip;
 		public var dragging:Boolean = false;
 		
-		public var toolsScreen:MovieClip;
+		public var toolsScreen:Sprite;
 		public var availableToolsArray:Array = [];
-		//public var toolIconXOffset:int = 3;
-		//public var toolIconYOffset:int = 3;
 		public var toolIcon:SpecialTools;
 		public var toolInfo:SpecialToolInfo;
 		
@@ -135,6 +133,7 @@ package
 		public var upgradingArray:Array				= [];
 		public var distEnemyArray:Array				= [];
 		public var hackingEnemies:Array				= [];
+		public var charIconsArray:Array				= [];
 		public var installingArray:Array			= [];
 		public var swarmBombsArray:Array			= [];
 		public var bombSplashArray:Array			= [];
@@ -145,7 +144,6 @@ package
 		public var introScreensArray:Array			= [];
 		public var addMarkerCounterArray:Array		= [];
 		public var specialToolsGaugeArray:Array		= [];
-		public var specialToolsDisablesArray:Array	= [];
 		public var availableActionFlagsArray:Array	= [];
 		public var specialToolsCooldownsArray:Array	= [];
 		
@@ -163,7 +161,6 @@ package
 		public var specialToolsGauge:int = Variables.SPECIAL_TOOL_GAUGE;
 		public var addingMarker:Boolean = false;
 		public var specialToolCooldown:SpecialToolsCooldown;
-		public var specialToolDisableClip:Sprite;
 		
 		public var cancelToolClip:MovieClip;
 		
@@ -174,10 +171,8 @@ package
 		public var flowStopInAction:Boolean = false;
 		public var flowStopCounter:int;
 		
-		public var startLevelBtn:MovieClip;
-		public var levelStarted:Boolean = false;
+		private var levelStarted:Boolean = false;
 		
-		public var startBanner:Banner;
 		public var startWaveBtn:MovieClip;
 		public var startWaveBtnArrow:MovieClip;
 		public var nextWaveTimer:Timer;
@@ -309,14 +304,14 @@ package
 				character.updateLevel();
 				charIcon.range = character.range;
 				charIcon.memoryUse = character.memoryUse;
+				charIcon.setDisable();
 				character = null;
-				charIcon.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
-				charIcon.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
-				charIcon.addEventListener(MouseEvent.MOUSE_OUT, showChooseInfo, false, 0, true);
-				charIcon.addEventListener(MouseEvent.MOUSE_DOWN, dragIcon, false, 0, true);
+				charIcon.addEventListener(MouseEvent.MOUSE_OVER, showInfo, false, 0, true);
+				charIcon.addEventListener(MouseEvent.MOUSE_OUT, hideInfo, false, 0, true);
+				charIconsArray.push(charIcon);
 			}
 			
-			toolsScreen = new ToolsScreen();
+			toolsScreen = new Sprite();
 			toolsScreen.x = 227;
 			toolsScreen.y = -8;
 			userInterface.addChild(toolsScreen);
@@ -329,42 +324,49 @@ package
 					case SpecialTools.ADDITIONAL_MARKER:
 						toolIcon = new SpecialTools(SpecialTools.ADDITIONAL_MARKER);
 						toolIcon.gotoAndStop("additionalMarker");
+						toolIcon.cooltime = Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME;
 						if(!Variables.INTRODUCE_ADDITIONAL_MARKER) introduce(IntroduceScreen.ADDITIONAL_MARKER);
 					break;
 					
 					case SpecialTools.FLOW_OVERLOAD:
-					toolIcon = new SpecialTools(SpecialTools.FLOW_OVERLOAD);
-					toolIcon.gotoAndStop("flowOverload");
-					if(!Variables.INTRODUCE_FLOW_OVERLOAD) introduce(IntroduceScreen.FLOW_OVERLOAD);
+						toolIcon = new SpecialTools(SpecialTools.FLOW_OVERLOAD);
+						toolIcon.gotoAndStop("flowOverload");
+						toolIcon.cooltime = Variables.SPECIAL_FLOW_OVERLOAD_COOLTIME;
+						if(!Variables.INTRODUCE_FLOW_OVERLOAD) introduce(IntroduceScreen.FLOW_OVERLOAD);
 					break;
 					
 					case SpecialTools.FLOW_STOP:
-					toolIcon = new SpecialTools(SpecialTools.FLOW_STOP);
-					toolIcon.gotoAndStop("flowStop");
-					if(!Variables.INTRODUCE_FLOW_STOP) introduce(IntroduceScreen.FLOW_STOP);
+						toolIcon = new SpecialTools(SpecialTools.FLOW_STOP);
+						toolIcon.gotoAndStop("flowStop");
+						toolIcon.cooltime = Variables.SPECIAL_FLOW_STOP_COOLTIME;
+						if(!Variables.INTRODUCE_FLOW_STOP) introduce(IntroduceScreen.FLOW_STOP);
 					break;
 					
 					case SpecialTools.SYS_DAMAGE_REDUCE:
-					toolIcon = new SpecialTools(SpecialTools.SYS_DAMAGE_REDUCE);
-					toolIcon.gotoAndStop("sysDamReduce");
-					if(!Variables.INTRODUCE_SYS_DAMAGE_REDUCE) introduce(IntroduceScreen.SYS_DAMAGE_REDUCE);
+						toolIcon = new SpecialTools(SpecialTools.SYS_DAMAGE_REDUCE);
+						toolIcon.gotoAndStop("sysDamReduce");
+						toolIcon.cooltime = Variables.SPECIAL_SYS_DAMAGE_REDUCE_COOLTIME;
+						if(!Variables.INTRODUCE_SYS_DAMAGE_REDUCE) introduce(IntroduceScreen.SYS_DAMAGE_REDUCE);
 					break;
 					
 					case SpecialTools.RELOCATE_TURRET:
-					toolIcon = new SpecialTools(SpecialTools.RELOCATE_TURRET);
-					toolIcon.gotoAndStop("relocateTurret");
-					if(!Variables.INTRODUCE_RELOCATE_TURRET) introduce(IntroduceScreen.RELOCATE_TURRET);
+						toolIcon = new SpecialTools(SpecialTools.RELOCATE_TURRET);
+						toolIcon.gotoAndStop("relocateTurret");
+						toolIcon.cooltime = Variables.SPECIAL_RELOCATE_TURRET_COOLTIME;
+						if(!Variables.INTRODUCE_RELOCATE_TURRET) introduce(IntroduceScreen.RELOCATE_TURRET);
 					break;
 					
 					case SpecialTools.FALSE_TARGET:
 						toolIcon = new SpecialTools(SpecialTools.FALSE_TARGET);
 						toolIcon.gotoAndStop("falseTarget");
+						toolIcon.cooltime = Variables.SPECIAL_FALSE_TARGET_COOLTIME;
 						if(!Variables.INTRODUCE_FALSE_TARGET) introduce(IntroduceScreen.FALSE_TARGET);
 					break;
 					
 					case SpecialTools.MINES:
 						toolIcon = new SpecialTools(SpecialTools.MINES);
 						toolIcon.gotoAndStop("mines");
+						toolIcon.cooltime = Variables.SPECIAL_MINES_COOLTIME;
 						if(!Variables.INTRODUCE_MINES) introduce(IntroduceScreen.MINES);
 					break;
 				}
@@ -372,10 +374,10 @@ package
 				toolsScreen.addChild(toolIcon);
 				toolIcon.x = s * toolIcon.width;
 				toolIcon.y = -toolIcon.height;
+				toolIcon.cooltime = toolIcon.cooltime * .05;
 				toolIcon.setDisable();
-				toolIcon.addEventListener(MouseEvent.MOUSE_OVER, showToolInfo, false, 0, true);
-				toolIcon.addEventListener(MouseEvent.MOUSE_OUT, hideToolInfo, false, 0, true);
-				toolIcon.addEventListener(MouseEvent.MOUSE_MOVE, moveToolInfo, false, 0, true);
+				toolIcon.addEventListener(MouseEvent.MOUSE_OVER, showInfo, false, 0, true);
+				toolIcon.addEventListener(MouseEvent.MOUSE_OUT, hideInfo, false, 0, true);
 				toolIcon.mouseEnabled = true;
 				specialToolsArray.push(toolIcon);
 			}
@@ -393,19 +395,7 @@ package
 			toolGaugeScreen.x = toolsScreen.width * .5 - toolGaugeScreen.width * .5;
 			toolGaugeScreen.y = -toolsScreen.height;
 			
-			startLevelBtn = new StartLevelBtn();
-			startLevelBtn.addEventListener(MouseEvent.CLICK, startLevel, false, 0, true);
-			startLevelBtn.gotoAndStop(1);
-			startLevelBtn.buttonMode = true;
-			oldInterface.addChild(startLevelBtn);
-			
-			startBanner = new Banner();
-			startBanner.x = startLevelBtn.x + startLevelBtn.width * .7;
-			startBanner.y = startLevelBtn.y + startLevelBtn.height * .7;
-			startBanner.gotoAndStop("start");
-			oldInterface.addChild(startBanner);
-			
-			scoreBoard.x = startLevelBtn.width + 5;
+			scoreBoard.x = 5;
 			updateScoreBoard("txtWave");
 			updateScoreBoard("txtEnemiesLeft");
 			updateScoreBoard("txtMemory");
@@ -413,9 +403,9 @@ package
 			updateScoreBoard("txtSymbols");
 			scoreBoard.txtHackChance.text = "hack: */*";
 			
-			scoreSymbolsPoint = new Point(scoreBoard.txtSymbols.x + startLevelBtn.width + scoreBoard.txtSymbols.width * .5, scoreBoard.y - 20); 
-			scoreMemoryPoint = new Point(scoreBoard.txtMemory.x + startLevelBtn.width + scoreBoard.txtMemory.width * .5, scoreBoard.y - 20); 
-			scoreProtectPoint = new Point(scoreBoard.txtSystem.x + startLevelBtn.width + scoreBoard.txtSystem.width * .5, scoreBoard.y - 20);
+			scoreSymbolsPoint = new Point(scoreBoard.txtSymbols.x /*+ startLevelBtn.width */+ scoreBoard.txtSymbols.width * .5, scoreBoard.y - 20); 
+			scoreMemoryPoint = new Point(scoreBoard.txtMemory.x /*+ startLevelBtn.width */+ scoreBoard.txtMemory.width * .5, scoreBoard.y - 20); 
+			scoreProtectPoint = new Point(scoreBoard.txtSystem.x /*+ startLevelBtn.width */+ scoreBoard.txtSystem.width * .5, scoreBoard.y - 20);
 			
 			startWave();
 			makeLevel();
@@ -431,47 +421,94 @@ package
 			userMonitors = new Bitmap(new UserMonitors(0, 0));
 			userMonitors.y = -userMonitors.height;
 			userInterface.addChildAt(userMonitors, 0);
+			
+			infoScreen = new InfoScreen();
+			userInterface.addChild(infoScreen);
+			
+			infoScreen.startLevelBtn.addEventListener(MouseEvent.CLICK, startLevel, false, 0, true);
+			infoScreen.startLevelBtn.buttonMode = true;
+			infoScreen.startLevelBtn.mouseChildren = false;
 		}
 		
 		public function startLevel(e:MouseEvent):void
 		{
-			startLevelBtn.removeEventListener(MouseEvent.CLICK, startLevel);
-			startLevelBtn.gotoAndStop(2);				
+			infoScreen.startLevelBtn.removeEventListener(MouseEvent.CLICK, startLevel);
+			infoScreen.gotoAndStop("base");
 			levelStarted = true;
-			setToolEnable(null, true);
+			
+			setTurretCharStatus(true);
+			setToolStatus(true);
 		}
 		
-		private function setToolEnable(tool:SpecialTools = null, allTools:Boolean = false):void
+		private function setTurretCharStatus(setEnable:Boolean, charIcon:CharIcon = null):void
 		{
-			if(allTools)
+			if(setEnable)
 			{
-				for each(var specTool:SpecialTools in specialToolsArray)
+				if(charIcon)
 				{
-					specTool.setUnable();
-					specTool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
+					charIcon.setEnable();
+					charIcon.addEventListener(MouseEvent.MOUSE_DOWN, dragIcon, false, 0, true);
+				}
+				if(charIcon == null)
+				{
+					for each(var cIcon:CharIcon in charIconsArray)
+					{
+						cIcon.setEnable();
+						cIcon.addEventListener(MouseEvent.MOUSE_DOWN, dragIcon, false, 0, true);
+					}
 				}
 			}
-			else
+			else if(!setEnable)
 			{
-				tool.setUnable();
-				tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
+				if(charIcon)
+				{
+					charIcon.setDisable();
+					charIcon.removeEventListener(MouseEvent.MOUSE_DOWN, dragIcon);
+				}
+				if(charIcon == null)
+				{
+					for each(var cIcon2:CharIcon in charIconsArray)
+					{
+						cIcon2.setDisable();
+						cIcon2.removeEventListener(MouseEvent.MOUSE_DOWN, dragIcon);
+					}
+				}
 			}
 		}
 		
-		private function setToolDisable(tool:SpecialTools = null, allTools:Boolean = false):void
+		private function setToolStatus(setEnable:Boolean, tool:SpecialTools = null):void
 		{
-			if(allTools)
+			if(setEnable)
 			{
-				for each(var specTool:SpecialTools in specialToolsArray)
+				if(tool)
 				{
-					specTool.setDisable();
-					specTool.removeEventListener(MouseEvent.CLICK, clickTool);
+					tool.setEnable();
+					tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
+				}
+				if(tool == null)
+				{
+					for each(var specTool:SpecialTools in specialToolsArray)
+					{
+						specTool.setEnable();
+						specTool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
+					}
 				}
 			}
-			else
+			else if(!setEnable)
 			{
-				tool.setDisable();
-				tool.removeEventListener(MouseEvent.CLICK, clickTool);
+				if(tool)
+				{
+					tool.setDisable();
+					tool.removeEventListener(MouseEvent.CLICK, clickTool);
+				}
+				if(tool == null)
+				{
+					for each(var specTool2:SpecialTools in specialToolsArray)
+					{
+						specTool2.setDisable();
+						specTool2.removeEventListener(MouseEvent.CLICK, clickTool);
+					}
+				}
 			}
 		}
 		
@@ -639,51 +676,113 @@ package
 		private function gameLoop(e:TimerEvent):void
 		{
 			stage.focus = this;
-			checkBannersAndIntro();
+			checkIntro();
 			checkForEndLevel();
-			if(Settings.SETTINGS_CHANGED) 																checkSettings();
+			if(Settings.SETTINGS_CHANGED) 													checkSettings();
 			specialToolsInWork();
-			if(installingArray.length > 0)																installTurrets();
-			if(upgradingArray.length > 0)																	upgradeTurrets();
-			if(uninstallingArray.length > 0) 															uninstallTurrets();
-			if(addMarkerCounter.length > 0) 																checkMarkerCounter();
-			if(currentWave <= enemyWaves.length && levelStarted) 									makeEnemies();
+			if(installingArray.length > 0)													installTurrets();
+			if(upgradingArray.length > 0)													upgradeTurrets();
+			if(uninstallingArray.length > 0) 												uninstallTurrets();
+			if(addMarkerCounter.length > 0) 												checkMarkerCounter();
+			if(currentWave <= enemyWaves.length && levelStarted) 							makeEnemies();
 			checkEnemies();
 			updateEnemies();
-			if(particleArray.length > 0)																	updateExplosions();
+			if(particleArray.length > 0)													updateExplosions();
 			checkTurrets();
 			updateBullets();
 			if(enemiesLeft == 0 && !waveTimerInAction && currentWave < enemyWaves.length)	checkForNextWave();
-			if(dropArray.length > 0) 																		checkDrop();
-			if(placingFalseTarget) 																			checkRoadForFalseTarget();
+			if(dropArray.length > 0) 														checkDrop();
+			if(placingFalseTarget) 															checkRoadForFalseTarget();
+			showInfoScreen();
 		}
 		
-		private function checkBannersAndIntro():void
+		private function showInfo(e:MouseEvent = null):void
+		{
+			infoScreen.target = e.currentTarget;
+		}
+		
+		private function hideInfo(e:MouseEvent = null):void
+		{
+			infoScreen.target = null;
+		}
+		
+		private function showInfoScreen():void
+		{//CONTINIUM - чтобы не создавать постоянно tempChar в CharInfo создать переменные которые указывают характеристики новой туррели, также заполнить SpecialTools.toolDescription
+			if(infoScreen.target is Turret)
+			{}
+			else if(infoScreen.target is CharIcon)
+			{
+				infoScreen.gotoAndStop("turret");
+				var type:String = infoScreen.target.charType;
+			
+				switch(type)
+				{
+					case Turret.TURRET_GUN:
+						tempChar = new GunTurret();
+						if(Variables.UPGRADE_GUN_MASTERED) tempChar.level = 3;
+					break;
+					
+					case Turret.TURRET_LAUNCHER:
+						tempChar = new LauncherTurret();
+						if(Variables.UPGRADE_LAUNCHER_MASTERED) tempChar.level = 3;
+					break;
+					
+					case Turret.TURRET_SWARM:
+						tempChar = new SwarmTurret();
+						if(Variables.UPGRADE_SWARM_MASTERED) tempChar.level = 3;
+					break;
+					
+					case Turret.TURRET_FREEZE:
+						tempChar = new FreezeTurret();
+						if(Variables.UPGRADE_FREEZE_MASTERED) tempChar.level = 3;
+					break;
+				}
+				
+				tempChar.updateLevel();
+							
+				if(type == Turret.TURRET_GUN) infoScreen.txtName.text 			= "Gun";
+				else if(type == Turret.TURRET_LAUNCHER) infoScreen.txtName.text = "Launcher";
+				else if(type == Turret.TURRET_SWARM) infoScreen.txtName.text 	= "Swarm";
+				else if(type == Turret.TURRET_FREEZE) infoScreen.txtName.text 	= "Freeze";
+				
+				infoScreen.txtLevelOrCost.text 		= "$: " + tempChar.memoryUse;
+				infoScreen.txtDamage.text			= tempChar.damage;
+				infoScreen.txtRange.text 			= tempChar.range;
+				infoScreen.txtReloadTime.text 		= String(Number(tempChar.reloadTime * .05).toFixed(2));
+				if(tempChar is SwarmTurret) infoScreen.txtDamage.appendText("x" + tempChar.numMissiles);
+			}
+			else if(infoScreen.target is SpecialTools)
+			{
+				infoScreen.gotoAndStop("tool");
+				infoScreen.txtName.text = String(infoScreen.target.type);
+				infoScreen.txtReloadTime.text = String(infoScreen.target.cooltime);
+				infoScreen.txtDescription.text = infoScreen.target.toolDescription();
+			}
+			else if(infoScreen.target is Enemy)
+			{}
+			else if(!levelStarted)
+			{
+				infoScreen.gotoAndStop("start");
+				infoScreen.startLevelBtn.buttonMode = true;
+				infoScreen.startLevelBtn.mouseChildren = false;
+				if(!infoScreen.startLevelBtn.hasEventListener(MouseEvent.CLICK)) infoScreen.startLevelBtn.addEventListener(MouseEvent.CLICK, startLevel, false, 0, true);
+			}
+			else
+			{
+				infoScreen.gotoAndStop("base");
+				infoScreen.txtWave.text = "Wave: " + currentWave + "/" + int(enemyWaves.length);
+				infoScreen.txtMemory.text = "Memory: " + memoryUsed + "/" + memoryTotal;
+				infoScreen.txtEnemiesLeft.text = "Enemies Left: " + enemiesLeft;
+				infoScreen.txtSymbols.text = "Symbols: " + String(Variables.SYMBOLS);
+				infoScreen.txtSystem.text = "System: "+ String(Number(Math.round(systemProtection * 10) * .1).toFixed(1)) + " %";
+			}
+		}
+		
+		private function checkIntro():void
 		{
 			var intro:IntroduceScreen;
 			var numIntros:int = (introScreensArray.length > 5)? 5: introScreensArray.length;;
-			
-			if(!levelStarted && startBanner)
-			{
-				if(startBanner.scaleX >= 1.04) startBanner.scaleBack = true;
-				else if(startBanner.scaleX <=  .96) startBanner.scaleBack = false;
-				if(startBanner.scaleBack)
-				{
-					startBanner.scaleX -= .02;
-					startBanner.scaleY -= .02;
-				}
-				else
-				{
-					startBanner.scaleX += .02;
-					startBanner.scaleY += .02;
-				}
-			}
-			else if(levelStarted && startBanner)
-			{
-				oldInterface.removeChild(startBanner);
-				startBanner = null;
-			}
-						
+									
 			for(var i:int = numIntros; --i >= 0;)
 			{
 				intro = introScreensArray[i];
@@ -716,7 +815,7 @@ package
 			intro.gotoAndStop(frame);
 			addChild(intro);
 			introScreensArray.splice(introScreensArray.indexOf(intro), 1);
-			checkBannersAndIntro();
+			checkIntro();
 			intro.addEventListener(MouseEvent.CLICK, closeIntro, false, 0, true);
 			intro.x = gameWidth * .5;
 			intro.y = gameHeight * .5;
@@ -798,7 +897,15 @@ package
 					gauge.gotoAndStop(cFrame);
 					break;
 				}
-				else specialToolsGauge++;
+				else
+				{
+					specialToolsGauge++;
+					
+				}
+			}
+			for each(var tool:SpecialTools in specialToolsArray)
+			{
+				if(!tool.inAction && levelStarted && !turretRelocatingON && !addingMarker && !placingFalseTarget && specialToolsGauge != 0) setToolStatus(true, tool); 
 			}
 			for(var k:int = specialToolsCooldownsArray.length; --k >= 0;)
 			{
@@ -810,7 +917,7 @@ package
 				if((cooldown.timeToWait - cooldown.waitCounter) >= 200) cooldown.txtCounter.replaceText(2, cooldown.txtCounter.length, "");
 				if(cooldown.waitCounter >= cooldown.timeToWait)
 				{
-					if(!turretRelocatingON && !addingMarker && !placingFalseTarget) setToolEnable(cooldown.tool);
+					if(!turretRelocatingON && !addingMarker && !placingFalseTarget && specialToolsGauge != 0) setToolStatus(true, cooldown.tool);
 					cooldown.tool.inAction = false;
 					removeObject(k, specialToolsCooldownsArray);
 				}
@@ -842,7 +949,7 @@ package
 					{
 						enemy.systemDamage = enemy.baseSystemDamage * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
 						if(enemy is Enemy_Neirobot) enemy.systemDamage = enemy.baseSystemDamage * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY * Variables.NUM_NEIROBOTS;
-						if(infoScreen && infoScreen.target == enemy) infoScreen.txtSystemDamage.text = String(enemy.systemDamage);
+						//if(infoScreen && infoScreen.target == enemy) infoScreen.txtSystemDamage.text = String(enemy.systemDamage);
 					}
 				}
 			}
@@ -949,7 +1056,7 @@ package
 						{
 							tempEnemy.health += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
 							tempEnemy.maxHealth += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
-							if(infoScreen && infoScreen.target == tempEnemy) infoScreen.txtLife.text = String(tempEnemy.health);
+							//if(infoScreen && infoScreen.target == tempEnemy) infoScreen.txtLife.text = String(tempEnemy.health);
 						}
 					}
 					if(enemy is Enemy_Runner) enemy.runnerTargetID = runnerRoadID-1;
@@ -958,7 +1065,7 @@ package
 						for each(var neiro:Enemy_Neirobot in enemyArray)
 						{
 							neiro.systemDamage = neiro.baseSystemDamage * Variables.NUM_NEIROBOTS * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
-							if(infoScreen && infoScreen.target == neiro) infoScreen.txtSystemDamage.text = String(neiro.systemDamage);
+							//if(infoScreen && infoScreen.target == neiro) infoScreen.txtSystemDamage.text = String(neiro.systemDamage);
 						}
 					}
 				}
@@ -976,7 +1083,7 @@ package
 			enemyFrame.height = clip.height + 10;
 			enemy.addChild(enemyFrame);
 			enemyFrame.target = enemy;
-			showEnemyInfo(e);
+			//showEnemyInfo(e);
 		}
 		
 		private function unClick(e:MouseEvent = null):void
@@ -990,20 +1097,20 @@ package
 			if(chooseTurretCircle)
 			{
 				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
-				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				/*chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);*/
 				
 				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
-				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				/*chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);*/
 				
 				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
-				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				/*chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);*/
 				
 				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
-				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				/*chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);*/
 				
 				turretHolder.removeChild(chooseTurretCircle);
 				chooseTurretCircle = null;
@@ -1027,7 +1134,7 @@ package
 				removeChild(rangeCircle);
 				rangeCircle = null;
 			}
-			if(infoScreen) removeInfoScreen();
+			//if(infoScreen) removeInfoScreen();
 		}
 				
 		private function checkEnemies():void
@@ -1051,7 +1158,7 @@ package
 						for each(var neiro:Enemy_Neirobot in enemyArray)
 						{
 							neiro.systemDamage = neiro.baseSystemDamage * Variables.NUM_NEIROBOTS * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
-							if(infoScreen && infoScreen.target == neiro) infoScreen.txtSystemDamage.text = String(neiro.systemDamage);
+							//if(infoScreen && infoScreen.target == neiro) infoScreen.txtSystemDamage.text = String(neiro.systemDamage);
 						}
 					}
 					if(enemy is Enemy_Protector)
@@ -1067,10 +1174,10 @@ package
 						{
 							tempEnemy.health += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
 							tempEnemy.maxHealth += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
-							if(infoScreen && infoScreen.target == tempEnemy) infoScreen.txtLife.text = String(tempEnemy.health);
+							//if(infoScreen && infoScreen.target == tempEnemy) infoScreen.txtLife.text = String(tempEnemy.health);
 						}
 					}
-					if(infoScreen && infoScreen.target == enemy) removeInfoScreen();
+					//if(infoScreen && infoScreen.target == enemy) removeInfoScreen();
 				}
 			}
 		}
@@ -1199,7 +1306,7 @@ package
 				if(enemy.isPoisoned)
 				{
 					enemy.calcDamage(Variables.LAUNCHER_POISON_DAMAGE);
-					if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
+					//if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
 					createExplosion(enemy.x, enemy.y, enemy.levelColor);
 					enemy.poisonCounter++;
 					if(enemy.poisonCounter > enemy.maxPoisonCounter) enemy.removeStatus(Enemy.STATUS_POISON);
@@ -1251,7 +1358,7 @@ package
 							if(distance <= enemy.healDistance)
 							{
 								healTarget.calcDamage(-enemy.healAmount);
-								if(infoScreen && infoScreen.target == healTarget) infoScreen.txtLife.text = String(healTarget.health);
+								//if(infoScreen && infoScreen.target == healTarget) infoScreen.txtLife.text = String(healTarget.health);
 								healTarget.addStatus(Enemy.STATUS_HEAL);
 								enemy.graphPoint.rotation = -enemy.rotation;
 								with(enemy.graphPoint.graphics)
@@ -1367,7 +1474,7 @@ package
 			introduceHolder.addChild(introScreen);
 		}
 				
-		private function showBaseTurretInfo(e:MouseEvent):void
+		/*private function showBaseTurretInfo(e:MouseEvent):void
 		{
 			if(infoScreen) removeInfoScreen();
 			
@@ -1566,6 +1673,32 @@ package
 			}
 		}
 		
+		private function showToolInfo(e:MouseEvent):void
+		{
+				toolInfo = new SpecialToolInfo(e.currentTarget.type);
+				toolInfo.x = stage.mouseX;
+				toolInfo.y = stage.mouseY;
+				addChild(toolInfo);
+		}
+		
+		private function hideToolInfo(e:MouseEvent = null):void
+		{
+			if(toolInfo)
+			{
+				removeChild(toolInfo);
+				toolInfo = null;
+			}
+		}
+		
+		private function moveToolInfo(e:MouseEvent):void
+		{
+			if(toolInfo)
+			{
+				toolInfo.x = stage.mouseX;
+				toolInfo.y = stage.mouseY;
+			}
+		}*/
+		
 		public function setPriorityEnemy(e:MouseEvent):void
 		{
 			e.stopPropagation();
@@ -1628,8 +1761,7 @@ package
 					dragCharIcon.startDrag();
 					dragging = true;
 				}
-				else trace("not enought memory");
-			
+				//else trace("not enought memory");
 				stage.addEventListener(MouseEvent.MOUSE_UP, dropIcon, false, 0, true);
 			}
 		}
@@ -1701,20 +1833,20 @@ package
 				chooseTurretCircle.targetMarker = e.currentTarget;
 				
 				chooseTurretCircle.turret_gun.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-				chooseTurretCircle.turret_gun.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
-				chooseTurretCircle.turret_gun.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+				/*chooseTurretCircle.turret_gun.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+				chooseTurretCircle.turret_gun.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);*/
 				
 				chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-				chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
-				chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+				/*chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+				chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);*/
 				
 				chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-				chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
-				chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+				/*chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+				chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);*/
 				
 				chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-				chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
-				chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+				/*chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+				chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);*/
 				
 				
 				chooseTurretCircle.x = e.currentTarget.x + e.currentTarget.width * .5;
@@ -1776,20 +1908,20 @@ package
 			if(chooseTurretCircle)
 			{
 				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
-				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				/*chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_gun.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);*/
 				
 				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
-				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				/*chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_launcher.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);*/
 				
 				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
-				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				/*chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_freeze.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);*/
 				
 				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.CLICK, buyTurret);
-				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
-				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);
+				/*chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo);
+				chooseTurretCircle.turret_swarm.removeEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen);*/
 				
 				turretHolder.removeChild(chooseTurretCircle);
 				chooseTurretCircle = null;
@@ -1880,20 +2012,20 @@ package
 			}
 			
 			chooseTurretCircle.turret_gun.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-			chooseTurretCircle.turret_gun.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
-			chooseTurretCircle.turret_gun.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+			/*chooseTurretCircle.turret_gun.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+			chooseTurretCircle.turret_gun.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);*/
 				
 			chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-			chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
-			chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+			/*chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+			chooseTurretCircle.turret_launcher.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);*/
 				
 			chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-			chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
-			chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+			/*chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+			chooseTurretCircle.turret_freeze.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);*/
 			
 			chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.CLICK, buyTurret, false, 0, true);
-			chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
-			chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);
+			/*chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.MOUSE_OVER, showBaseTurretInfo, false, 0, true);
+			chooseTurretCircle.turret_swarm.addEventListener(MouseEvent.MOUSE_OUT, removeInfoScreen, false, 0, true);*/
 				
 			chooseTurretCircle.x = e.currentTarget.parent.x;
 			chooseTurretCircle.y = e.currentTarget.parent.y;
@@ -1948,6 +2080,10 @@ package
 			counter.passTime = 0;
 			
 			memoryUsed += turret.memoryUse;
+			for each(var charIcon:CharIcon in charIconsArray)
+			{
+				if(memoryTotal < (charIcon.memoryUse + memoryUsed)) setTurretCharStatus(false, charIcon);
+			}
 			updateScoreBoard("txtMemory");
 			
 			turretHolder.addChild(turret);
@@ -2010,6 +2146,10 @@ package
 			counter.y = turret.y;
 			
 			memoryUsed += turret.upgradeCost;
+			for each(var charIcon:CharIcon in charIconsArray)
+			{
+				if(memoryTotal < (charIcon.memoryUse + memoryUsed)) setTurretCharStatus(false, charIcon);
+			}
 			updateScoreBoard("txtMemory");
 			upgradingArray.push(counter);
 			turretHolder.addChild(counter);
@@ -2049,22 +2189,20 @@ package
 			if(relocationTurretClip)
 			{
 				turret = relocationTurretClip.turretInAction;
+				if(turret.isRelocating)
+				{
+					memoryUsed -= turret.memoryUse;
+					for each(var charIcon:CharIcon in charIconsArray)
+					{
+						if(memoryTotal >= (charIcon.memoryUse + memoryUsed)) setTurretCharStatus(true, charIcon);
+					}
+				}
 				turretHolder.removeChild(relocationTurretClip);
+				updateScoreBoard("txtMemory");
 				relocationTurretClip = null;
 				turretRelocatingON = false;
 				relocatingTurretChoosen = false;
-				if(cancelToolClip)
-				{
-					toolsScreen.removeChild(cancelToolClip);
-					cancelToolClip = null;
-					for each(var tool:SpecialTools in specialToolsArray)
-					{
-						tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
-						tool.addEventListener(MouseEvent.MOUSE_OVER, showToolInfo, false, 0, true);
-						tool.addEventListener(MouseEvent.MOUSE_OUT, hideToolInfo, false, 0, true);
-						tool.addEventListener(MouseEvent.MOUSE_MOVE, moveToolInfo, false, 0, true);
-					}
-				}
+				if(cancelToolClip) cancelTool();
 			}
 			for(var i:int = turretArray.length; --i >= 0;)
 			{
@@ -2104,7 +2242,15 @@ package
 				else
 				{
 					var turret:Turret = counter.turretInAction;
-					memoryUsed -= turret.memoryUse;
+					if(!turret.isRelocating)
+					{
+						memoryUsed -= turret.memoryUse;
+						for each(var charIcon:CharIcon in charIconsArray)
+						{
+							if(memoryTotal >= (charIcon.memoryUse + memoryUsed)) setTurretCharStatus(true, charIcon);
+						}
+					}
+					if(turret.isRelocating) turret.isRelocating = false;
 					updateScoreBoard("txtMemory");
 					
 					for each(var marker:PlaceMarker in markerArray)
@@ -2185,8 +2331,8 @@ package
 				charMenu.sellBtn.addEventListener(MouseEvent.CLICK, startUninstallTurret, false, 0, true);
 				turretHolder.addChild(charMenu);
 				
-				showTurretInfo(e);
-				infoScreen.txtLevelOrCost.text = "lvl " + target.level;
+				//showTurretInfo(e);
+				//infoScreen.txtLevelOrCost.text = "lvl " + target.level;
 				
 				showTurretRange(target.range, target.x, target.y);
 			}
@@ -2197,19 +2343,19 @@ package
 			var target:Turret = charMenu.target;
 			if(target.additionalDamage != 0)
 			{
-				infoScreen.txtDamage.textColor = 0xFFFF00;
-				infoScreen.txtDamage.text = String(target.damage + target.additionalDamage);
-				if(target is SwarmTurret) infoScreen.txtDamage.appendText("x" + (target.numMissiles + target.additionalMissiles));
+				//infoScreen.txtDamage.textColor = 0xFFFF00;
+				//infoScreen.txtDamage.text = String(target.damage + target.additionalDamage);
+				//if(target is SwarmTurret) infoScreen.txtDamage.appendText("x" + (target.numMissiles + target.additionalMissiles));
 			}
 			if(target.additionalRange != 0)
 			{
-				infoScreen.txtRange.textColor = 0xFFFF00;
-				infoScreen.txtRange.text = String(target.range + target.additionalRange);
+				//infoScreen.txtRange.textColor = 0xFFFF00;
+				//infoScreen.txtRange.text = String(target.range + target.additionalRange);
 			}
 			if(target.additionalReloadTime != 0)
 			{
-				infoScreen.txtReloadTime.textColor = 0xFFFF00;
-				infoScreen.txtReloadTime.text = String(Number((target.reloadTime - target.additionalReloadTime) * .05).toFixed(2));
+				//infoScreen.txtReloadTime.textColor = 0xFFFF00;
+				//infoScreen.txtReloadTime.text = String(Number((target.reloadTime - target.additionalReloadTime) * .05).toFixed(2));
 			}
 			if((target.range + target.additionalRange) > target.range)
 			{
@@ -2221,7 +2367,7 @@ package
 		
 		private function hideTurretUP(e:MouseEvent):void
 		{
-			if(infoScreen)
+			/*if(infoScreen)
 			{
 				var target:Turret = charMenu.target;
 				infoScreen.txtDamage.text 			= String(target.damage);
@@ -2232,7 +2378,7 @@ package
 				infoScreen.txtRange.textColor 		= 0xFFFFFF;
 				infoScreen.txtReloadTime.textColor 	= 0xFFFFFF;
 				target.graphics.clear();
-			}
+			}*/
 		}
 		
 		private function showTurretRange(range:int, xVal:int, yVal:int):void
@@ -2326,13 +2472,13 @@ package
 							if(turret.level >= 3  && (Math.random() * 100 < Variables.GUN_CRIT_CHANCE))
 							{
 								targetEnemy.calcDamage(turret.damage * Variables.GUN_CRIT_DAMAGE_MULTIPLY + turret.gunAccDamage);
-								if(infoScreen && infoScreen.target == targetEnemy) infoScreen.txtLife.text = String(targetEnemy.health);
+								//if(infoScreen && infoScreen.target == targetEnemy) infoScreen.txtLife.text = String(targetEnemy.health);
 								createExplosion(targetEnemy.x, targetEnemy.y, targetEnemy.levelColor, "critical");
 							}
 							else
 							{
 								targetEnemy.calcDamage(turret.damage + turret.gunAccDamage);
-								if(infoScreen && infoScreen.target == targetEnemy) infoScreen.txtLife.text = String(targetEnemy.health);
+								//if(infoScreen && infoScreen.target == targetEnemy) infoScreen.txtLife.text = String(targetEnemy.health);
 								createExplosion(targetEnemy.x, targetEnemy.y, targetEnemy.levelColor);
 							}
 						}
@@ -2456,7 +2602,7 @@ package
 								else if(!enemy.isPoisoned) enemy.addStatus(Enemy.STATUS_POISON);
 							}
 							enemy.calcDamage(splash.damage);
-							if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
+							//if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
 							createExplosion(enemy.x, enemy.y, enemy.levelColor);
 						}
 					}
@@ -2526,7 +2672,7 @@ package
 						else
 						{
 							target.calcDamage(swarm.damage);
-							if(infoScreen && infoScreen.target == target) infoScreen.txtLife.text = target.health;
+							//if(infoScreen && infoScreen.target == target) infoScreen.txtLife.text = target.health;
 							createExplosion(target.x, target.y, target.levelColor);
 						}
 						removeObject(m, swarmArray);
@@ -2604,7 +2750,7 @@ package
 						if(swSplash.hitZone.hitTestObject(enemy))
 						{
 							enemy.calcDamage(swSplash.damage);
-							if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
+							//if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
 							createExplosion(enemy.x, enemy.y, enemy.levelColor);
 						}
 					}
@@ -2647,7 +2793,7 @@ package
 					{
 						enemy.addStatus(Enemy.STATUS_CLOUD);
 						enemy.calcDamage(Variables.LAUNCHER_POISON_CLOUD_DAMAGE);
-						if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
+						//if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
 						createExplosion(enemy.x, enemy.y, enemy.levelColor, "poison");
 						enemy.thisTurnCloudTouched = true;
 					}
@@ -2825,6 +2971,10 @@ package
 				
 				case Drop.DROP_MEMORY:
 					memoryTotal += drop.dropAmaunt;
+					for each(var charIcon:CharIcon in charIconsArray)
+					{
+						if(memoryTotal >= (charIcon.memoryUse + memoryUsed)) setTurretCharStatus(true, charIcon);
+					}
 					updateScoreBoard("txtMemory");
 				break;
 				
@@ -3015,7 +3165,7 @@ package
 				for each(var neiro:Enemy_Neirobot in enemyArray)
 				{
 					neiro.systemDamage = neiro.baseSystemDamage * Variables.NUM_NEIROBOTS * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
-					if(infoScreen && infoScreen.target == neiro) infoScreen.txtSystemDamage.text = String(neiro.systemDamage);
+					//if(infoScreen && infoScreen.target == neiro) infoScreen.txtSystemDamage.text = String(neiro.systemDamage);
 				}
 			}
 			if(enemy is Enemy_Protector)
@@ -3031,10 +3181,10 @@ package
 				{
 					tempEnemy.health += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
 					tempEnemy.maxHealth += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
-					if(infoScreen && infoScreen.target == tempEnemy) infoScreen.txtLife.text = String(tempEnemy.health);
+					//if(infoScreen && infoScreen.target == tempEnemy) infoScreen.txtLife.text = String(tempEnemy.health);
 				}
 			}
-			if(infoScreen && infoScreen.target == enemy) removeInfoScreen();
+			//if(infoScreen && infoScreen.target == enemy) removeInfoScreen();
 			enemyArray.splice(i, 1);
 			hackingEnemies.push(enemy);
 			var clip:MovieClip = enemy.getChildByName("clip") as MovieClip;
@@ -3112,9 +3262,9 @@ package
 						}
 						systemDamReduceInAction = true;
 						
-						if(infoScreen && infoScreen.target == enemy) infoScreen.txtSystemDamage.text = String(enemy.systemDamage);
+						//if(infoScreen && infoScreen.target == enemy) infoScreen.txtSystemDamage.text = String(enemy.systemDamage);
 						
-						setToolDisable(tool);
+						setToolStatus(false, tool);
 						tool.inAction = true;
 						
 						specialToolCooldown = new SpecialToolsCooldown(tool);
@@ -3141,6 +3291,13 @@ package
 								break;
 							}
 						}
+						if(specialToolsGauge < 1)
+						{
+							for each(specTool in specialToolsArray)
+							{
+								if(!specTool.inAction) setToolStatus(false, specTool);
+							}
+						}
 					break;
 				
 					case SpecialTools.FLOW_STOP:
@@ -3153,7 +3310,7 @@ package
 						}
 						flowStopCounter = Variables.SPECIAL_FLOW_STOP_DURATION;
 						
-						setToolDisable(tool);
+						setToolStatus(false, tool);
 						tool.inAction = true;
 						
 						specialToolCooldown = new SpecialToolsCooldown(tool);
@@ -3181,6 +3338,13 @@ package
 								break;
 							}
 						}
+						if(specialToolsGauge < 1)
+						{
+							for each(specTool in specialToolsArray)
+							{
+								if(!specTool.inAction) setToolStatus(false, specTool);
+							}
+						}
 					break;
 				
 					case SpecialTools.FLOW_OVERLOAD:
@@ -3188,11 +3352,11 @@ package
 						{
 							enemy = enemyArray[k];
 							enemy.calcDamage(Variables.SPECIAL_FLOW_OVERLOAD_DAMAGE);
-							if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
+							//if(infoScreen && infoScreen.target == enemy) infoScreen.txtLife.text = String(enemy.health);
 							createExplosion(enemy.x, enemy.y, enemy.levelColor);
 						}
 						
-						setToolDisable(tool);
+						setToolStatus(false, tool);
 						tool.inAction = true;
 						
 						specialToolCooldown = new SpecialToolsCooldown(tool);
@@ -3219,12 +3383,19 @@ package
 								break;
 							}
 						}
+						if(specialToolsGauge < 1)
+						{
+							for each(specTool in specialToolsArray)
+							{
+								if(!specTool.inAction) setToolStatus(false, specTool);
+							}
+						}
 					break;
 				
 					case SpecialTools.RELOCATE_TURRET:
 						for each(specTool in specialToolsArray) 
 						{
-							if(!specTool.inAction) setToolDisable(specTool);
+							if(!specTool.inAction) setToolStatus(false, specTool);
 						}
 						turretRelocatingON = true;
 						cancelToolClip = new CancelSpecialTool();
@@ -3241,33 +3412,10 @@ package
 							availableActionFlagsArray.push(tempFlag);
 							turretHolder.addChild(tempFlag);
 						}
-						hideToolInfo();
+						//hideToolInfo();
 					break;
 				
 					case SpecialTools.ADDITIONAL_MARKER:
-						CONTINIUM - доделываем остальные спецтехники, турели тоже должны быть дисабле если уровень еще не начился или не хватает памяти на них
-						for each(specTool in specialToolsArray)
-						{
-							specialToolDisableClip = new SpecialToolDisable();
-							specialToolDisableClip.x = specTool.x;
-							specialToolDisableClip.y = specTool.y;
-							specialToolsDisablesArray.push(specialToolDisableClip);
-							toolsScreen.addChild(specialToolDisableClip);
-						}
-						addingMarker = true;
-						cancelToolClip = new CancelSpecialTool();
-						cancelToolClip.x = e.currentTarget.x;
-						cancelToolClip.y = e.currentTarget.y;
-						cancelToolClip.addEventListener(MouseEvent.CLICK, cancelTool, false, 0, true);
-						toolsScreen.addChild(cancelToolClip);
-						for each(specTool in specialToolsArray)
-						{
-							specTool.removeEventListener(MouseEvent.CLICK, clickTool);
-							specTool.removeEventListener(MouseEvent.MOUSE_OVER, showToolInfo);
-							specTool.removeEventListener(MouseEvent.MOUSE_OUT, hideToolInfo);
-							specTool.removeEventListener(MouseEvent.MOUSE_MOVE, moveToolInfo);
-						}
-						
 						for each(var ground:GroundTile in groundArray)
 						{
 							if(ground.nearRoad)
@@ -3279,17 +3427,32 @@ package
 								groundHolder.addChild(flag);
 							}
 						}
-						hideToolInfo();
+						
+						for each(specTool in specialToolsArray)
+						{
+							if(!specTool.inAction) setToolStatus(false, specTool);
+						}
+						addingMarker = true;
+						cancelToolClip = new CancelSpecialTool();
+						cancelToolClip.x = e.currentTarget.x;
+						cancelToolClip.y = e.currentTarget.y;
+						cancelToolClip.addEventListener(MouseEvent.CLICK, cancelTool, false, 0, true);
+						toolsScreen.addChild(cancelToolClip);
+						
+						//hideToolInfo();
 					break;
 					
 					case SpecialTools.FALSE_TARGET:
+						falseTarget = new EnemyFalseTarget();
+						falseTarget.alpha = 0;
+						falseTarget.txtProtection.text = String(falseTarget.protectAmount) + ".0 %";
+						falseTarget.txtLife.text = String(falseTarget.lifeTime) + ".0 s";
+						turretHolder.addChild(falseTarget);
+						falseTarget.addEventListener(MouseEvent.CLICK, placeFalseTarget, false, 0, true);
+						
 						for each(specTool in specialToolsArray)
 						{
-							specialToolDisableClip = new SpecialToolDisable();
-							specialToolDisableClip.x = specTool.x;
-							specialToolDisableClip.y = specTool.y;
-							specialToolsDisablesArray.push(specialToolDisableClip);
-							toolsScreen.addChild(specialToolDisableClip);
+							if(!specTool.inAction) setToolStatus(false, specTool);
 						}
 						placingFalseTarget = true;
 						cancelToolClip = new CancelSpecialTool();
@@ -3297,21 +3460,8 @@ package
 						cancelToolClip.y = e.currentTarget.y;
 						cancelToolClip.addEventListener(MouseEvent.CLICK, cancelTool, false, 0, true);
 						toolsScreen.addChild(cancelToolClip);
-						for each(specTool in specialToolsArray)
-						{
-							specTool.removeEventListener(MouseEvent.CLICK, clickTool);
-							specTool.addEventListener(MouseEvent.MOUSE_OVER, showToolInfo);
-							specTool.addEventListener(MouseEvent.MOUSE_OUT, hideToolInfo);
-							specTool.addEventListener(MouseEvent.MOUSE_MOVE, moveToolInfo);
-						}
 						
-						falseTarget = new EnemyFalseTarget();
-						falseTarget.alpha = 0;
-						falseTarget.txtProtection.text = String(falseTarget.protectAmount) + ".0 %";
-						falseTarget.txtLife.text = String(falseTarget.lifeTime) + ".0 s";
-						turretHolder.addChild(falseTarget);
-						falseTarget.addEventListener(MouseEvent.CLICK, placeFalseTarget, false, 0, true);
-						hideToolInfo();
+						//hideToolInfo();
 					break;
 					
 					case SpecialTools.MINES:
@@ -3336,15 +3486,18 @@ package
 							emptyRoadsArray.splice(rand, 1);
 							minesArray.push(mine);
 						}
-						/*specialToolCooldown = new SpecialToolsCooldown();
-						specialToolCooldown.x = e.currentTarget.x;
-						specialToolCooldown.y = e.currentTarget.y;
-						specialToolCooldown.gotoAndStop(1);
+						
+						setToolStatus(false, tool);
+						tool.inAction = true;
+						
+						specialToolCooldown = new SpecialToolsCooldown(tool);
 						specialToolCooldown.timeToWait = Variables.SPECIAL_MINES_COOLTIME;
 						if(Variables.SPECIAL_MINES_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
 						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						toolsScreen.addChild(specialToolCooldown);
-						specialToolsCooldownsArray.push(specialToolCooldown);*/
+						specialToolCooldown.x = e.currentTarget.x + e.currentTarget.width * .5;
+						specialToolCooldown.y = e.currentTarget.y + e.currentTarget.width * .5;
+						specialToolsCooldownsArray.push(specialToolCooldown);
 						
 						specialToolsGauge--;
 						for(i = specialToolsGaugeArray.length; --i >= 0;)
@@ -3361,38 +3514,16 @@ package
 								break;
 							}
 						}
+						if(specialToolsGauge < 1)
+						{
+							for each(specTool in specialToolsArray)
+							{
+								if(!specTool.inAction) setToolStatus(false, specTool);
+							}
+						}
 					break;
 				}
 				enemy = null;
-			}
-		}
-		
-		private function showToolInfo(e:MouseEvent):void
-		{
-			if(levelStarted)
-			{
-				toolInfo = new SpecialToolInfo(e.currentTarget.type);
-				toolInfo.x = stage.mouseX;
-				toolInfo.y = stage.mouseY;
-				addChild(toolInfo);
-			}
-		}
-		
-		private function hideToolInfo(e:MouseEvent = null):void
-		{
-			if(toolInfo)
-			{
-				removeChild(toolInfo);
-				toolInfo = null;
-			}
-		}
-		
-		private function moveToolInfo(e:MouseEvent):void
-		{
-			if(toolInfo)
-			{
-				toolInfo.x = stage.mouseX;
-				toolInfo.y = stage.mouseY;
 			}
 		}
 		
@@ -3409,9 +3540,7 @@ package
 					toolsScreen.removeChild(cancelToolClip);
 					cancelToolClip = null;
 				}
-				
-				for(var i:int = specialToolsDisablesArray.length; --i >= 0;) removeObject(i, specialToolsDisablesArray);
-				
+								
 				specialToolsGauge--;
 				var frame:int = 1;
 				for(var g:int = specialToolsGaugeArray.length; --g >= 0;)
@@ -3434,20 +3563,18 @@ package
 				{ 
 					if(tool.type == SpecialTools.FALSE_TARGET)
 					{
-						/*specialToolCooldown = new SpecialToolsCooldown();
-						specialToolCooldown.x = tool.x;
-						specialToolCooldown.y = tool.y;
-						specialToolCooldown.gotoAndStop(1);
+						tool.inAction = true;
+						setToolStatus(false, tool);
+						specialToolCooldown = new SpecialToolsCooldown(tool);
 						specialToolCooldown.timeToWait = Variables.SPECIAL_FALSE_TARGET_COOLTIME;
 						if(Variables.SPECIAL_FALSE_TARGET_COOLTIME >= 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
 						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
 						toolsScreen.addChild(specialToolCooldown);
-						specialToolsCooldownsArray.push(specialToolCooldown);*/
-					} 
-					tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
-					tool.addEventListener(MouseEvent.MOUSE_OVER, showToolInfo, false, 0, true);
-					tool.addEventListener(MouseEvent.MOUSE_OUT, hideToolInfo, false, 0, true);
-					tool.addEventListener(MouseEvent.MOUSE_MOVE, moveToolInfo, false, 0, true);
+						specialToolCooldown.x = tool.x + tool.width * .5;
+						specialToolCooldown.y = tool.y + tool.width * .5;
+						specialToolsCooldownsArray.push(specialToolCooldown);
+					}
+					else if(!tool.inAction && (specialToolsGauge >= 1)) setToolStatus(true, tool);
 				}
 			}
 		}
@@ -3476,20 +3603,18 @@ package
 			}
 		}
 		
-		private function cancelTool(e:MouseEvent):void
+		private function cancelTool(e:MouseEvent = null):void
 		{
 			cancelToolClip.parent.removeChild(cancelToolClip);
 			cancelToolClip = null;
 			for each(var tool:SpecialTools in specialToolsArray) 
 			{
-				if(!tool.inAction) setToolEnable(tool);
+				if(!tool.inAction) setToolStatus(true, tool);
 			}
 			addingMarker = false;
 			turretRelocatingON = false;
 			relocatingTurretChoosen = false;
 			placingFalseTarget = false;
-			
-			for(var i:int = specialToolsDisablesArray.length; --i >= 0;) removeObject(i, specialToolsDisablesArray);
 			
 			if(relocationTurretClip)
 			{
@@ -3498,7 +3623,7 @@ package
 			}
 			for(var f:int = availableActionFlagsArray.length; --f >= 0;) removeObject(f, availableActionFlagsArray);
 			
-			if(falseTarget)
+			if(falseTarget && !falseTarget.placed)
 			{
 				falseTarget.parent.removeChild(falseTarget);
 				falseTarget = null;
@@ -3518,25 +3643,6 @@ package
 				counter.groundInAction = ground;
 				markerHolder.addChild(counter);
 				addMarkerCounterArray.push(counter);
-				for each(var tool:SpecialTools in specialToolsArray)
-				{ 
-					if(tool.type == SpecialTools.ADDITIONAL_MARKER)
-					{
-						/*specialToolCooldown = new SpecialToolsCooldown();
-						specialToolCooldown.x = tool.x;
-						specialToolCooldown.y = tool.y;
-						specialToolCooldown.gotoAndStop(1);
-						specialToolCooldown.timeToWait = Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME;
-						if(Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
-						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
-						toolsScreen.addChild(specialToolCooldown);
-						specialToolsCooldownsArray.push(specialToolCooldown);*/
-					} 
-					tool.addEventListener(MouseEvent.CLICK, clickTool, false, 0, true);
-					tool.addEventListener(MouseEvent.MOUSE_OVER, showToolInfo, false, 0, true);
-					tool.addEventListener(MouseEvent.MOUSE_OUT, hideToolInfo, false, 0, true);
-					tool.addEventListener(MouseEvent.MOUSE_MOVE, moveToolInfo, false, 0, true);
-				}
 				addingMarker = false;
 				ground.nearRoad = false;
 				ground.removeEventListener(MouseEvent.CLICK, addMarker);
@@ -3546,7 +3652,6 @@ package
 					cancelToolClip = null;
 				}
 				
-				for(var i:int = specialToolsDisablesArray.length; --i >= 0;) removeObject(i, specialToolsDisablesArray);
 				for(var f:int = availableActionFlagsArray.length; --f >= 0;) removeObject(f, availableActionFlagsArray);
 				
 				specialToolsGauge--;
@@ -3564,6 +3669,24 @@ package
 						gauge.gotoAndStop(frame);
 						break;
 					}
+				}
+				
+				for each(var tool:SpecialTools in specialToolsArray)
+				{ 
+					if(tool.type == SpecialTools.ADDITIONAL_MARKER)
+					{
+						tool.inAction = true;
+						setToolStatus(false, tool);
+						specialToolCooldown = new SpecialToolsCooldown(tool);
+						specialToolCooldown.timeToWait = Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME;
+						if(Variables.SPECIAL_ADDITIONAL_MARKER_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
+						else specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05);
+						toolsScreen.addChild(specialToolCooldown);
+						specialToolCooldown.x = tool.x + tool.width * .5;
+						specialToolCooldown.y = tool.y + tool.width * .5;
+						specialToolsCooldownsArray.push(specialToolCooldown);
+					} 
+					else if(!tool.inAction && (specialToolsGauge >= 1)) setToolStatus(true, tool);
 				}
 			}
 		}
@@ -3607,6 +3730,7 @@ package
 			else if(turretRelocatingON && !relocatingTurretChoosen){}
 			else if(turretRelocatingON && relocatingTurretChoosen)
 			{
+				relocationTurretClip.turretInAction.isRelocating = true;
 				startInstallTurret(relocationTurretClip.turretType, relocationTurretClip.turretLevel, e.currentTarget.x, e.currentTarget.y);
 				startUninstallTurret(e);
 				e.currentTarget.free = false;
@@ -3635,7 +3759,7 @@ package
 					if(tool.type == SpecialTools.RELOCATE_TURRET)
 					{
 						tool.inAction = true;
-						setToolDisable(tool);
+						setToolStatus(false, tool);
 						specialToolCooldown = new SpecialToolsCooldown(tool);
 						specialToolCooldown.timeToWait = Variables.SPECIAL_RELOCATE_TURRET_COOLTIME;
 						if(Variables.SPECIAL_RELOCATE_TURRET_COOLTIME < 200) specialToolCooldown.txtCounter.text = String(specialToolCooldown.timeToWait * .05) + ".0";
@@ -3645,10 +3769,10 @@ package
 						specialToolCooldown.y = tool.y + tool.width * .5;
 						specialToolsCooldownsArray.push(specialToolCooldown);
 					}
-					else if(!tool.inAction) setToolEnable(tool);
+					else if(!tool.inAction && (specialToolsGauge >= 1)) setToolStatus(true, tool);
 				}
 			}
-			else showBuyTurretInfo(e);
+			else if(levelStarted) showBuyTurretInfo(e);
 		}
 		
 		private function removeObject(index:int, group:Array):void

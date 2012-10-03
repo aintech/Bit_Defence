@@ -32,7 +32,7 @@
 		public var numMissiles:int;
 		public var numSwarmBombs:int;
 		
-		public var additionalDamage:int 		= 0;
+		public var additionalDamage:int 	= 0;
 		public var additionalRange:int 		= 0;
 		public var additionalReloadTime:int = 0;
 		public var additionalMissiles:int 	= 0;
@@ -47,6 +47,8 @@
 		public var gunAccDamage:int;
 		public var gunEnemyID:int;
 		public var gunEnemyPrevID:int;
+		
+		public var isRelocating:Boolean;
 		
 		public function Turret()
 		{
