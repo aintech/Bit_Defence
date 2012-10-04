@@ -12,6 +12,7 @@
 			addChild(gun);
 			
 			type = Turret.TURRET_FREEZE;
+			turretName = "Freeze";
 			
 			abilityDescription 	= "Slowing NoDamage";
 			damage = 0;

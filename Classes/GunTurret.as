@@ -12,6 +12,7 @@
 			addChild(base);
 			
 			type = Turret.TURRET_GUN;
+			turretName = "Gun";
 			
 			abilityDescription 	= "Cheap & Fast";
 			

@@ -8,9 +8,13 @@
 	public class CharIcon extends MovieClip
 	{
 		public var charType:String;
+		public var charName:String;
+		
 		public var damage:int;
 		public var memoryUse:int;
 		public var range:int;
+		public var reloadTime:int;
+		public var numMissiles:int;
 		
 		private var border:Shape;
 		
@@ -36,7 +40,7 @@
 		private function onOver(e:MouseEvent):void
 		{
 			border.visible = true;
-			filters = [new GlowFilter(0x0000FF, 10, 10)];
+			filters = [new GlowFilter(0x0000FF, 1, 10, 10)];
 		}
 		
 		private function onOut(e:MouseEvent):void

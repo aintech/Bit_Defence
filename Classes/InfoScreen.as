@@ -2,7 +2,6 @@
 {
 	import flash.display.MovieClip;
 	import flash.events.Event;
-	import flash.filters.GlowFilter;
 
 	public class InfoScreen extends MovieClip
 	{
@@ -22,7 +21,6 @@
 		
 		private function init():void
 		{
-			filters = [new GlowFilter(0x0000FF)];
 			gotoAndStop("start");
 			x = Main.STAGE_WIDTH;
 		}

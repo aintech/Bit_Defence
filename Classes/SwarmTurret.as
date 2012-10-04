@@ -14,6 +14,7 @@
 			numSwarmBombs = 6;
 			
 			type = Turret.TURRET_SWARM;
+			turretName = "Swarm";
 			
 			abilityDescription 	= "Missile Swarm";
 		}

@@ -12,6 +12,7 @@
 			addChild(gun);
 			
 			type = Turret.TURRET_LAUNCHER;
+			turretName = "Launcher";
 			
 			abilityDescription 	= "Splash Damage";
 		}
