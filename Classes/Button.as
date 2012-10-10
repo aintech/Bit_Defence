@@ -19,7 +19,7 @@
 		private var field:TextField;
 		private var format:TextFormat;
 		private var outFilter:GlowFilter = new GlowFilter(0x0000FF);
-		private var overFilter:GlowFilter = new GlowFilter(0x0000FF, 1, 20, 20);
+		private var overFilter:GlowFilter = new GlowFilter(0x0000FF, 1, 10, 10, 2, 2);
 		private var bg:Sprite;
 		private var border:Sprite;
 		private var btnWidth:int = 200;

@@ -24,7 +24,6 @@
 
 //BALANCE: разные типы врагов устойчивые к разным турелям заставять игрока применять разные тактики
 
-//FIX: иногда пропадает rangeCircle
 //FIX: если срабатывает спецтехника, вроде переноса турели, и при этом заканчивается гаудж, остальные техники все равно загораются синим, хоть и не работают(если применена спецтехника переноса туррели)
 package 
 {
@@ -108,7 +107,6 @@ package
 		public var gameHeight:int;
 		
 		public var rangeCircle:Shape;
-		//public var baseRangeCircle:Boolean = false;
 		
 		public var gameTimer:Timer;
 		
@@ -145,7 +143,6 @@ package
 		public var specialToolsGaugeArray:Array		= [];
 		public var availableActionFlagsArray:Array	= [];
 		public var specialToolsCooldownsArray:Array	= [];
-		private var piecesArray:Vector.<RangePiece> = new Vector.<RangePiece>();
 		
 		public var mapCols:int = 15;
 		public var mapRows:int = 9;
@@ -156,7 +153,8 @@ package
 		public var gameOver:Boolean = false;
 		public var gamePaused:Boolean = false;
 		
-		public var optionsGearBtn:SimpleButton;
+		//public var optionsGearBtn:SimpleButton;
+		public var optionsBtn:Button;
 		
 		public var specialToolsGauge:int = Variables.SPECIAL_TOOL_GAUGE;
 		public var addingMarker:Boolean = false;
@@ -425,17 +423,13 @@ package
 			infoScreen.startLevelBtn.buttonMode = true;
 			infoScreen.startLevelBtn.mouseChildren = false;
 						
-			optionsGearBtn = new OptionsGear();
-			userInterface.addChild(optionsGearBtn);
-			optionsGearBtn.x = userInterface.width - optionsGearBtn.width - 10;
-			optionsGearBtn.y = -optionsGearBtn.height - 10;
-			optionsGearBtn.addEventListener(MouseEvent.CLICK, showOptions, false, 0, true);
+			optionsBtn = new Button("OPTIONS", true);
+			userInterface.addChild(optionsBtn);
+			optionsBtn.x = Main.STAGE_WIDTH - optionsBtn.width - optionsBtn.offset;
+			optionsBtn.y = -Main.STAGE_HEIGHT + optionsBtn.offset;
+			optionsBtn.addEventListener(MouseEvent.CLICK, showOptions, false, 0, true);
 			
-			for(var p:int = 0; p < 360; p++)
-			{
-				var piece:RangePiece = new RangePiece();
-				piecesArray.push(piece);
-			}
+			rangeCircle = new Shape();
 		}
 		
 		public function startLevel(e:MouseEvent):void
@@ -559,8 +553,6 @@ package
 					block = new PlaceMarker();
 					block.x = (i - row * cols) * block.width;
 					block.y = row * block.height;
-					//block.addEventListener(MouseEvent.MOUSE_OVER, showRange, false, 0, true);
-					//block.addEventListener(MouseEvent.MOUSE_OUT, hideRange, false, 0, true);
 					block.addEventListener(MouseEvent.CLICK, clickMarker, false, 0, true);
 					markerArray.push(block);
 					markerHolder.addChild(block);
@@ -700,6 +692,7 @@ package
 			if(dropArray.length > 0) 														checkDrop();
 			if(placingFalseTarget) 															checkRoadForFalseTarget();
 			showInfoScreen();
+			if(dragging)																	checkDrag();
 		}
 		
 		private function showInfo(e:MouseEvent = null):void
@@ -723,6 +716,16 @@ package
 				infoScreen.txtRange.text 			= infoScreen.target.range;
 				infoScreen.txtReloadTime.text 		= String(Number(infoScreen.target.reloadTime * .05).toFixed(2));
 				if(infoScreen.target.type == Turret.TURRET_SWARM) infoScreen.txtDamage.appendText("x" + infoScreen.target.numMissiles);
+			}
+			else if(infoScreen.target is UpgradeCharBtn)
+			{
+				infoScreen.gotoAndStop("turret");
+				infoScreen.txtName.text				= String(charMenu.target.turretName)
+				infoScreen.txtLevelOrCost.text 		= "$: " + (charMenu.target.memoryUse + charMenu.target.upgradeCost);
+				infoScreen.txtDamage.text			= String(charMenu.target.damage + charMenu.target.additionalDamage);
+				infoScreen.txtRange.text 			= String(charMenu.target.range + charMenu.target.additionalRange);
+				infoScreen.txtReloadTime.text 		= String(Number((charMenu.target.reloadTime - charMenu.target.additionalReloadTime) * .05).toFixed(2));
+				if(charMenu.target.type == Turret.TURRET_SWARM) infoScreen.txtDamage.appendText("x" + (charMenu.target.numMissiles + charMenu.target.additionalMissiles));
 			}
 			else if(infoScreen.target is CharIcon)
 			{
@@ -1002,19 +1005,19 @@ package
 					break;
 					
 					case 4:
-						enemy = new Enemy_Protector();
-						if(!Variables.INTRODUCE_PROTECTOR) introduce(IntroduceScreen.PROTECTOR);
-					break;
-					
-					case 5:
 						enemy = new Enemy_Neirobot();
 						if(!Variables.INTRODUCE_NEIROBOT) introduce(IntroduceScreen.NEIROBOT);
 						Variables.NUM_NEIROBOTS++;
 					break;
 					
-					case 6:
+					case 5:
 						enemy = new Enemy_Runner();
 						if(!Variables.INTRODUCE_RUNNER) introduce(IntroduceScreen.RUNNER);
+					break;
+					
+					case 6:
+						enemy = new Enemy_Protector();
+						if(!Variables.INTRODUCE_PROTECTOR) introduce(IntroduceScreen.PROTECTOR);
 					break;
 					
 					case 7:
@@ -1061,6 +1064,7 @@ package
 						break;
 					}
 					enemy.updateDirection(Enemy.STARTING_DIRECTION);
+					enemy.level = currentLevel;
 					enemy.updateLevel();
 					currentEnemy++;
 					enemyTime = 0;
@@ -1135,18 +1139,12 @@ package
 				charMenu = null;
 			}
 			
-			for each(var piece:RangePiece in piecesArray)
-			{
-				piece.x = -100;
-				piece.y = -100;
-				piece.scaleX = piece.scaleY = 1;
-				piece.visible = false;
-			}
+			hideRange();
 			
 			infoScreen.target = null;
 			infoScreen.previusTarget = null;
 		}
-				
+		
 		private function checkEnemies():void
 		{
 			for(var i:int = enemyArray.length; --i >= 0;)
@@ -1542,14 +1540,27 @@ package
 					dragCharIcon.startDrag();
 					dragging = true;
 				}
-				//else trace("not enought memory");
 				stage.addEventListener(MouseEvent.MOUSE_UP, dropIcon, false, 0, true);
+			}
+		}
+		
+		private function checkDrag():void
+		{
+			for each(var marker:PlaceMarker in markerArray)
+			{
+				if(dragCharIcon.hitPoint.hitTestObject(marker))
+				{
+					drawRange(marker.x + marker.width * .5, marker.y + marker.height * .5, dragCharIcon.range);
+					return;
+				}
+				else hideRange();
 			}
 		}
 		
 		private function dropIcon(e:MouseEvent):void
 		{
 			dragging = false
+			hideRange();
 			if(dragCharIcon)
 			{
 				for each(var marker:PlaceMarker in markerArray)
@@ -1577,33 +1588,11 @@ package
 			}
 		}
 		
-		/*private function showRange(e:MouseEvent):void
+		private function showRange(e:MouseEvent):void
 		{
 			var marker:Object = e.currentTarget;
-			if(dragging && dragCharIcon && marker.free)
-			{
-				var range:int = dragCharIcon.range;
-				rangeCircle = new Shape();
-				rangeCircle.graphics.beginFill(0x33FFFF, .2);
-				rangeCircle.graphics.drawCircle(0, 0, range);
-				rangeCircle.graphics.endFill();
-				rangeCircle.x = marker.x + marker.width * .5;
-				rangeCircle.y = marker.y + marker.height * .5;
-				baseRangeCircle = true;
-				addChild(rangeCircle);
-			}
-		}*/
-		
-		/*private function hideRange(e:MouseEvent):void
-		{
-			if(rangeCircle && baseRangeCircle) 
-			{
-				rangeCircle.graphics.clear();
-				removeChild(rangeCircle);
-				rangeCircle = null;
-				baseRangeCircle = false;
-			}
-		}*/
+			if(dragging && dragCharIcon && marker.free) drawRange(marker.x + marker.width * .5, marker.y + marker.height * .5, dragCharIcon.range);
+		}
 		
 		private function showBuyTurretInfo(e:MouseEvent):void
 		{
@@ -1670,13 +1659,7 @@ package
 				if(turretChar.charType == e.currentTarget.name) confirmTurretCircle.turretRange = turretChar.range;
 			}
 			
-			/*rangeCircle = new Shape();
-			rangeCircle.graphics.beginFill(0x00FF00, .3);
-			rangeCircle.graphics.drawCircle(0, 0, confirmTurretCircle.turretRange);
-			rangeCircle.graphics.endFill();
-			rangeCircle.x = confirmTurretCircle.x;
-			rangeCircle.y = confirmTurretCircle.y;
-			addChild(rangeCircle);*/
+			drawRange(confirmTurretCircle.x, confirmTurretCircle.y, confirmTurretCircle.turretRange);
 			
 			if(chooseTurretCircle)
 			{				
@@ -1753,12 +1736,7 @@ package
 			chooseTurretCircle.y = e.currentTarget.parent.y;
 			turretHolder.addChild(chooseTurretCircle);
 			
-			/*if(rangeCircle)
-			{
-				rangeCircle.graphics.clear();
-				removeChild(rangeCircle);
-				rangeCircle = null;
-			}*/
+			hideRange();
 		}
 		
 		private function startInstallTurret(turretType:String, turLevel:int, xVal:int, yVal:int):void
@@ -1917,6 +1895,16 @@ package
 					{
 						if(memoryTotal >= (charIcon.memoryUse + memoryUsed)) setTurretCharStatus(true, charIcon);
 					}
+					if(charMenu)
+					{
+						if((charMenu.target.level < charMenu.target.maxLevel) && (memoryTotal >= memoryUsed + charMenu.target.upgradeCost))
+						{
+							charMenu.upgradeBtn.addEventListener(MouseEvent.CLICK, startUpgradeTurret, false, 0, true);
+							charMenu.upgradeBtn.addEventListener(MouseEvent.MOUSE_OVER, showTurretUP, false, 0, true);
+							charMenu.upgradeBtn.addEventListener(MouseEvent.MOUSE_OUT, hideTurretUP, false, 0, true);
+							charMenu.enableUpgrade();
+						}
+					}
 				}
 				turretHolder.removeChild(relocationTurretClip);
 				relocationTurretClip = null;
@@ -1971,6 +1959,16 @@ package
 						for each(var charIcon:CharIcon in charIconsArray)
 						{
 							if(memoryTotal >= (charIcon.memoryUse + memoryUsed)) setTurretCharStatus(true, charIcon);
+						}
+						if(charMenu)
+						{
+							if((charMenu.target.level < charMenu.target.maxLevel) && (memoryTotal >= memoryUsed + charMenu.target.upgradeCost))
+							{
+								charMenu.upgradeBtn.addEventListener(MouseEvent.CLICK, startUpgradeTurret, false, 0, true);
+								charMenu.upgradeBtn.addEventListener(MouseEvent.MOUSE_OVER, showTurretUP, false, 0, true);
+								charMenu.upgradeBtn.addEventListener(MouseEvent.MOUSE_OUT, hideTurretUP, false, 0, true);
+								charMenu.enableUpgrade();
+							}
 						}
 					}
 					if(turret.isRelocating) turret.isRelocating = false;
@@ -2029,27 +2027,26 @@ package
 				charMenu.x = target.x;
 				charMenu.y = target.y;
 				charMenu.target = target;
-				charMenu.txtSellCost.text = target.memoryUse;
-				charMenu.txtUpgradeCost.text = target.upgradeCost;
+				charMenu.sellBtn.txtSellCost.text = target.memoryUse;
+				charMenu.upgradeBtn.txtUpgradeCost.text = target.upgradeCost;
 			
+				charMenu.upgradeBtn.addEventListener(MouseEvent.MOUSE_OVER, showTurretUP, false, 0, true);
+				charMenu.upgradeBtn.addEventListener(MouseEvent.MOUSE_OUT, hideTurretUP, false, 0, true);
+				
 				if((target.level < target.maxLevel) && (memoryTotal >= memoryUsed + target.upgradeCost))
 				{
 					charMenu.upgradeBtn.addEventListener(MouseEvent.CLICK, startUpgradeTurret, false, 0, true);
-					charMenu.upgradeBtn.addEventListener(MouseEvent.MOUSE_OVER, showTurretUP, false, 0, true);
-					charMenu.upgradeBtn.addEventListener(MouseEvent.MOUSE_OUT, hideTurretUP, false, 0, true);
+					charMenu.enableUpgrade();
 				}
 				else if(target.level == target.maxLevel)
 				{
 					charMenu.upgradeBtn.visible = false;
 					charMenu.upgradeBtn.mouseEnabled = false;
-					charMenu.txtUpgradeCost.text = "";
+					charMenu.upgradeBtn.txtUpgradeCost.text = "";
+					charMenu.upgradeBtn.removeEventListener(MouseEvent.MOUSE_OVER, showTurretUP);
+					charMenu.upgradeBtn.removeEventListener(MouseEvent.MOUSE_OUT, hideTurretUP);
+					charMenu
 				}
-				else if(memoryTotal < memoryUsed + target.upgradeCost)
-				{
-					charMenu.upgradeBtn.filters = [new ColorMatrixFilter(Variables.GRAY_MATRIX)];
-					charMenu.upgradeBtn.mouseEnabled = false;
-				}
-			
 				charMenu.sellBtn.addEventListener(MouseEvent.CLICK, startUninstallTurret, false, 0, true);
 				turretHolder.addChild(charMenu);
 				
@@ -2062,22 +2059,7 @@ package
 		private function showTurretUP(e:MouseEvent):void
 		{
 			var target:Turret = charMenu.target;
-			if(target.additionalDamage != 0)
-			{
-				//infoScreen.txtDamage.textColor = 0xFFFF00;
-				//infoScreen.txtDamage.text = String(target.damage + target.additionalDamage);
-				//if(target is SwarmTurret) infoScreen.txtDamage.appendText("x" + (target.numMissiles + target.additionalMissiles));
-			}
-			if(target.additionalRange != 0)
-			{
-				//infoScreen.txtRange.textColor = 0xFFFF00;
-				//infoScreen.txtRange.text = String(target.range + target.additionalRange);
-			}
-			if(target.additionalReloadTime != 0)
-			{
-				//infoScreen.txtReloadTime.textColor = 0xFFFF00;
-				//infoScreen.txtReloadTime.text = String(Number((target.reloadTime - target.additionalReloadTime) * .05).toFixed(2));
-			}
+			infoScreen.target = e.currentTarget;
 			if((target.range + target.additionalRange) > target.range)
 			{
 				var diametr:int = target.range + target.additionalRange;
@@ -2088,31 +2070,12 @@ package
 		
 		private function hideTurretUP(e:MouseEvent):void
 		{
-			/*if(infoScreen)
+			if(charMenu)
 			{
-				var target:Turret = charMenu.target;
-				infoScreen.txtDamage.text 			= String(target.damage);
-				infoScreen.txtRange.text 			= String(target.range);
-				infoScreen.txtReloadTime.text 		= String(Number(target.reloadTime * .05).toFixed(2));
-				if(target is SwarmTurret) infoScreen.txtDamage.appendText("x" + target.numMissiles);
-				infoScreen.txtDamage.textColor 		= 0xFFFFFF;
-				infoScreen.txtRange.textColor 		= 0xFFFFFF;
-				infoScreen.txtReloadTime.textColor 	= 0xFFFFFF;
-				target.graphics.clear();
-			}*/
+				charMenu.target.graphics.clear();
+				infoScreen.target = charMenu.target;
+			}
 		}
-		
-		/*private function showTurretRange(range:int, xVal:int, yVal:int):void
-		{
-			if(!rangeCircle) rangeCircle = new Shape();
-			rangeCircle.graphics.clear();
-			rangeCircle.graphics.beginFill(0x33FFFF, .2);
-			rangeCircle.graphics.drawCircle(0, 0, range);
-			rangeCircle.graphics.endFill();
-			rangeCircle.x = xVal;
-			rangeCircle.y = yVal;
-			addChild(rangeCircle);
-		}*/
 				
 		private function checkTurrets():void
 		{
@@ -2695,6 +2658,16 @@ package
 					{
 						if(memoryTotal >= (charIcon.memoryUse + memoryUsed)) setTurretCharStatus(true, charIcon);
 					}
+					if(charMenu)
+					{
+						if((charMenu.target.level < charMenu.target.maxLevel) && (memoryTotal >= memoryUsed + charMenu.target.upgradeCost))
+						{
+							charMenu.upgradeBtn.addEventListener(MouseEvent.CLICK, startUpgradeTurret, false, 0, true);
+							charMenu.upgradeBtn.addEventListener(MouseEvent.MOUSE_OVER, showTurretUP, false, 0, true);
+							charMenu.upgradeBtn.addEventListener(MouseEvent.MOUSE_OUT, hideTurretUP, false, 0, true);
+							charMenu.enableUpgrade();
+						}
+					}
 				break;
 				
 				case Drop.DROP_PROTECT:
@@ -2772,6 +2745,23 @@ package
 		
 		private function checkForNextWave():void
 		{
+			CONTINIUM - поставилось три апгреженых до 3 пушки, хотя денег не хватало, если наведено на апгрейд пушки и под мышкой инсталящаяся пушка - новый радиус не пропадает,
+			проверить - если hitPoint чара задевает сразу два маркера, что происходит?
+			trace(Enemy.STARTING_DIRECTION);
+			switch(Enemy.STARTING_DIRECTION)
+			{
+				case Enemy.DIR_RIGHT:
+				break;
+				
+				case Enemy.DIR_LEFT:
+				break;
+				
+				case Enemy.DIR_UP:
+				break;
+				
+				case Enemy.DIR_DOWN:
+				break;
+			}
 			startWaveBtn = new StartWaveBtn();
 			startWaveBtn.x = roadStart.x + 50;
 			startWaveBtn.y = roadStart.y - userInterface.height - startWaveBtn.height;
@@ -2779,12 +2769,12 @@ package
 			startWaveBtn.timeCounter.mouseEnabled = false;
 			startWaveBtn.addEventListener(MouseEvent.CLICK, onClickNextWave, false, 0, true);
 			startWaveBtn.timeCounter.text = Variables.WAVE_DELAY;
-			userInterface.addChild(startWaveBtn);
+			addChild(startWaveBtn);
 			
 			startWaveBtnArrow = new StartWaveBtnArrow();
 			startWaveBtnArrow.x = startWaveBtn.x - startWaveBtn.width + 5;
 			startWaveBtnArrow.y = startWaveBtn.y;
-			userInterface.addChild(startWaveBtnArrow);
+			addChild(startWaveBtnArrow);
 		
 			waveTimerInAction = true;
 			nextWaveTimer.start();
@@ -2804,10 +2794,10 @@ package
 			waveTimerInAction = false;
 			
 			startWaveBtn.removeEventListener(MouseEvent.CLICK, onClickNextWave);
-			userInterface.removeChild(startWaveBtn);
+			removeChild(startWaveBtn);
 			startWaveBtn = null;
 			
-			userInterface.removeChild(startWaveBtnArrow);
+			removeChild(startWaveBtnArrow);
 			startWaveBtnArrow = null;
 			
 			currentWave++;
@@ -2823,10 +2813,10 @@ package
 			waveTimerInAction = false;
 			
 			startWaveBtn.removeEventListener(MouseEvent.CLICK, onClickNextWave);
-			userInterface.removeChild(startWaveBtn);
+			removeChild(startWaveBtn);
 			startWaveBtn = null;
 			
-			userInterface.removeChild(startWaveBtnArrow);
+			removeChild(startWaveBtnArrow);
 			startWaveBtnArrow = null;
 			
 			currentWave++;
@@ -3451,19 +3441,19 @@ package
 		
 		private function drawRange(xVal:int, yVal:int, radius:int):void
 		{
-			var piece:RangePiece;
-			var rad:Number;
-			for(var i = 0; i < piecesArray.length; i++)
-			{
-				piece = piecesArray[i];
-				rad = i /180 * Math.PI;
-				piece.x = xVal + Math.cos(rad) * radius;
-				piece.y = yVal + Math.sin(rad) * radius;
-				piece.height *= radius * .01;
-				piece.rotation = i;
-				piece.visible = true;
-				turretHolder.addChild(piece);
-			}CONTINIUM - доработать range
+			var g:Graphics = rangeCircle.graphics;
+			g.clear();
+			g.beginFill(0x00FF00, .2);
+			g.drawCircle(0, 0, radius);
+			g.endFill();
+			rangeCircle.x = xVal;
+			rangeCircle.y = yVal;
+			turretHolder.addChild(rangeCircle);
+		}
+		
+		private function hideRange(e:MouseEvent = null):void
+		{
+			rangeCircle.graphics.clear();
 		}
 		
 		private function removeObject(index:int, group:Array):void

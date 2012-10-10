@@ -30,7 +30,6 @@
 		public var graphPoint:GraphicPoint;
 		public var tileNumPoint:MovieClip;
 		
-		protected var levelColors:Array = [NaN, 0x0000FF, 0xFF0000, 0x000000];
 		protected var glowFilter:GlowFilter;
 		protected var blurFilter:BlurFilter;
 		public var levelColor:uint;
@@ -120,6 +119,7 @@
 		
 		protected function init():void
 		{
+			levelColor = LevelData.levelColors(level);
 			lifeBar = new LifeBar();
 			addChild(lifeBar);
 			lifeBar.gotoAndStop(lifeBar.totalFrames);
@@ -278,7 +278,7 @@
 		
 		public function updateLevel():void
 		{
-			glowFilter = new GlowFilter(levelColors[level]);
+			glowFilter = new GlowFilter(levelColor);
 			blurFilter = new BlurFilter(2, 2);
 		}
 	}

@@ -170,7 +170,7 @@
 		
 		public static function setToDefault():void
 		{
-			SYMBOLS					= 5000;
+			SYMBOLS					= 10000;
 			SYMBOLS_DROP_CHANCE		= 15;
 			MEMORY_DROP_CHANCE		= 10;
 			PROTECT_DROP_CHANCE		= 15;

@@ -4,6 +4,7 @@
 	import flash.filters.GlowFilter;
 	import flash.display.Shape;
 	import flash.events.MouseEvent;
+	import flash.events.Event;
 
 	public class CharIcon extends MovieClip
 	{
@@ -35,6 +36,13 @@
 			border.graphics.lineTo(0, 0);
 			addChild(border);
 			border.visible = false;
+			
+			addEventListener(Event.ADDED_TO_STAGE, onAdd, false, 0, true);
+		}
+		
+		private function onAdd(e:Event):void
+		{
+			hitPoint.visible = false;
 		}
 		
 		private function onOver(e:MouseEvent):void

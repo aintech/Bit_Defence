@@ -36,12 +36,12 @@
 				levelMapArray = [
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, R, P, P, D, G, G, G, G, G, G, G,
-								 G, G, G, G, P, G, M, P, G, G, G, G, G, G, G,
-								 G, G, G, M, P, M, G, P, G, G, G, M, G, G, M,
-								 S, P, P, P, U, G, G, P, G, G, G, R, P, P, F,
-								 G, G, M, G, G, G, M, P, M, G, M, P, M, G, G,
-								 G, G, G, G, G, G, G, R, P, P, P, U, G, G, G,
+								 G, R, P, P, P, P, D, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, M, P, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, G, P, G, G, G, M, G, G, M, G,
+								 G, U, P, L, G, G, P, G, G, G, R, P, P, P, F,
+								 G, G, M, P, G, M, P, M, G, M, P, M, G, G, G,
+								 S, P, P, U, G, G, R, P, P, P, U, G, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 ];
 				break;
@@ -50,28 +50,116 @@
 				levelMapArray = [
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, R, P, P, D, G, G, G, G, G, G, G,
-								 G, G, G, G, P, G, M, P, G, G, G, G, G, G, G,
-								 G, G, G, M, P, M, G, P, G, G, G, M, G, G, M,
-								 S, P, P, P, U, G, G, P, G, G, G, R, P, P, F,
-								 G, G, M, G, G, G, M, P, M, G, M, P, M, G, G,
-								 G, G, G, G, G, G, G, R, P, P, P, U, G, G, G,
+								 G, R, P, P, P, P, D, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, M, P, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, G, P, G, G, G, M, G, G, M, G,
+								 G, U, P, L, G, G, P, G, G, G, R, P, P, P, F,
+								 G, G, M, P, G, M, P, M, G, M, P, M, G, G, G,
+								 S, P, P, U, G, G, R, P, P, P, U, G, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 ];
 				break;		
 				
-				default:
+				case 4:
 				levelMapArray = [
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
-								 G, G, G, G, R, P, P, D, G, G, G, G, G, G, G,
-								 G, G, G, G, P, G, M, P, G, G, G, G, G, G, G,
-								 G, G, G, M, P, M, G, P, G, G, G, M, G, G, M,
-								 S, P, P, P, U, G, G, P, G, G, G, R, P, P, F,
-								 G, G, M, G, G, G, M, P, M, G, M, P, M, G, G,
-								 G, G, G, G, G, G, G, R, P, P, P, U, G, G, G,
+								 G, R, P, P, P, P, D, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, M, P, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, G, P, G, G, G, M, G, G, M, G,
+								 G, U, P, L, G, G, P, G, G, G, R, P, P, P, F,
+								 G, G, M, P, G, M, P, M, G, M, P, M, G, G, G,
+								 S, P, P, U, G, G, R, P, P, P, U, G, G, G, G,
 								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
 								 ];
+				break;
+				
+				case 5:
+				levelMapArray = [
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, R, P, P, P, P, D, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, M, P, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, G, P, G, G, G, M, G, G, M, G,
+								 G, U, P, L, G, G, P, G, G, G, R, P, P, P, F,
+								 G, G, M, P, G, M, P, M, G, M, P, M, G, G, G,
+								 S, P, P, U, G, G, R, P, P, P, U, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 ];
+				break;
+				
+				case 6:
+				levelMapArray = [
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, R, P, P, P, P, D, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, M, P, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, G, P, G, G, G, M, G, G, M, G,
+								 G, U, P, L, G, G, P, G, G, G, R, P, P, P, F,
+								 G, G, M, P, G, M, P, M, G, M, P, M, G, G, G,
+								 S, P, P, U, G, G, R, P, P, P, U, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 ];
+				break;		
+				
+				case 7:
+				levelMapArray = [
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, R, P, P, P, P, D, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, M, P, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, G, P, G, G, G, M, G, G, M, G,
+								 G, U, P, L, G, G, P, G, G, G, R, P, P, P, F,
+								 G, G, M, P, G, M, P, M, G, M, P, M, G, G, G,
+								 S, P, P, U, G, G, R, P, P, P, U, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 ];
+				break;		
+				
+				case 8:
+				levelMapArray = [
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, R, P, P, P, P, D, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, M, P, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, G, P, G, G, G, M, G, G, M, G,
+								 G, U, P, L, G, G, P, G, G, G, R, P, P, P, F,
+								 G, G, M, P, G, M, P, M, G, M, P, M, G, G, G,
+								 S, P, P, U, G, G, R, P, P, P, U, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 ];
+				break;		
+				
+				case 9:
+				levelMapArray = [
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, R, P, P, P, P, D, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, M, P, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, G, P, G, G, G, M, G, G, M, G,
+								 G, U, P, L, G, G, P, G, G, G, R, P, P, P, F,
+								 G, G, M, P, G, M, P, M, G, M, P, M, G, G, G,
+								 S, P, P, U, G, G, R, P, P, P, U, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 ];
+				break;		
+				
+				case 10:
+				levelMapArray = [
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 G, R, P, P, P, P, D, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, M, P, G, G, G, G, G, G, G, G,
+								 G, P, M, G, G, G, P, G, G, G, M, G, G, M, G,
+								 G, U, P, L, G, G, P, G, G, G, R, P, P, P, F,
+								 G, G, M, P, G, M, P, M, G, M, P, M, G, G, G,
+								 S, P, P, U, G, G, R, P, P, P, U, G, G, G, G,
+								 G, G, G, G, G, G, G, G, G, G, G, G, G, G, G,
+								 ];
+				break;
+				
+				default:
+					trace("wrong level in LevelData, map" + level);
 				break;
 			}
 			return levelMapArray;
@@ -82,9 +170,9 @@
 			// 1 - Speeder
 			// 2 - Worm
 			// 3 - Recoder
-			// 4 - Protector
-			// 5 - Neirobot
-			// 6 - Runner
+			// 4 - Neirobot
+			// 5 - Runner
+			// 6 - Protector
 			// 7 - Cycler
 			// 8 - Emmiter (Emmiter creates Bugs enemies, so here no number for Bug)
 			
@@ -93,36 +181,106 @@
 			{
 				case 1:
 				levelEnemyWaves = [
-									[6, 4, 2, 3, 8, 6, 4],
-								   	[1, 2],
-								   	[1, 2, 1, 2, 1, 1], 
-								   	[1, 1, 1, 2, 1, 1, 2, 1],
-								   	[1, 1, 1, 1, 1, 1, 1, 1]
+									[1, 1, 1, 1, 1, 1, 1, 1],
+								   	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+								   	[1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], 
+								   	[1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1],
+								   	[1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2]
 								  	];
 				break;
 				
 				case 2:
 				levelEnemyWaves = [
-								   	[1, 1, 1, 1], 
-								   	[1, 1, 1, 1, 1, 1],
-								   	[1, 1, 1, 1, 1, 1, 1, 1]
+								   	[1, 3, 1, 1, 1, 3, 1, 1], 
+								   	[1, 1, 2, 1, 1, 3, 2, 1, 1, 1, 1, 3, 2, 1, 1, 2, 1, 1, 1],
+								   	[1, 3, 1, 1, 2, 1, 2, 3, 1, 2, 1, 3, 1, 2, 1, 2, 1, 1, 3, 1, 1, 1],
+									[1, 1, 1, 3, 2, 2, 3, 1, 1, 1, 1, 1, 1, 3, 2, 3, 3, 2, 1, 1, 1, 1, 1, 2, 3, 2],
+									[2, 1, 1, 1, 3, 2, 3, 1, 1, 1, 1, 2, 2, 3, 3, 1, 1, 1, 2, 1, 3, 2, 1, 1, 2, 3]
 								   	];
 				break;
 				
 				case 3:
 				levelEnemyWaves = [
-								   	[1, 1, 1, 1], 
-								   	[1, 1, 1, 1, 1, 1],
-								   	[1, 1, 1, 1, 1, 1, 1, 1]
+								   	[1, 3, 2, 1, 1, 4, 2, 1, 4, 3, 1, 1, 1], 
+								   	[1, 2, 2, 3, 4, 4, 4, 2, 1, 1, 3, 2, 1, 1, 1, 1, 2, 3, 1, 1],
+								   	[1, 3, 3, 2, 1, 3, 4, 3, 2, 4, 4, 2, 3, 4, 2, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 1, 1, 1],
+									[2, 3, 2, 2, 1, 1, 1, 1, 4, 4, 2, 3, 2, 2, 3, 1, 1, 1, 1, 1, 1, 2, 3, 3, 4, 4, 4, 1, 1, 1, 1, 2, 2, 3],
+									[1, 1, 1, 4, 4, 4, 4, 4, 2, 2, 2, 3, 3, 3, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 2, 2, 4, 4, 4, 4, 3, 3]
 								   	];
 				break;
 				
-				default:
+				case 4:
 				levelEnemyWaves = [
-								   	[1, 1, 1, 1], 
-								   	[1, 1, 1, 1, 1, 1],
-								   	[1, 1, 1, 1, 1, 1, 1, 1]
-								   	];
+								   [1, 1, 1, 3, 3, 2, 1, 1, 1, 1, 5, 5, 5, 5, 2, 3],
+								   [1, 1, 5, 5, 5, 1, 1, 3, 3, 3, 2, 2, 5, 5, 1, 1, 1, 1, 1, 3, 3, 2, 2, 3, 4, 4, 4, 4],
+								   [1, 1, 1, 2, 2, 2, 5, 5, 5, 5, 5, 2, 3, 3, 4, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 5, 5, 5, 5],
+								   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2, 1, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 4, 1, 5, 1, 5, 1, 5],
+								   [2, 2, 3, 3, 4, 4, 4, 4, 1, 1, 1, 5, 5, 5, 1, 1, 1, 1, 4, 4, 4, 4, 5, 5, 5, 5, 5, 3, 3, 5, 5, 3, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1]
+								   ];
+				break;
+				
+				case 5:
+				levelEnemyWaves = [
+								   [1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 3, 3, 2, 2, 2, 2],
+								   [1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 2, 2, 2, 2, 4, 4, 4, 4, 1, 1, 1, 1, 3, 3, 3, 2, 2, 2, 2],
+								   [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2],
+								   [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 3, 3, 4, 4, 4],
+								   [5, 5, 5, 5, 5, 5, 5, 5, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 2, 2, 2, 2, 3, 3, 4, 4, 4, 4, 4, 4]
+								   ];
+				break;
+				
+				case 6:
+				levelEnemyWaves = [
+								   [5, 5, 5, 5, 5, 5, 5, 6, 6, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5],
+								   [1, 1, 1, 1, 6, 6, 1, 1, 1, 1, 6, 6, 5, 5, 5, 5, 5, 6, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 6, 6, 6, 1, 1, 1, 1, 1, 1, 1],
+								   [2, 2, 2, 3, 3, 6, 6, 6, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 4, 4, 4, 4, 4, 4, 5, 5, 2, 2, 2, 2, 5, 5, 5, 6, 6, 6],
+								   [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 5, 5, 5, 5, 5, 6, 6, 6, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 6, 6],
+								   [5, 5, 5, 6, 6, 6, 6, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 4, 4, 4, 1, 1, 1, 1, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 6, 6, 6, 6, 6]
+								   ];
+				break;
+				
+				case 7:
+				levelEnemyWaves = [
+								   [5, 5, 5, 5, 5, 2, 2, 2, 3, 3, 3, 3, 6, 6, 6, 7, 7, 7, 7, 1, 1, 1, 1, 1, 1],
+								   [1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 4, 4, 4, 4, 4, 4, 7, 7, 7, 7, 7, 3, 3, 3, 2, 2, 2, 2, 3, 3, 2],
+								   [5, 5, 5, 5, 5, 3, 3, 5, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 6, 6, 6, 3, 3, 3],
+								   [2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 7, 7, 7, 7, 7, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1],
+								   [7, 7, 7, 7, 6, 6, 6, 6, 3, 3, 3, 3, 2, 2, 2, 2, 3, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6]
+								   ];
+				break;
+				
+				case 8:
+				levelEnemyWaves = [
+								   [1, 1, 1, 1, 1, ,1 ,1, 1, 3, 3, 3, 3, 2, 2, 2, 2, 8, 7, 7, 7, 7, 5, 5, 5, 5],
+								   [5, 5, 5, 5, 5, 6, 6, 6, 8, 7, 7, 7, 7, 7, 4, 4, 4, 4, 4, 4, 8, 5, 5, 5, 5, 5, 1, 6, 6, 6, 1, 1, 1, 1, 1, 1],
+								   [1, 1, 1, 1, 1, 1, 1, 8, 7, 7, 7, 6, 6, 6, 3, 3, 3, 8, 3, 3, 7, 7, 6, 6, 6, 6, 2, 2, 2, 2, 2, 2, 3, 3, 3, 1, 1, 1, 5, 5, 5, 5, 5],
+								   [5, 5, 5, 5, 7, 7, 7, 7,  8, 6, 6, 6, 5, 5, 5, 5, 5, 3, 3, 3, 8, 7, 7, 7, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3],
+								   [7, 7, 7, 6, 6, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 8, 7, 7, 7, 7, 7, 8, 5, 5, 5, 5, 5, 5, 8, 6, 6, 6, 3, 3, 3, 7, 7, 7, 7, 7],
+								   ];
+				break;
+				
+				case 9:
+				levelEnemyWaves = [
+								   [5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 7, 4, 4, 4, 4, 4, 8, 3, 3, 3, 5, 5, 5, 5],
+								   [2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 8, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+								   [6, 6, 6, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 8, 7, 7, 7, 7, 8,  3, 3, 3, 3, 5, 5, 5, 5, 5, 3, 3, 3, 3],
+								   [5, 5, 5, 5, 5, 5, 8, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 6, 6, 6, 6, 6, 6, 6, 8, 5, 5, 5, 5, 5, 3, 3, 3, 6, 6, 6, 6, 6],
+								   [7, 7, 7, 7, 7, 5, 5, 5, 5, 8, 4, 4, 4, 4, 3, 3, 3, 8, 7, 7, 7, 7, 7, 4, 4, 4, 4 ,4, 4, 8, 5, 5, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 8],
+								   ];
+				break;
+				
+				case 10:
+				levelEnemyWaves = [
+								   [5, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7, 7, 8, 3, 3, 3, 8, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4],
+								   [6, 6, 6, 8, 7, 7 ,7, 7, 8, 6, 6, 6, 3, 3, 3, 3, 8, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 8, 5, 5, 5, 5, 5],
+								   [7, 7, 7, 7, 7, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 8, 5, 5, 8, 3, 3, 3, 8, 6, 6, 6, 3, 3, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 8, 6, 6, 6],
+								   [5, 5, 5, 5, 5, 5, 5, 5, 8, 6, 6, 6, 4, 4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 8, 7, 8],
+								   [8, 7, 7, 7, 5, 5, 8, 6, 6, 6, 3, 3, 8, 3, 3, 3, 8, 6, 6, 6, 6, 5, 5, 5, 5, 5, 8, 6, 6, 6, 3, 3, 3, 8, 3, 3, 6, 6, 8, 4, 4, 4, 8, 6, 8, 6, 6]
+								   ];
+				break;
+				
+				default:
+					trace("wrong level in LevelData, enemy" + level);
 				break;
 			}
 			
@@ -135,19 +293,29 @@
 			switch(level)
 			{
 				case 1:
-				openChars = [Turret.TURRET_GUN, Turret.TURRET_LAUNCHER, Turret.TURRET_SWARM, Turret.TURRET_FREEZE];
+					openChars = [Turret.TURRET_GUN];
 				break;
 				
 				case 2:
-				openChars = [Turret.TURRET_GUN, Turret.TURRET_LAUNCHER, Turret.TURRET_SWARM, Turret.TURRET_FREEZE];
+					openChars = [Turret.TURRET_GUN, Turret.TURRET_LAUNCHER];
 				break;
 				
 				case 3:
-				openChars = [Turret.TURRET_GUN, Turret.TURRET_LAUNCHER, Turret.TURRET_SWARM, Turret.TURRET_FREEZE];
+					openChars = [Turret.TURRET_GUN, Turret.TURRET_LAUNCHER, Turret.TURRET_SWARM];
+				break;
+				
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+				case 10:
+					openChars = [Turret.TURRET_GUN, Turret.TURRET_LAUNCHER, Turret.TURRET_SWARM, Turret.TURRET_FREEZE];
 				break;
 				
 				default:
-				openChars = [Turret.TURRET_GUN, Turret.TURRET_LAUNCHER, Turret.TURRET_SWARM, Turret.TURRET_FREEZE];
+					trace("wrong level in LevelData, chars" + level);
 				break;
 			}
 			return openChars;
@@ -159,19 +327,42 @@
 			switch(level)
 			{
 				case 1:
-					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET, SpecialTools.MINES];
+					openTools = [SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD];
 				break;
 				
 				case 2:
-					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET, SpecialTools.MINES];
+					openTools = [SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.SYS_DAMAGE_REDUCE];
 				break;
 				
 				case 3:
-					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET, SpecialTools.MINES];
+					openTools = [SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.SYS_DAMAGE_REDUCE];
+				break;
+				
+				case 4:
+					openTools = [SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.SYS_DAMAGE_REDUCE,  
+								 SpecialTools.MINES];
+				break;
+				
+				case 5:
+					openTools = [SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.SYS_DAMAGE_REDUCE, 
+								 SpecialTools.MINES, SpecialTools.ADDITIONAL_MARKER];
+				break;
+				
+				case 6:
+					openTools = [SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.SYS_DAMAGE_REDUCE, 
+								 SpecialTools.MINES, SpecialTools.ADDITIONAL_MARKER, SpecialTools.RELOCATE_TURRET];
+				break;
+				
+				case 7:
+				case 8:
+				case 9:
+				case 10:
+					openTools = [SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.SYS_DAMAGE_REDUCE, 
+								 SpecialTools.MINES, SpecialTools.ADDITIONAL_MARKER, SpecialTools.RELOCATE_TURRET, SpecialTools.FALSE_TARGET];
 				break;
 				
 				default:
-					openTools = [SpecialTools.SYS_DAMAGE_REDUCE, SpecialTools.FLOW_STOP, SpecialTools.FLOW_OVERLOAD, SpecialTools.RELOCATE_TURRET, SpecialTools.ADDITIONAL_MARKER, SpecialTools.FALSE_TARGET, SpecialTools.MINES];
+					trace("wrong level in LevelData, tools" + level);
 				break;
 			}
 			return openTools;
@@ -179,25 +370,7 @@
 		
 		public static function levelMemory(level:int):int
 		{
-			var memory:int;
-			switch(level)
-			{
-				case 1:
-					memory = 800;
-				break;
-				
-				case 2:
-					memory = 400;
-				break;
-				
-				case 3:
-					memory = 500;
-				break;
-				
-				default:
-					memory = 300;
-				break;
-			}
+			var memory:int = 200 + level * 50;
 			return memory;
 		}
 		

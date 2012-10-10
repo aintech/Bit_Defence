@@ -183,7 +183,7 @@
 				{
 					optionsScreen.resumeBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
 					optionsScreen.settingsBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
-					optionsScreen.mainMenuBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
+					optionsScreen.menuBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
 					optionsScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
 					removeChild(optionsScreen);
 					optionsScreen = null;
@@ -198,7 +198,7 @@
 					{
 						optionsScreen.resumeBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
 						optionsScreen.settingsBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
-						optionsScreen.mainMenuBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
+						optionsScreen.menuBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
 						optionsScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
 						removeChild(optionsScreen);
 						optionsScreen = null;
@@ -211,7 +211,7 @@
 						optionsScreen.resumeBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
 						optionsScreen.restartBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
 						optionsScreen.settingsBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
-						optionsScreen.mainMenuBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
+						optionsScreen.menuBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
 						optionsScreen.mapBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
 						optionsScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
 						removeChild(optionsScreen);
@@ -231,33 +231,32 @@
 		private function showOptions(e:CustomEvents):void
 		{
 			optionsScreen = new OptionsScreen();
+			addChild(optionsScreen);
 			optionsScreen.resumeBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
 			optionsScreen.settingsBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
-			optionsScreen.mainMenuBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
+			optionsScreen.menuBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
 			optionsScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
 			
 			if(playScreen)
 			{
 				playScreen.pauseGame();
 				if(playScreen.waveTimerInAction) playScreen.nextWaveTimer.stop();
-				playScreen.filters = [new BlurFilter()];
+				playScreen.filters = [new BlurFilter(10, 10)];
 				
+				optionsScreen.saveBtn.visible = false;
 				optionsScreen.restartBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
 				optionsScreen.mapBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
-				optionsScreen.saveBtn.visible = false;
-				addChild(optionsScreen);
 			}
 			else if(mapScreen)
 			{
-				mapScreen.filters = [new BlurFilter(5, 5)];
+				mapScreen.filters = [new BlurFilter(10, 10)];
 					
 				optionsScreen.restartBtn.visible = false;
+				optionsScreen.mapBtn.visible = false;
 				optionsScreen.saveBtn.addEventListener(MouseEvent.CLICK, onClickOptions, false, 0, true);
 				optionsScreen.saveBtn.y = optionsScreen.resumeBtn.y + optionsScreen.resumeBtn.height + 20;
 				optionsScreen.settingsBtn.y = optionsScreen.saveBtn.y + optionsScreen.saveBtn.height + 20;
-				optionsScreen.mainMenuBtn.y = optionsScreen.settingsBtn.y + optionsScreen.settingsBtn.height + 20;
-				optionsScreen.mapBtn.visible = false;
-				addChild(optionsScreen);
+				optionsScreen.menuBtn.y = optionsScreen.settingsBtn.y + optionsScreen.settingsBtn.height + 20;
 			}
 			stage.focus = optionsScreen;
 		}
@@ -269,12 +268,12 @@
 			if(optionsScreen.saveBtn.hasEventListener(MouseEvent.CLICK)) optionsScreen.saveBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
 			if(optionsScreen.mapBtn.hasEventListener(MouseEvent.CLICK)) optionsScreen.mapBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
 			optionsScreen.settingsBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
-			optionsScreen.mainMenuBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
+			optionsScreen.menuBtn.removeEventListener(MouseEvent.CLICK, onClickOptions);
 			optionsScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
 			removeChild(optionsScreen);
 			optionsScreen = null;
 			
-			switch(e.target.name)
+			switch(e.currentTarget.name)
 			{
 				case "resumeBtn":
 				if(playScreen)
@@ -334,7 +333,7 @@
 				addChild(mapScreen);
 				break;
 				
-				case "mainMenuBtn":
+				case "menuBtn":
 				if(playScreen)
 				{
 					playScreen.removeEventListener(CustomEvents.LEVEL_WIN, onLevelWin);

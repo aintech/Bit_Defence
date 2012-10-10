@@ -14,7 +14,7 @@
 		public var pressedUpgrades:Array = [];
 		
 		private var undoBtn:Button;
-		private var closeBtn:Button;
+		private var doneBtn:Button;
 		
 		
 		private const gun_III_descript:String					= "  you can upgrade your gun up to level 3";
@@ -61,16 +61,16 @@
 		
 		private function init():void
 		{
-			closeBtn = new Button("CLOSE");
-			closeBtn.scaleX = closeBtn.scaleY = .6;
-			closeBtn.x = Main.STAGE_WIDTH - closeBtn.width - closeBtn.offset;
-			closeBtn.y = closeBtn.offset;
-			closeBtn.addEventListener(MouseEvent.CLICK, closeUpgrades, false, 0, true);
-			addChild(closeBtn);
+			doneBtn = new Button("DONE");
+			doneBtn.scaleX = doneBtn.scaleY = .6;
+			doneBtn.x = Main.STAGE_WIDTH - doneBtn.width - doneBtn.offset;
+			doneBtn.y = doneBtn.offset;
+			doneBtn.addEventListener(MouseEvent.CLICK, closeUpgrades, false, 0, true);
+			addChild(doneBtn);
 			
 			undoBtn = new Button("UNDO");
 			undoBtn.scaleX = undoBtn.scaleY = .6;
-			undoBtn.x = closeBtn.x - undoBtn.width - undoBtn.offset;
+			undoBtn.x = doneBtn.x - undoBtn.width - undoBtn.offset;
 			undoBtn.y = undoBtn.offset;
 			undoBtn.addEventListener(MouseEvent.CLICK, undoChanges, false, 0, true);
 			addChild(undoBtn);
