@@ -5,7 +5,8 @@
 	import flash.events.MouseEvent;
 	import flash.filters.BlurFilter;
 	import flash.events.KeyboardEvent;
-
+	import flash.net.SharedObject;
+	
 	public class Main extends MovieClip
 	{	
 		public var menuScreen:MovieClip;
@@ -13,7 +14,6 @@
 		public var optionsScreen:MovieClip;
 		public var mapScreen:MovieClip;
 		public var upgradesScreen:MovieClip;
-		public var levelBriefingScreen:MovieClip;
 		public var playScreen:MovieClip;
 		public var levelWinScreen:MovieClip;
 		public var levelLoseScreen:MovieClip;
@@ -27,6 +27,8 @@
 		public var availableLevel:int = 1;
 		public var level:int = 1;
 		
+		public var userData:SharedObject;
+		
 		public function init():void
 		{
 			stage.stageFocusRect = false;
@@ -36,6 +38,15 @@
 			menuScreen.addEventListener(CustomEvents.START_GAME, onGameStart, false, 0, true);
 			menuScreen.addEventListener(CustomEvents.SHOW_SETTINGS, showSettingsScreen, false, 0, true);
 			stage.focus = menuScreen;
+			
+			userData = SharedObject.getLocal("BitDefence_Data");
+			if(userData.data.symbols) menuScreen.addEventListener(CustomEvents.CONTINUE_GAME, continueGame, false, 0, true);
+			else menuScreen.disableContinue();
+		}
+		
+		private function continueGame(e:CustomEvents):void
+		{
+			trace(userData.data.symbols);
 		}
 		
 		private function showSettingsScreen(e:CustomEvents):void
@@ -44,6 +55,7 @@
 			{
 				menuScreen.removeEventListener(CustomEvents.START_GAME, onGameStart);
 				menuScreen.removeEventListener(CustomEvents.SHOW_SETTINGS, showSettingsScreen);
+				if(menuScreen.hasEventListener(CustomEvents.CONTINUE_GAME)) menuScreen.removeEventListener(CustomEvents.CONTINUE_GAME, continueGame);
 				removeChild(menuScreen);
 				menuScreen = null;
 				sourceScreen = "menuScreen";
@@ -73,6 +85,10 @@
 				menuScreen.addEventListener(CustomEvents.START_GAME, onGameStart, false, 0, true);
 				menuScreen.addEventListener(CustomEvents.SHOW_SETTINGS, showSettingsScreen, false, 0, true);
 				addChild(menuScreen);
+				
+				userData = SharedObject.getLocal("BitDefence_Data");
+				if(userData.data.symbols) menuScreen.addEventListener(CustomEvents.CONTINUE_GAME, continueGame, false, 0, true);
+				else menuScreen.disableContinue();
 			}
 			else if(sourceScreen == "optionsScreen") showOptions(null);
 			
@@ -83,12 +99,13 @@
 		{
 			menuScreen.removeEventListener(CustomEvents.START_GAME, onGameStart);
 			menuScreen.removeEventListener(CustomEvents.SHOW_SETTINGS, showSettingsScreen);
+			if(menuScreen.hasEventListener(CustomEvents.CONTINUE_GAME)) menuScreen.removeEventListener(CustomEvents.CONTINUE_GAME, continueGame);
 			removeChild(menuScreen);
 			menuScreen = null;
 			
 			mapScreen = new MapScreen(availableLevel);
 			stage.focus = mapScreen;
-			mapScreen.addEventListener(CustomEvents.NEW_LEVEL, onChooseLevel, false ,0, true);
+			mapScreen.addEventListener(CustomEvents.NEW_LEVEL, onChooseLevel, false, 0, true);
 			mapScreen.addEventListener(CustomEvents.SHOW_OPTIONS, showOptions, false, 0, true);
 			mapScreen.addEventListener(CustomEvents.SHOW_UPGRADES, onShowUpgrades, false, 0, true);
 			mapScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
@@ -137,21 +154,6 @@
 			mapScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
 			removeChild(mapScreen);
 			mapScreen = null;
-			
-			levelBriefingScreen = new LevelBriefingScreen();
-			stage.focus = levelBriefingScreen;
-			levelBriefingScreen.txtLevel.text = level;
-			levelBriefingScreen.addEventListener(MouseEvent.CLICK, startLevel, false, 0, true);
-			levelBriefingScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
-			addChild(levelBriefingScreen);
-		}
-		
-		private function startLevel(e:MouseEvent):void
-		{
-			levelBriefingScreen.removeEventListener(MouseEvent.CLICK, startLevel);
-			levelBriefingScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
-			removeChild(levelBriefingScreen);
-			levelBriefingScreen = null;
 			
 			playScreen = new GamePlay(level, STAGE_WIDTH, STAGE_HEIGHT);
 			stage.focus = playScreen;
@@ -276,61 +278,62 @@
 			switch(e.currentTarget.name)
 			{
 				case "resumeBtn":
-				if(playScreen)
-				{
-					playScreen.pauseGame(false);
-					playScreen.filters = [];
-					if(playScreen.waveTimerInAction) playScreen.nextWaveTimer.start();
-				}
-				else if(mapScreen)
-				{
-					mapScreen.filters = [];
-					stage.focus = mapScreen;
-				}
+					if(playScreen)
+					{
+						playScreen.pauseGame(false);
+						playScreen.filters = [];
+						if(playScreen.waveTimerInAction) playScreen.nextWaveTimer.start();
+					}
+					else if(mapScreen)
+					{
+						mapScreen.filters = [];
+						stage.focus = mapScreen;
+					}
 				break;
 				
 				case "restartBtn":
-				playScreen.removeEventListener(CustomEvents.LEVEL_WIN, onLevelWin);
-				playScreen.removeEventListener(CustomEvents.LEVEL_LOSE, onLevelLose);
-				playScreen.removeEventListener(CustomEvents.SHOW_OPTIONS, showOptions);
-				playScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
-				removeChild(playScreen);
-				playScreen = null;
+					playScreen.removeEventListener(CustomEvents.LEVEL_WIN, onLevelWin);
+					playScreen.removeEventListener(CustomEvents.LEVEL_LOSE, onLevelLose);
+					playScreen.removeEventListener(CustomEvents.SHOW_OPTIONS, showOptions);
+					playScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
+					removeChild(playScreen);
+					playScreen = null;
 				
-				playScreen = new GamePlay(level, STAGE_WIDTH, STAGE_HEIGHT);
-				stage.focus = playScreen;
-				playScreen.addEventListener(CustomEvents.LEVEL_WIN, onLevelWin, false, 0, true);
-				playScreen.addEventListener(CustomEvents.LEVEL_LOSE, onLevelLose, false, 0, true);
-				playScreen.addEventListener(CustomEvents.SHOW_OPTIONS, showOptions, false, 0, true);
-				playScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
-				addChild(playScreen);
+					playScreen = new GamePlay(level, STAGE_WIDTH, STAGE_HEIGHT);
+					stage.focus = playScreen;
+					playScreen.addEventListener(CustomEvents.LEVEL_WIN, onLevelWin, false, 0, true);
+					playScreen.addEventListener(CustomEvents.LEVEL_LOSE, onLevelLose, false, 0, true);
+					playScreen.addEventListener(CustomEvents.SHOW_OPTIONS, showOptions, false, 0, true);
+					playScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
+					addChild(playScreen);
 				break;
 				
 				case "saveBtn":
-				mapScreen.filters = [];
-				stage.focus = mapScreen;
-				trace("SaveGame");
+					saveData();
+					mapScreen.filters = [];
+					mapScreen.saveGameMessage();
+					stage.focus = mapScreen;
 				break;
 				
 				case "settingsBtn":
-				showSettingsScreen(null);
+					showSettingsScreen(null);
 				break;
 				
 				case "mapBtn":
-				playScreen.removeEventListener(CustomEvents.LEVEL_WIN, onLevelWin);
-				playScreen.removeEventListener(CustomEvents.LEVEL_LOSE, onLevelLose);
-				playScreen.removeEventListener(CustomEvents.SHOW_OPTIONS, showOptions);
-				playScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
-				removeChild(playScreen);
-				playScreen = null;
+					playScreen.removeEventListener(CustomEvents.LEVEL_WIN, onLevelWin);
+					playScreen.removeEventListener(CustomEvents.LEVEL_LOSE, onLevelLose);
+					playScreen.removeEventListener(CustomEvents.SHOW_OPTIONS, showOptions);
+					playScreen.removeEventListener(KeyboardEvent.KEY_DOWN, onPressEsc);
+					removeChild(playScreen);
+					playScreen = null;
 				
-				mapScreen = new MapScreen(availableLevel);
-				stage.focus = mapScreen;
-				mapScreen.addEventListener(CustomEvents.NEW_LEVEL, onChooseLevel, false, 0, true);
-				mapScreen.addEventListener(CustomEvents.SHOW_OPTIONS, showOptions, false, 0, true);
-				mapScreen.addEventListener(CustomEvents.SHOW_UPGRADES, onShowUpgrades, false, 0, true);
-				mapScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
-				addChild(mapScreen);
+					mapScreen = new MapScreen(availableLevel);
+					stage.focus = mapScreen;
+					mapScreen.addEventListener(CustomEvents.NEW_LEVEL, onChooseLevel, false, 0, true);
+					mapScreen.addEventListener(CustomEvents.SHOW_OPTIONS, showOptions, false, 0, true);
+					mapScreen.addEventListener(CustomEvents.SHOW_UPGRADES, onShowUpgrades, false, 0, true);
+					mapScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
+					addChild(mapScreen);
 				break;
 				
 				case "menuBtn":
@@ -356,6 +359,12 @@
 				restartGame(null);
 				break;
 			}
+		}
+		
+		private function saveData():void
+		{
+			userData = SharedObject.getLocal("BitDefence_Data");
+			userData.data.symbols = Variables.SYMBOLS;
 		}
 		
 		private function onLevelWin(e:CustomEvents):void
@@ -455,6 +464,11 @@
 			menuScreen.addEventListener(CustomEvents.SHOW_SETTINGS, showSettingsScreen, false, 0, true);
 			menuScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
 			addChild(menuScreen);
+			
+			userData = SharedObject.getLocal("BitDefence_Data");
+			if(userData.data.symbols) menuScreen.addEventListener(CustomEvents.CONTINUE_GAME, continueGame, false, 0, true);
+			else menuScreen.disableContinue();
+			
 			Variables.setToDefault();
 		}
 	}

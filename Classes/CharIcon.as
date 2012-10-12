@@ -11,6 +11,7 @@
 		public var charType:String;
 		public var charName:String;
 		
+		public var level:int;
 		public var damage:int;
 		public var memoryUse:int;
 		public var range:int;

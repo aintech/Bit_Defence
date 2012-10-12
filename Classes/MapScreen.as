@@ -8,6 +8,8 @@
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
 	import flash.filters.GlowFilter;
+	import flash.utils.Timer;
+	import flash.events.TimerEvent;
 
 	public class MapScreen extends MovieClip
 	{
@@ -20,6 +22,11 @@
 		
 		private var blockName:TextField;
 		private var blockFormat:TextFormat;
+		
+		private var saveTimer:Timer = new Timer(50);
+		private var saveText:Button = new Button("progress saved...");
+		
+		private var levelDescript:LevelDescription;
 		
 		public function MapScreen(openLevels:int)
 		{
@@ -78,6 +85,21 @@
 				
 				levelBtn.filters = [new DropShadowFilter(4, 0)];
 			}
+			
+			saveText.disableButton();
+			saveText.scaleX = saveText.scaleY = .4;
+			saveText.x = Main.STAGE_WIDTH - saveText.width * 1.5 - 5;
+			saveText.y = Main.STAGE_HEIGHT - saveText.height - 5;
+			
+			levelDescript = new LevelDescription();
+			levelDescript.x = 550;
+			levelDescript.y = 130;
+			addChild(levelDescript);
+			
+			levelDescript.txtBlockNumber.text = "";
+			levelDescript.lvlRoad.visible = false;
+			levelDescript.lvlBG.visible = false;
+			levelDescript.txtLevelDescription.text = "";
 		}
 		
 		private function stageFocus(e:MouseEvent):void
@@ -100,6 +122,56 @@
 			e.stopPropagation();
 			e.currentTarget.alpha = 1;
 			e.currentTarget.scaleX = e.currentTarget.scaleY = 1.05;
+			
+			if(e.currentTarget.level < 10) levelDescript.txtBlockNumber.text = "BLOCK 0" + e.currentTarget.level;
+			else levelDescript.txtBlockNumber.text = "BLOCK " + e.currentTarget.level;
+			levelDescript.lvlRoad.visible = true;
+			levelDescript.lvlRoad.gotoAndStop(e.currentTarget.level);
+			levelDescript.lvlBG.visible = true;
+			levelDescript.lvlBG.gotoAndStop(e.currentTarget.level);
+			
+			switch(e.currentTarget.level)
+			{
+				case 1:
+					levelDescript.txtLevelDescription.text = "first line of defence";
+				break;
+				
+				case 2:
+					levelDescript.txtLevelDescription.text = "second line of defence";
+				break;
+				
+				case 3:
+					levelDescript.txtLevelDescription.text = "third line of defence";
+				break;
+				
+				case 4:
+					levelDescript.txtLevelDescription.text = "fourth line of defence";
+				break;
+				
+				case 5:
+					levelDescript.txtLevelDescription.text = "fifth line of defence";
+				break;
+				
+				case 6:
+					levelDescript.txtLevelDescription.text = "sixth line of defence";
+				break;
+				
+				case 7:
+					levelDescript.txtLevelDescription.text = "seventh line of defence";
+				break;
+				
+				case 8:
+					levelDescript.txtLevelDescription.text = "eighth line of defence";
+				break;
+				
+				case 9:
+					levelDescript.txtLevelDescription.text = "ninth line of defence";
+				break;
+				
+				case 10:
+					levelDescript.txtLevelDescription.text = "tenth line of defence";
+				break;
+			}
 		}
 		
 		private function onMouseOut(e:MouseEvent):void
@@ -107,12 +179,42 @@
 			e.stopPropagation();
 			e.currentTarget.alpha = .7;
 			e.currentTarget.scaleX = e.currentTarget.scaleY = 1;
+			
+			levelDescript.txtBlockNumber.text = "";
+			levelDescript.lvlRoad.visible = false;
+			levelDescript.lvlBG.visible = false;
+			levelDescript.txtLevelDescription.text = "";
 		}
 		
 		public function onLevelClick(e:MouseEvent):void
 		{
 			choosedLevel = e.currentTarget.level;
 			dispatchEvent(new CustomEvents(CustomEvents.NEW_LEVEL));
+		}
+		
+		public function saveGameMessage():void
+		{
+			saveTimer.stop();
+			saveTimer.reset();
+			if(saveTimer.hasEventListener(TimerEvent.TIMER)) saveTimer.removeEventListener(TimerEvent.TIMER, saveTick);
+			saveText.alpha = 1;
+			
+			addChild(saveText);
+			saveTimer.start();
+			saveTimer.addEventListener(TimerEvent.TIMER, saveTick, false, 0, true);
+		}
+		
+		private function saveTick(e:TimerEvent):void
+		{
+			if(saveTimer.currentCount >= 40) saveText.alpha -= .05;
+			if(saveText.alpha <= 0)
+			{
+				saveTimer.stop();
+				saveTimer.reset();
+				saveTimer.removeEventListener(TimerEvent.TIMER, saveTick);
+				saveText.alpha = 1;
+				removeChild(saveText);
+			}
 		}
 	}
 }

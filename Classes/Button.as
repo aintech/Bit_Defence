@@ -92,5 +92,14 @@
 			border.visible = false;
 			filters = [outFilter];
 		}
+		
+		public function disableButton():void
+		{
+			border.visible = false;
+			filters = [];
+			buttonMode = false;
+			removeEventListener(MouseEvent.MOUSE_OVER, overButton);
+			removeEventListener(MouseEvent.MOUSE_OUT, outButton);
+		}
 	}
 }

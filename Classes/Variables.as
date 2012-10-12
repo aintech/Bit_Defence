@@ -28,11 +28,6 @@
 		//public static var SYMBOLS_DROP_MULTIPLE:Number 	= 1;
 		//public static var TOTAL_MEMORY_INCREASE:int 		= 0;
 		
-		public static var GUN_TURRET_COST:int;
-		public static var LAUNCHER_TURRET_COST:int;
-		public static var FREEZE_TURRET_COST:int;
-		public static var SWARM_TURRET_COST:int;
-		
 		public static var GUN_CRIT_CHANCE:int;//шанс gunTurret на критический выстрел
 		public static var GUN_CRIT_DAMAGE_MULTIPLY:int	;//увеличивает критический повреждения
 		public static var GUN_ACC_DAMAGE:int;
@@ -187,11 +182,6 @@
 			SWARM_MAX_LEVEL 		= 1;
 			FREEZE_MAX_LEVEL 		= 1;
 			LAUNCHER_MAX_LEVEL 		= 1;
-			
-			GUN_TURRET_COST			= 50;
-			LAUNCHER_TURRET_COST	= 100;
-			FREEZE_TURRET_COST		= 50;
-			SWARM_TURRET_COST		= 150;
 		
 			GUN_CRIT_CHANCE 				= 10;
 			GUN_CRIT_DAMAGE_MULTIPLY		= 2;

@@ -7,8 +7,9 @@
 	public class MenuScreen extends MovieClip
 	{
 		private var newGameBtn:Button;
-		private var continueBtn:Button;
+		public var continueBtn:Button;
 		private var settingsBtn:Button;
+		
 		public function MenuScreen()
 		{
 			addEventListener(Event.ADDED_TO_STAGE, onAdd, false, 0, true);
@@ -53,7 +54,10 @@
 		
 		private function onClickContinue(e:MouseEvent):void
 		{
-			
+			newGameBtn.removeEventListener(MouseEvent.CLICK, onClickNewGame);
+			continueBtn.removeEventListener(MouseEvent.CLICK, onClickContinue);
+			settingsBtn.removeEventListener(MouseEvent.CLICK, onClickSettings);
+			dispatchEvent(new CustomEvents(CustomEvents.CONTINUE_GAME));
 		}
 		
 		private function onClickSettings(e:MouseEvent):void
@@ -62,6 +66,12 @@
 			continueBtn.removeEventListener(MouseEvent.CLICK, onClickContinue);
 			settingsBtn.removeEventListener(MouseEvent.CLICK, onClickSettings);
 			dispatchEvent(new CustomEvents(CustomEvents.SHOW_SETTINGS));
+		}
+		
+		public function disableContinue():void
+		{
+			continueBtn.removeEventListener(MouseEvent.CLICK, onClickContinue);
+			continueBtn.disableButton();
 		}
 	}
 }

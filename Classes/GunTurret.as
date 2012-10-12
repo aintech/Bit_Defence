@@ -23,6 +23,7 @@
 		
 		override public function updateLevel():void
 		{
+			var rot:int = 0;
 			switch(level)
 			{
 				case 1:
@@ -39,11 +40,13 @@
 				additionalReloadTime = 0;
 				if(gun)
 				{
+					rot = gun.rotation;
 					removeChild(gun);
 					gun = null;
 				}
 				gun = new GunTurret_Gun_I();
 				addChild(gun);
+				gun.rotation = rot;
 				break;
 				
 				case 2:
@@ -60,11 +63,13 @@
 				additionalReloadTime = 0;
 				if(gun)
 				{
+					rot = gun.rotation;
 					removeChild(gun);
 					gun = null;
 				}
 				gun = new GunTurret_Gun_II();
 				addChild(gun);
+				gun.rotation = rot;
 				break;
 				
 				case 3:
@@ -81,11 +86,13 @@
 				additionalReloadTime = 2;
 				if(gun)
 				{
+					rot = gun.rotation;
 					removeChild(gun);
 					gun = null;
 				}
 				gun = new GunTurret_Gun_III();
 				addChild(gun);
+				gun.rotation = rot;
 				break;
 				
 				case 4:
@@ -102,11 +109,13 @@
 				additionalReloadTime = 2;
 				if(gun)
 				{
+					rot = gun.rotation;
 					removeChild(gun);
 					gun = null;
 				}
 				gun = new GunTurret_Gun_IV();
 				addChild(gun);
+				gun.rotation = rot;
 				break;
 				
 				case 5:
@@ -119,11 +128,13 @@
 				uninstallingTime = 180;
 				if(gun)
 				{
+					rot = gun.rotation;
 					removeChild(gun);
 					gun = null;
 				}
 				gun = new GunTurret_Gun_V();
 				addChild(gun);
+				gun.rotation = rot;
 				break;
 			}
 		}

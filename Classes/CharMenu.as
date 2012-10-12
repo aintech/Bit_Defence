@@ -21,11 +21,14 @@
 		}
 		
 		private function init():void
-		{			
+		{
+			upgradeBtn.hitRect.alpha = 0;
+			sellBtn.hitRect.alpha = 0;
+			
 			sellBtn.filters = [new GlowFilter(0xFF0000)];
-			sellBtn.buttonMode = true;
-			sellBtn.addEventListener(MouseEvent.MOUSE_OVER, onOver, false, 0, true);
-			sellBtn.addEventListener(MouseEvent.MOUSE_OUT, onOut, false, 0, true);
+			sellBtn.hitRect.buttonMode = true;
+			sellBtn.hitRect.addEventListener(MouseEvent.MOUSE_OVER, onOver, false, 0, true);
+			sellBtn.hitRect.addEventListener(MouseEvent.MOUSE_OUT, onOut, false, 0, true);
 		}
 		
 		private function onOver(e:MouseEvent):void
@@ -58,18 +61,18 @@
 		
 		/*public function disableUpgrade():void
 		{
-			upgradeBtn.removeEventListener(MouseEvent.MOUSE_OVER, onOver);
-			upgradeBtn.removeEventListener(MouseEvent.MOUSE_OUT, onOut);
+			upgradeBtn.hitRect.removeEventListener(MouseEvent.MOUSE_OVER, onOver);
+			upgradeBtn.hitRect.removeEventListener(MouseEvent.MOUSE_OUT, onOut);
 			upgradeBtn.filters = [];
-			upgradeBtn.buttonMode = false;
+			upgradeBtn.hitRect.buttonMode = false;
 		}*/
 		
 		public function enableUpgrade():void
 		{
 			upgradeBtn.filters = [new GlowFilter(0x0000FF)];
-			upgradeBtn.buttonMode = true;
-			upgradeBtn.addEventListener(MouseEvent.MOUSE_OVER, onOver, false, 0, true);
-			upgradeBtn.addEventListener(MouseEvent.MOUSE_OUT, onOut, false, 0, true);
+			upgradeBtn.hitRect.buttonMode = true;
+			upgradeBtn.hitRect.addEventListener(MouseEvent.MOUSE_OVER, onOver, false, 0, true);
+			upgradeBtn.hitRect.addEventListener(MouseEvent.MOUSE_OUT, onOut, false, 0, true);
 		}
 	}
 }

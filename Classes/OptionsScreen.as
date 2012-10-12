@@ -81,7 +81,6 @@
 			saveBtn.x = menuBtn.x;
 			saveBtn.y = menuBtn.y + saveBtn.height + saveBtn.offset;
 			addChild(saveBtn);
-			
 		}
 	}
 }

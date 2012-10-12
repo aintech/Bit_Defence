@@ -3,15 +3,15 @@
 	import flash.display.MovieClip;
 	import flash.events.Event;
 
-	public class DocumentClass extends MovieClip
+	public class BitDefenceMain extends MovieClip
 	{
 		public var preloader:Preloader;
-		
-		public function DocumentClass()
+
+		public function BitDefenceMain()
 		{
 			init();
 		}
-		
+
 		private function init():void
 		{
 			preloader = new Preloader();
@@ -19,12 +19,12 @@
 			preloader.addEventListener("loadComplete", onLoadDone, false, 0, true);
 			preloader.addEventListener("preloadFinished", onFinish, false, 0, true);
 		}
-		
+
 		private function onLoadDone(e:Event):void
 		{
 			this.gotoAndStop(3);
 		}
-		
+
 		private function onFinish(e:Event):void
 		{
 			preloader.removeEventListener("loadComplete", onLoadDone);
