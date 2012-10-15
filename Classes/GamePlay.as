@@ -220,9 +220,9 @@ package
 			addChild(backgroundHolder);
 			addChild(roadHolder);
 			addChild(blocksHolder);
-			blocksHolder.alpha = 0;
+			//blocksHolder.alpha = 0;
 			addChild(groundHolder);
-			//groundHolder.alpha = 0;
+			groundHolder.alpha = 0;
 			addChild(markerHolder);
 			addChild(enemyHolder);
 			enemyFinalTarget = new EnemyFinalTarget(); addChild(enemyFinalTarget);
@@ -533,6 +533,7 @@ package
 			var row:int = 0;
 			var block:MovieClip;
 			var roadTileID:int = 1;
+			var hitCross:RoadHitCross;
 						
 			for(var i:int = 0; i < levelMap.length; i++)
 			{
@@ -566,7 +567,7 @@ package
 				}
 				else
 				{
-					block = new RoadTile(levelMap[i], (i - row * cols) * block.width, row * block.height)
+					block = new RoadTile(levelMap[i], (i - row * cols) * block.width, row * block.height);
 					block.ID = roadTileID;
 					roadTileID++;
 					blocksHolder.addChild(block);
@@ -630,6 +631,15 @@ package
 					row++;
 				}
 			}
+			
+			for each(var road:RoadTile in roadArray)
+			{
+				hitCross = new RoadHitCross();
+				hitCross.x = road.width * .5;
+				hitCross.y = road.height * .5;
+				hitCross.name = "cross";
+				road.addChild(hitCross);
+			}
 			giveNumbersToRoad();
 		}
 		
@@ -646,15 +656,16 @@ package
 						checkRoad = roadArray[r] as RoadTile;
 						if(checkRoad.tileNumber)
 						{
-							if (checkRoad.hitTestPoint(road.x + road.width * 1.5, road.y + road.height *  .5) || 
+							/*if (checkRoad.hitTestPoint(road.x + road.width * 1.5, road.y + road.height *  .5) || 
 								 checkRoad.hitTestPoint(road.x - road.width *  .5, road.y + road.height *  .5) ||
 								 checkRoad.hitTestPoint(road.x + road.width *  .5, road.y - road.height *  .5) ||
-								 checkRoad.hitTestPoint(road.x + road.width *  .5, road.y + road.height * 1.5))
+								 checkRoad.hitTestPoint(road.x + road.width *  .5, road.y + road.height * 1.5))*/
+							if(road.getChildByName("cross").hitTestObject(checkRoad.getChildByName("cross")))
 							{
 								road.tileNumber = roadCounter;
 								road.txtNum.text = String(road.tileNumber);
 								roadCounter++;
-								if(road.direct != "empty"/* && road.direct != "Start"*/)
+								if(road.direct != "empty")
 								{
 									road.runID = runnerRoadID;
 									runnerRoadID++;
