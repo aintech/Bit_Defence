@@ -68,40 +68,47 @@
 		public static var SPECIAL_MINES_DAMAGE:int;
 		public static var SPECIAL_MINES_DISTANCE:int;
 		
-		public static var WAVE_DELAY:int;//Wave delay in sec
-		public static var ENEMY_DELAY:int;//enemy appear delay
+		public static const WAVE_DELAY:int	= 20;//Wave delay in sec
+		public static const ENEMY_DELAY:int	= 12;//enemy appear delay
 		
-		public static var UPGRADE_COST_GUN_III:int			= 50;
-		public static var UPGRADE_COST_CRIT_X4:int			= 100;
-		public static var UPGRADE_COST_GUN_V:int			= 150;
-		public static var UPGRADE_COST_CRIT_CHANCE:int		= 200;
-		public static var UPGRADE_COST_ADD_TOOLS:int		= 300;
-		public static var UPGRADE_COST_ACC_DAM:int			= 400;
-		public static var UPGRADE_COST_GUN_MASTER:int		= 500;
+		public static const UPGRADE_COST_GUN_III:int		= 50;
+		public static const UPGRADE_COST_CRIT_X4:int		= 100;
+		public static const UPGRADE_COST_GUN_V:int			= 150;
+		public static const UPGRADE_COST_CRIT_CHANCE:int	= 200;
+		public static const UPGRADE_COST_ADD_TOOLS:int		= 300;
+		public static const UPGRADE_COST_ACC_DAM:int		= 400;
+		public static const UPGRADE_COST_GUN_MASTER:int		= 500;
 		
-		public static var UPGRADE_COST_SWARM_III:int		= 50;
-		public static var UPGRADE_COST_WIDE_SPLASH:int		= 100;
-		public static var UPGRADE_COST_SWARM_V:int			= 150;
-		public static var UPGRADE_COST_SPLASH_CHANCE:int 	= 200;
-		public static var UPGRADE_COST_MORE_SYMBOLS:int		= 300;
-		public static var UPGRADE_COST_BOMB_CASCADE:int		= 400;
-		public static var UPGRADE_COST_SWARM_MASTER:int		= 500;
+		public static const UPGRADE_COST_SWARM_III:int		= 50;
+		public static const UPGRADE_COST_WIDE_SPLASH:int	= 100;
+		public static const UPGRADE_COST_SWARM_V:int		= 150;
+		public static const UPGRADE_COST_SPLASH_CHANCE:int 	= 200;
+		public static const UPGRADE_COST_MORE_SYMBOLS:int	= 300;
+		public static const UPGRADE_COST_BOMB_CASCADE:int	= 400;
+		public static const UPGRADE_COST_SWARM_MASTER:int	= 500;
 		
-		public static var UPGRADE_COST_LAUNCHER_III:int		= 50;
-		public static var UPGRADE_COST_POISON_DAMAGE:int	= 100;
-		public static var UPGRADE_COST_LAUNCHER_V:int		= 150;
-		public static var UPGRADE_COST_POISON_CHANCE:int	= 200;
-		public static var UPGRADE_COST_MEMORY_CHANCE:int	= 300;
-		public static var UPGRADE_COST_POISON_CLOUD:int		= 400;
-		public static var UPGRADE_COST_LAUNCHER_MASTER:int	= 500;
+		public static const UPGRADE_COST_LAUNCHER_III:int	= 50;
+		public static const UPGRADE_COST_POISON_DAMAGE:int	= 100;
+		public static const UPGRADE_COST_LAUNCHER_V:int		= 150;
+		public static const UPGRADE_COST_POISON_CHANCE:int	= 200;
+		public static const UPGRADE_COST_MEMORY_CHANCE:int	= 300;
+		public static const UPGRADE_COST_POISON_CLOUD:int	= 400;
+		public static const UPGRADE_COST_LAUNCHER_MASTER:int= 500;
 		
-		public static var UPGRADE_COST_FREEZE_III:int		= 50;
-		public static var UPGRADE_COST_LONGER_STUN:int		= 100;
-		public static var UPGRADE_COST_FREEZE_V:int			= 150;
-		public static var UPGRADE_COST_STUN_CHANCE:int		= 200;
-		public static var UPGRADE_COST_HACK_PROTECT:int		= 300;
-		public static var UPGRADE_COST_MULTY_STUN:int		;
-		public static var UPGRADE_COST_FREEZE_MASTER:int;
+		public static const UPGRADE_COST_FREEZE_III:int		= 50;
+		public static const UPGRADE_COST_LONGER_STUN:int	= 100;
+		public static const UPGRADE_COST_FREEZE_V:int		= 150;
+		public static const UPGRADE_COST_STUN_CHANCE:int	= 200;
+		public static const UPGRADE_COST_HACK_PROTECT:int	= 300;
+		public static const UPGRADE_COST_MULTY_STUN:int		= 400;
+		public static const UPGRADE_COST_FREEZE_MASTER:int	= 500;
+		
+		public static const GRAY_MATRIX:Array = [
+												0.3086, 0.6094, 0.082, 0, 0,
+					  							0.3086, 0.6094, 0.082, 0, 0,
+					  							0.3086, 0.6094, 0.082, 0, 0,
+									 				 0,		 0,	  	0, 1, 0
+												];
 		
 		public static var UPGRADE_GUN_III:Boolean;
 		public static var UPGRADE_CRITICAL_X4:Boolean;
@@ -134,8 +141,6 @@
 		public static var UPGRADE_HACK_PROTECT:Boolean;
 		public static var UPGRADE_MULTY_STUN:Boolean;
 		public static var UPGRADE_FREEZE_MASTERED:Boolean;
-		
-		public static var GRAY_MATRIX:Array;
 		
 		public static var INTRODUCE_SPEEDER:Boolean;
 		public static var INTRODUCE_WORM:Boolean;
@@ -215,41 +220,6 @@
 			SPECIAL_MINES_DAMAGE					= 400;
 			SPECIAL_MINES_DISTANCE					= 150;
 		
-			WAVE_DELAY	= 20;
-			ENEMY_DELAY	= 12;
-		
-		 	UPGRADE_COST_GUN_III			= 50;
-		 	UPGRADE_COST_CRIT_X4			= 100;
-		 	UPGRADE_COST_GUN_V				= 150;
-		 	UPGRADE_COST_CRIT_CHANCE		= 200;
-		 	UPGRADE_COST_ADD_TOOLS			= 300;
-		 	UPGRADE_COST_ACC_DAM			= 400;
-		 	UPGRADE_COST_GUN_MASTER			= 500;
-		
-		 	UPGRADE_COST_SWARM_III			= 50;
-		 	UPGRADE_COST_WIDE_SPLASH		= 100;
-		 	UPGRADE_COST_SWARM_V			= 150;
-		 	UPGRADE_COST_SPLASH_CHANCE		= 200;
-		 	UPGRADE_COST_MORE_SYMBOLS		= 300;
-		 	UPGRADE_COST_BOMB_CASCADE		= 400;
-		 	UPGRADE_COST_SWARM_MASTER		= 500;
-		
-			UPGRADE_COST_LAUNCHER_III		= 50;
-			UPGRADE_COST_POISON_DAMAGE		= 100;
-		 	UPGRADE_COST_LAUNCHER_V			= 150;
-		 	UPGRADE_COST_POISON_CHANCE		= 200;
-		 	UPGRADE_COST_MEMORY_CHANCE		= 300;
-		 	UPGRADE_COST_POISON_CLOUD		= 400;
-		 	UPGRADE_COST_LAUNCHER_MASTER	= 500;
-		
-		 	UPGRADE_COST_FREEZE_III			= 50;
-		 	UPGRADE_COST_LONGER_STUN		= 100;
-		 	UPGRADE_COST_FREEZE_V			= 150;
-		 	UPGRADE_COST_STUN_CHANCE		= 200;
-		 	UPGRADE_COST_HACK_PROTECT		= 300;
-		 	UPGRADE_COST_MULTY_STUN			= 400;
-		 	UPGRADE_COST_FREEZE_MASTER		= 500;
-		
 		 	UPGRADE_GUN_III				= false;
 		 	UPGRADE_CRITICAL_X4			= false;
 		 	UPGRADE_GUN_V				= false;
@@ -282,13 +252,6 @@
 		 	UPGRADE_MULTY_STUN			= false;
 		 	UPGRADE_FREEZE_MASTERED		= false;
 			
-			GRAY_MATRIX = [
-							0.3086, 0.6094, 0.082, 0, 0,
-					  		0.3086, 0.6094, 0.082, 0, 0,
-					  		0.3086, 0.6094, 0.082, 0, 0,
-								 0,		 0,	  	0, 1, 0
-							];
-		
 			INTRODUCE_SPEEDER			= false;
 			INTRODUCE_WORM				= false;
 			INTRODUCE_RECODER			= false;
@@ -312,8 +275,8 @@
 			INTRODUCE_FALSE_TARGET		= false;
 			INTRODUCE_MINES				= false;
 			
-			NUM_NEIROBOTS = 0;
-			NUM_PROTECTORS = 0;
+			NUM_NEIROBOTS 	= 0;
+			NUM_PROTECTORS 	= 0;
 		}
 	}
 }

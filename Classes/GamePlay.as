@@ -12,7 +12,7 @@
 
 //FIX: если срабатывает спецтехника, вроде переноса турели, и при этом заканчивается гаудж, остальные техники все равно загораются синим, хоть и не работают(если применена спецтехника переноса туррели)
 //TODO: доработать checkForNextWave
-//TODO: добавить в mapScreen  txtProgressSaved появляющееся при сохранении игры
+
 package 
 {
 	import flash.display.MovieClip;
@@ -752,7 +752,7 @@ package
 			{
 				infoScreen.gotoAndStop("turret");
 				infoScreen.txtName.text				= String(charMenu.target.turretName);
-				infoScreen.txtLevel.text			= "LVL " + (infoScreen.target.level + 1);
+				infoScreen.txtLevel.text			= "LVL " + (charMenu.target.level + 1);
 				infoScreen.txtCost.text 			= "M: " + (charMenu.target.memoryUse + charMenu.target.upgradeCost);
 				infoScreen.txtDamage.text			= String(charMenu.target.damage + charMenu.target.additionalDamage);
 				infoScreen.txtRange.text 			= String(charMenu.target.range + charMenu.target.additionalRange);
@@ -1122,9 +1122,9 @@ package
 					if(enemy is Enemy_Runner) enemy.runnerTargetID = runnerRoadID-1;
 					if(enemy is Enemy_Neirobot)
 					{
-						for each(var neiro:Enemy_Neirobot in enemyArray)
+						for each(var neiro:Enemy in enemyArray)
 						{
-							neiro.systemDamage = neiro.baseSystemDamage * Variables.NUM_NEIROBOTS * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
+							if(neiro is Enemy_Neirobot) neiro.systemDamage = neiro.baseSystemDamage * Variables.NUM_NEIROBOTS * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
 						}
 					}
 				}
@@ -3513,11 +3513,15 @@ package
 		
 		private function removeObject(index:int, group:Array):void
 		{
+			var par:*;
 			var obj:* = group[index];
-			var par:* = obj.parent;
-			par.removeChild(obj);
-			group.splice(index, 1);
-			obj = null;
+			if(obj)
+			{
+				par = obj.parent;
+				par.removeChild(obj);
+				group.splice(index, 1);
+				obj = null;
+			}
 		}
 	}
 }
