@@ -49,13 +49,13 @@
 		
 		public static var SPECIAL_TOOL_GAUGE:int;
 		
-		public static var SPECIAL_ADDITIONAL_MARKER_COOLTIME:int;
-		public static var SPECIAL_FLOW_OVERLOAD_COOLTIME:int;
-		public static var SPECIAL_FLOW_STOP_COOLTIME:int;
-		public static var SPECIAL_SYS_DAMAGE_REDUCE_COOLTIME:int;
-		public static var SPECIAL_RELOCATE_TURRET_COOLTIME:int;
-		public static var SPECIAL_FALSE_TARGET_COOLTIME:int;
-		public static var SPECIAL_MINES_COOLTIME:int;
+		public static const SPECIAL_ADDITIONAL_MARKER_COOLTIME:int	= 200;// = 10000 ms / gameTimer(50)
+		public static const SPECIAL_FLOW_OVERLOAD_COOLTIME:int		= 200;
+		public static const SPECIAL_FLOW_STOP_COOLTIME:int			= 200;
+		public static const SPECIAL_SYS_DAMAGE_REDUCE_COOLTIME:int	= 200;
+		public static const SPECIAL_RELOCATE_TURRET_COOLTIME:int	= 200;
+		public static const SPECIAL_FALSE_TARGET_COOLTIME:int		= 200;
+		public static const SPECIAL_MINES_COOLTIME:int				= 200;
 		
 		public static var SPECIAL_FLOW_OVERLOAD_DAMAGE:int;
 		public static var SPECIAL_SYS_DAMAGE_MULTIPLY:Number;
@@ -71,36 +71,36 @@
 		public static var WAVE_DELAY:int;//Wave delay in sec
 		public static var ENEMY_DELAY:int;//enemy appear delay
 		
-		public static var UPGRADE_COST_GUN_III:int;
-		public static var UPGRADE_COST_CRIT_X4:int;
-		public static var UPGRADE_COST_GUN_V:int;
-		public static var UPGRADE_COST_CRIT_CHANCE:int;
-		public static var UPGRADE_COST_ADD_TOOLS:int;
-		public static var UPGRADE_COST_ACC_DAM:int;
-		public static var UPGRADE_COST_GUN_MASTER:int;
+		public static var UPGRADE_COST_GUN_III:int			= 50;
+		public static var UPGRADE_COST_CRIT_X4:int			= 100;
+		public static var UPGRADE_COST_GUN_V:int			= 150;
+		public static var UPGRADE_COST_CRIT_CHANCE:int		= 200;
+		public static var UPGRADE_COST_ADD_TOOLS:int		= 300;
+		public static var UPGRADE_COST_ACC_DAM:int			= 400;
+		public static var UPGRADE_COST_GUN_MASTER:int		= 500;
 		
-		public static var UPGRADE_COST_SWARM_III:int;
-		public static var UPGRADE_COST_WIDE_SPLASH:int;
-		public static var UPGRADE_COST_SWARM_V:int;
-		public static var UPGRADE_COST_SPLASH_CHANCE:int;
-		public static var UPGRADE_COST_MORE_SYMBOLS:int;
-		public static var UPGRADE_COST_BOMB_CASCADE:int;
-		public static var UPGRADE_COST_SWARM_MASTER:int;
+		public static var UPGRADE_COST_SWARM_III:int		= 50;
+		public static var UPGRADE_COST_WIDE_SPLASH:int		= 100;
+		public static var UPGRADE_COST_SWARM_V:int			= 150;
+		public static var UPGRADE_COST_SPLASH_CHANCE:int 	= 200;
+		public static var UPGRADE_COST_MORE_SYMBOLS:int		= 300;
+		public static var UPGRADE_COST_BOMB_CASCADE:int		= 400;
+		public static var UPGRADE_COST_SWARM_MASTER:int		= 500;
 		
-		public static var UPGRADE_COST_LAUNCHER_III:int;
-		public static var UPGRADE_COST_POISON_DAMAGE:int;
-		public static var UPGRADE_COST_LAUNCHER_V:int;
-		public static var UPGRADE_COST_POISON_CHANCE:int;
-		public static var UPGRADE_COST_MEMORY_CHANCE:int;
-		public static var UPGRADE_COST_POISON_CLOUD:int;
-		public static var UPGRADE_COST_LAUNCHER_MASTER:int;
+		public static var UPGRADE_COST_LAUNCHER_III:int		= 50;
+		public static var UPGRADE_COST_POISON_DAMAGE:int	= 100;
+		public static var UPGRADE_COST_LAUNCHER_V:int		= 150;
+		public static var UPGRADE_COST_POISON_CHANCE:int	= 200;
+		public static var UPGRADE_COST_MEMORY_CHANCE:int	= 300;
+		public static var UPGRADE_COST_POISON_CLOUD:int		= 400;
+		public static var UPGRADE_COST_LAUNCHER_MASTER:int	= 500;
 		
-		public static var UPGRADE_COST_FREEZE_III:int;
-		public static var UPGRADE_COST_LONGER_STUN:int;
-		public static var UPGRADE_COST_FREEZE_V:int;
-		public static var UPGRADE_COST_STUN_CHANCE:int;
-		public static var UPGRADE_COST_HACK_PROTECT:int;
-		public static var UPGRADE_COST_MULTY_STUN:int;
+		public static var UPGRADE_COST_FREEZE_III:int		= 50;
+		public static var UPGRADE_COST_LONGER_STUN:int		= 100;
+		public static var UPGRADE_COST_FREEZE_V:int			= 150;
+		public static var UPGRADE_COST_STUN_CHANCE:int		= 200;
+		public static var UPGRADE_COST_HACK_PROTECT:int		= 300;
+		public static var UPGRADE_COST_MULTY_STUN:int		;
 		public static var UPGRADE_COST_FREEZE_MASTER:int;
 		
 		public static var UPGRADE_GUN_III:Boolean;
@@ -203,14 +203,6 @@
 		 	SWARM_SPLASH_DAMAGE				= 50;
 		
 		 	SPECIAL_TOOL_GAUGE						= 4;
-		
-		 	SPECIAL_ADDITIONAL_MARKER_COOLTIME		= 200;// = 10000 ms / gameTimer(50)
-		 	SPECIAL_FLOW_OVERLOAD_COOLTIME			= 200;
-		 	SPECIAL_FLOW_STOP_COOLTIME				= 200;
-		 	SPECIAL_SYS_DAMAGE_REDUCE_COOLTIME 		= 200;
-		 	SPECIAL_RELOCATE_TURRET_COOLTIME		= 200;
-			SPECIAL_FALSE_TARGET_COOLTIME			= 300;
-			SPECIAL_MINES_COOLTIME					= 200;
 		
 		 	SPECIAL_FLOW_OVERLOAD_DAMAGE			= 1000;
 		 	SPECIAL_SYS_DAMAGE_MULTIPLY				= 1;

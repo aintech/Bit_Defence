@@ -220,9 +220,9 @@ package
 			addChild(backgroundHolder);
 			addChild(roadHolder);
 			addChild(blocksHolder);
-			//blocksHolder.alpha = 0;
+			blocksHolder.alpha = 0;
 			addChild(groundHolder);
-			groundHolder.alpha = 0;
+			//groundHolder.alpha = 0;
 			addChild(markerHolder);
 			addChild(enemyHolder);
 			enemyFinalTarget = new EnemyFinalTarget(); addChild(enemyFinalTarget);
@@ -533,7 +533,7 @@ package
 			var row:int = 0;
 			var block:MovieClip;
 			var roadTileID:int = 1;
-			var hitCross:RoadHitCross;
+			var mark:RoadHitMark;
 						
 			for(var i:int = 0; i < levelMap.length; i++)
 			{
@@ -634,11 +634,29 @@ package
 			
 			for each(var road:RoadTile in roadArray)
 			{
-				hitCross = new RoadHitCross();
-				hitCross.x = road.width * .5;
-				hitCross.y = road.height * .5;
-				hitCross.name = "cross";
-				road.addChild(hitCross);
+				mark = new RoadHitMark();
+				mark.x = road.width * .5;
+				mark.y = 0;
+				mark.name = "mark1";
+				road.addChild(mark);
+				
+				mark = new RoadHitMark();
+				mark.x = road.width;
+				mark.y = road.height * .5;
+				mark.name = "mark2";
+				road.addChild(mark);
+				
+				mark = new RoadHitMark();
+				mark.x = road.width * .5;
+				mark.y = road.height;
+				mark.name = "mark3";
+				road.addChild(mark);
+				
+				mark = new RoadHitMark();
+				mark.x = 0;
+				mark.y = road.height * .5;
+				mark.name = "mark4";
+				road.addChild(mark);
 			}
 			giveNumbersToRoad();
 		}
@@ -656,11 +674,10 @@ package
 						checkRoad = roadArray[r] as RoadTile;
 						if(checkRoad.tileNumber)
 						{
-							/*if (checkRoad.hitTestPoint(road.x + road.width * 1.5, road.y + road.height *  .5) || 
-								 checkRoad.hitTestPoint(road.x - road.width *  .5, road.y + road.height *  .5) ||
-								 checkRoad.hitTestPoint(road.x + road.width *  .5, road.y - road.height *  .5) ||
-								 checkRoad.hitTestPoint(road.x + road.width *  .5, road.y + road.height * 1.5))*/
-							if(road.getChildByName("cross").hitTestObject(checkRoad.getChildByName("cross")))
+							if(road.getChildByName("mark1").hitTestObject(checkRoad) ||
+							   road.getChildByName("mark2").hitTestObject(checkRoad) ||
+							   road.getChildByName("mark3").hitTestObject(checkRoad) ||
+							   road.getChildByName("mark4").hitTestObject(checkRoad))
 							{
 								road.tileNumber = roadCounter;
 								road.txtNum.text = String(road.tileNumber);
@@ -670,6 +687,7 @@ package
 									road.runID = runnerRoadID;
 									runnerRoadID++;
 								}
+								break;
 							}
 						}
 					}
@@ -1547,8 +1565,8 @@ package
 							dragCharIcon.gotoAndStop("freezeTurret");
 						break;
 					}
-					dragCharIcon.x = stage.mouseX;
-					dragCharIcon.y = stage.mouseY;
+					dragCharIcon.x = mouseX;
+					dragCharIcon.y = mouseY;
 					dragCharIcon.mouseEnabled = false;
 					dragCharIcon.mouseChildren = false;
 					addChild(dragCharIcon);
@@ -1582,8 +1600,8 @@ package
 				{
 					if(marker.free)
 					{
-						if(stage.mouseX > marker.x && stage.mouseX < marker.x + marker.width &&
-						   stage.mouseY > marker.y && stage.mouseY < marker.y + marker.height)
+						if(mouseX > marker.x && mouseX < marker.x + marker.width &&
+						   mouseY > marker.y && mouseY < marker.y + marker.height)
 						{
 							switch(dragCharIcon.charType)
 							{
