@@ -2,10 +2,10 @@
 {
 	import flash.display.MovieClip;
 	import flash.utils.getTimer;
+	import flash.filters.GlowFilter;
 
 	public class IntroduceScreen extends MovieClip
 	{
-		
 		public static const GUN:String					= "intro_Gun";
 		public static const SWARM:String				= "intro_Swarm";
 		public static const LAUNCHER:String 			= "intro_Launcher";
@@ -40,6 +40,8 @@
 		{
 			introduceObject = introduce;
 			buttonMode = true;
+			filters = [new GlowFilter(0x0000FF)];
+			
 			switch(introduce)
 			{
 				case GUN:

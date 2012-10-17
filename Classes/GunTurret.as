@@ -60,7 +60,7 @@
 				uninstallingTime = 90;
 				additionalDamage = 50;
 				additionalRange = 10;
-				additionalReloadTime = 0;
+				additionalReloadTime = 1;
 				if(gun)
 				{
 					rot = gun.rotation;
@@ -75,7 +75,7 @@
 				case 3:
 				memoryUse = 100;
 				range = 140;
-				reloadTime = 10;
+				reloadTime = 9;
 				damage = 300;
 				upgradeCost = 25;
 				installingTime = 120;

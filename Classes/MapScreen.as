@@ -125,10 +125,12 @@
 			
 			if(e.currentTarget.level < 10) levelDescript.txtBlockNumber.text = "BLOCK 0" + e.currentTarget.level;
 			else levelDescript.txtBlockNumber.text = "BLOCK " + e.currentTarget.level;
+			levelDescript.txtBlockNumber.filters = [new GlowFilter(LevelData.levelColors(e.currentTarget.level))];
 			levelDescript.lvlRoad.visible = true;
 			levelDescript.lvlRoad.gotoAndStop(e.currentTarget.level);
 			levelDescript.lvlBG.visible = true;
 			levelDescript.lvlBG.gotoAndStop(e.currentTarget.level);
+			levelDescript.BG.filters = [new GlowFilter(LevelData.levelColors(e.currentTarget.level))];
 			
 			switch(e.currentTarget.level)
 			{
@@ -184,6 +186,7 @@
 			levelDescript.lvlRoad.visible = false;
 			levelDescript.lvlBG.visible = false;
 			levelDescript.txtLevelDescription.text = "";
+			levelDescript.BG.filters = [];
 		}
 		
 		public function onLevelClick(e:MouseEvent):void

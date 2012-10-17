@@ -66,7 +66,7 @@
 				case 4:
 				memoryUse = 180;
 				range = 200;
-				reloadTime = 20;
+				reloadTime = 16;
 				damage = 250;
 				upgradeCost = 30;
 				installingTime = 150;
@@ -80,7 +80,7 @@
 				case 5:
 				memoryUse = 210;
 				range = 200;
-				reloadTime = 20;
+				reloadTime = 16;
 				damage = 300;
 				upgradeCost = 30;
 				installingTime = 180;

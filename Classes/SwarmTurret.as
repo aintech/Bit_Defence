@@ -67,14 +67,14 @@
 				uninstallingTime = 120;
 				additionalDamage = 20;
 				additionalRange = 0;
-				additionalReloadTime = 0;
+				additionalReloadTime = 4;
 				additionalMissiles = 1;
 				break;
 				
 				case 4:
 				memoryUse = 300;
 				range = 300;
-				reloadTime = 20;
+				reloadTime = 16;
 				damage = 80;
 				upgradeCost = 50;
 				numMissiles = 6;
@@ -90,7 +90,7 @@
 				case 5:
 				memoryUse = 350;
 				range = 300;
-				reloadTime = 20;
+				reloadTime = 16;
 				damage = 100;
 				upgradeCost = 50;
 				numMissiles = 7;

@@ -35,9 +35,11 @@ package
 	import flash.display.GradientType;
 	import flash.geom.Matrix;
 	import flash.display.SpreadMethod;
+	import flash.filters.BlurFilter;
+	import flash.filters.DropShadowFilter;
 
 	public class GamePlay extends MovieClip
-	{//CONTINIUM - переправляем вид introduceScreen
+	{Continium - переделываем UpgredeBtn
 		private var P:String = "Road";
 		private var G:String = "Ground";
 		private var M:String = "PlaceMarker";
@@ -72,7 +74,7 @@ package
 		public var introduceHolder:Sprite		= new Sprite();
 		public var toolGaugeScreen:Sprite		= new Sprite();
 		
-		private var userMonitors:Bitmap;
+		private var userMonitors:MovieClip;
 		
 		public var charScreen:MovieClip;
 		public var availableCharArray:Array = [];
@@ -238,6 +240,7 @@ package
 			
 			road = new LevelRoads();
 			road.gotoAndStop(currentLevel);
+			road.filters = [new DropShadowFilter()];
 			roadHolder.addChild(road);
 			
 			charScreen = new CharScreen();
@@ -413,8 +416,10 @@ package
 			nextWaveTimer.addEventListener(TimerEvent.TIMER, countWaveDelay, false, 0, true);
 			nextWaveTimer.addEventListener(TimerEvent.TIMER_COMPLETE, waveDelayComplete, false, 0, true);
 			
-			userMonitors = new Bitmap(new UserMonitors(0, 0));
+			//userMonitors = new Bitmap(new UserMonitors(0, 0));
+			userMonitors = new UserMonitors();
 			userMonitors.y = -userMonitors.height;
+			userMonitors.filters = [new GlowFilter(0x0000FF)];
 			userInterface.addChildAt(userMonitors, 0);
 			
 			infoScreen = new InfoScreen();
@@ -881,6 +886,7 @@ package
 			intro.y = gameHeight * .5;
 			intro.buttonMode = false;
 			introduceInWork = true;
+			intro.filters = [new DropShadowFilter()];
 			pauseGame();
 		}
 		
@@ -1200,7 +1206,10 @@ package
 					if(enemy is Enemy_Neirobot)
 					{
 						Variables.NUM_NEIROBOTS--;
-						for each(var neiro:Enemy_Neirobot in enemyArray) neiro.systemDamage = neiro.baseSystemDamage * Variables.NUM_NEIROBOTS * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
+						for each(var neiro:Enemy in enemyArray)
+						{
+							if(neiro is Enemy_Neirobot) neiro.systemDamage = neiro.baseSystemDamage * Variables.NUM_NEIROBOTS * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
+						}
 					}
 					if(enemy is Enemy_Protector)
 					{
