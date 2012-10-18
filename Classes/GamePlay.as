@@ -39,7 +39,7 @@ package
 	import flash.filters.DropShadowFilter;
 
 	public class GamePlay extends MovieClip
-	{Continium - переделываем UpgredeBtn
+	{
 		private var P:String = "Road";
 		private var G:String = "Ground";
 		private var M:String = "PlaceMarker";

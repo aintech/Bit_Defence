@@ -64,7 +64,7 @@
 		
 		protected function init():void
 		{
-			glowFilter = new GlowFilter(0xFFFFFF, 1, 3, 3, 1);
+			glowFilter = new GlowFilter(0x0000FF, 1, 6, 6, 1);
 			this.filters = [glowFilter];
 			buttonMode = true;
 		}

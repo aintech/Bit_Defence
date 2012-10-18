@@ -20,7 +20,7 @@
 		private const gun_III_descript:String					= "  you can upgrade your gun up to level 3";
 		private const critical_X4_descript:String				= "  if gun perfoming critical attack, it's damage x4";
 		private const gun_V_descript:String						= "  you can upgrade your gun up to level 5";
-		private const crit_chance_descript:String				= "  increase chance of critical up to 20%";
+		private const crit_chance_descript:String				= "  increases chance of critical by 10%";
 		private const additional_tools_descript:String			= "  give +2 Special tools";
 		private const acc_damage_descript:String				= "  each hit on single target increase damage on this target";
 		private const gun_mastered_descript:String				= "  gun installation starts from level 3";
@@ -28,7 +28,7 @@
 		private const swarm_III_descript:String					= "  you can upgrade your swarm up to level 3";
 		private const wide_splash_descript:String				= "  if swarm perfoming splash attack, it's radius x1,5 wider";
 		private const swarm_V_descript:String					= "  you can upgrade your swarm up to level 3";
-		private const splash_chance_descript:String				= "  increase chance of splash up to 20%";
+		private const splash_chance_descript:String				= "  increases chance of splash by 10%";
 		private const more_symbols_descript:String				= "  more Symbols falling from enemies";
 		private const bomb_cascade_descript:String				= "  some rockets perfoming bombs with splash damage";
 		private const swarm_mastered_descript:String			= "  swarm installation starts from level 3";
@@ -36,7 +36,7 @@
 		private const launcher_III_descript:String				= "  you can upgrade your launcher up to level 3";
 		private const poison_damage_descript:String				= "  poison damage is x1,5 greater";
 		private const launcher_V_descript:String				= "  you can upgrade your launcher up to level 3";
-		private const poison_chance_descript:String				= "  increase chance of poison up to 20%";
+		private const poison_chance_descript:String				= "  increases chance of poison by 10%";
 		private const memory_chance_descript:String				= "  enemies drop memory more often";
 		private const poison_cloud_descript:String				= "  poison cloud stays on attacking zone";
 		private const launcher_mastered_descript:String			= "  launcher installation starts from level 3";
@@ -44,7 +44,7 @@
 		private const freeze_III_descript:String				= "  you can upgrade your freeze up to level 3";
 		private const longer_stun_descript:String				= "  if freeze perform stun attack, it's x1,5 longer";
 		private const freeze_V_descript:String					= "  you can upgrade your freeze up to level 3";
-		private const stun_chance_descript:String				= "  increase chance of stun up to 20%";
+		private const stun_chance_descript:String				= "  increases chance of stun by 10%";
 		private const hack_protect_descript:String				= "  enemies have 20% less chance for hacking system";
 		private const multy_stun_descript:String				= "  stun multiple enemies";
 		private const freeze_mastered_descript:String			= "  freeze installation starts from level 3";
@@ -180,8 +180,16 @@
 				{
 					if(link.name == String(btn.name) + "_link")
 					{
-						if(btn.achieved) link.gotoAndStop(2);
-						else link.gotoAndStop(1);
+						if(btn.achieved)
+						{
+							link.gotoAndStop(2);
+							link.filters = [new GlowFilter(0x00FF00)];
+						}
+						else
+						{
+							link.gotoAndStop(1);
+							link.filters = [];
+						}
 					}
 				}
 			}
@@ -566,7 +574,7 @@
 			pressedUpgrades.push(e.currentTarget);
 			
 			checkBtns();
-			txtSymbols.text = "Symbols: " + String(Variables.SYMBOLS);
+			txtSymbols.text = String(Variables.SYMBOLS);
 			stage.focus = this;
 		}
 		
