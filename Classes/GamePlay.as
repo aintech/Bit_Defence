@@ -790,6 +790,7 @@ package
 				infoScreen.txtSpeed.text		= String(infoScreen.target.baseSpeed);
 				infoScreen.txtSystemDamage.text	= String(infoScreen.target.systemDamage);
 				infoScreen.txtHackChance.text	= String(infoScreen.target.hackChance);
+				if(!infoScreen.setPriorityBtn.hasEventListener(MouseEvent.CLICK)) infoScreen.setPriorityBtn.addEventListener(MouseEvent.CLICK, setPriorityEnemy, false, 0, true);
 			}
 			else if(infoScreen.target is Buy_Freeze_Turret || infoScreen.target is Buy_Gun_Turret || 
 					infoScreen.target is Buy_Launcher_Turret || infoScreen.target is Buy_Swarm_Turret)
@@ -823,6 +824,7 @@ package
 				infoScreen.txtSpeed.text		= String(infoScreen.previusTarget.baseSpeed);
 				infoScreen.txtSystemDamage.text	= String(infoScreen.previusTarget.systemDamage);
 				infoScreen.txtHackChance.text	= String(infoScreen.previusTarget.hackChance);
+				if(!infoScreen.setPriorityBtn.hasEventListener(MouseEvent.CLICK)) infoScreen.setPriorityBtn.addEventListener(MouseEvent.CLICK, setPriorityEnemy, false, 0, true);
 			}
 			else if(!levelStarted)
 			{
@@ -1852,7 +1854,6 @@ package
 			}
 			
 			var counter = new InstallingCounter();
-			counter.gotoAndStop(100);
 			counter.txtCount.text = "0 %";
 			counter.txtProcess.text = "install";
 			
@@ -1889,7 +1890,7 @@ package
 					counter.passTime++;
 					var percent:int = Math.floor(counter.passTime / counter.installTime * 100);
 					counter.txtCount.text = String(percent) + " %";
-					counter.gotoAndStop(percent);
+					counter.progressBar.gotoAndStop(percent);
 				}
 				else
 				{
@@ -1919,7 +1920,6 @@ package
 			}
 			
 			var counter = new InstallingCounter();
-			counter.gotoAndStop(100);
 			counter.txtCount.text = "0 %";
 			counter.txtProcess.text = "upgrade";
 			counter.turretInAction = turret;
@@ -1948,7 +1948,7 @@ package
 					counter.passTime++;
 					var percent:int = Math.floor(counter.passTime / counter.upgradeTime * 100);
 					counter.txtCount.text = String(percent) + " %";
-					counter.gotoAndStop(percent);
+					counter.progressBar.gotoAndStop(percent);
 				}
 				else
 				{
@@ -2008,7 +2008,6 @@ package
 				}
 			}
 			var counter:InstallingCounter = new InstallingCounter();
-			counter.gotoAndStop(1);
 			counter.txtCount.text = "100 %";
 			counter.txtProcess.text = "uninstall";
 			counter.turretInAction = turret;
@@ -2031,7 +2030,7 @@ package
 					counter.passTime--;
 					var percent = Math.floor(counter.passTime / counter.uninstallTime * 100);
 					counter.txtCount.text = String(percent) + " %";
-					counter.gotoAndStop(percent);
+					counter.progressBar.gotoAndStop(percent);
 				}
 				else
 				{

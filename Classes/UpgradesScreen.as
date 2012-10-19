@@ -17,37 +17,37 @@
 		private var doneBtn:Button;
 		
 		
-		private const gun_III_descript:String					= "  you can upgrade your gun up to level 3";
-		private const critical_X4_descript:String				= "  if gun perfoming critical attack, it's damage x4";
-		private const gun_V_descript:String						= "  you can upgrade your gun up to level 5";
-		private const crit_chance_descript:String				= "  increases chance of critical by 10%";
-		private const additional_tools_descript:String			= "  give +2 Special tools";
-		private const acc_damage_descript:String				= "  each hit on single target increase damage on this target";
-		private const gun_mastered_descript:String				= "  gun installation starts from level 3";
+		private const gun_III_descript:String					= "you can upgrade your gun up to level 3";
+		private const critical_X4_descript:String				= "if gun perfoming critical attack, it's damage x4";
+		private const gun_V_descript:String						= "you can upgrade your gun up to level 5";
+		private const crit_chance_descript:String				= "increases chance of critical by 10%";
+		private const additional_tools_descript:String			= "give +2 Special tools";
+		private const acc_damage_descript:String				= "each hit on single target increase damage on this target";
+		private const gun_mastered_descript:String				= "gun installation starts from level 3";
 		
-		private const swarm_III_descript:String					= "  you can upgrade your swarm up to level 3";
-		private const wide_splash_descript:String				= "  if swarm perfoming splash attack, it's radius x1,5 wider";
-		private const swarm_V_descript:String					= "  you can upgrade your swarm up to level 3";
-		private const splash_chance_descript:String				= "  increases chance of splash by 10%";
-		private const more_symbols_descript:String				= "  more Symbols falling from enemies";
-		private const bomb_cascade_descript:String				= "  some rockets perfoming bombs with splash damage";
-		private const swarm_mastered_descript:String			= "  swarm installation starts from level 3";
+		private const swarm_III_descript:String					= "you can upgrade your swarm up to level 3";
+		private const wide_splash_descript:String				= "if swarm perfoming splash attack, it's radius x1,5 wider";
+		private const swarm_V_descript:String					= "you can upgrade your swarm up to level 3";
+		private const splash_chance_descript:String				= "increases chance of splash by 10%";
+		private const more_symbols_descript:String				= "more Symbols falling from enemies";
+		private const bomb_cascade_descript:String				= "some rockets perfoming bombs with splash damage";
+		private const swarm_mastered_descript:String			= "swarm installation starts from level 3";
 		
-		private const launcher_III_descript:String				= "  you can upgrade your launcher up to level 3";
-		private const poison_damage_descript:String				= "  poison damage is x1,5 greater";
-		private const launcher_V_descript:String				= "  you can upgrade your launcher up to level 3";
-		private const poison_chance_descript:String				= "  increases chance of poison by 10%";
-		private const memory_chance_descript:String				= "  enemies drop memory more often";
-		private const poison_cloud_descript:String				= "  poison cloud stays on attacking zone";
-		private const launcher_mastered_descript:String			= "  launcher installation starts from level 3";
+		private const launcher_III_descript:String				= "you can upgrade your launcher up to level 3";
+		private const poison_damage_descript:String				= "poison damage is x1,5 greater";
+		private const launcher_V_descript:String				= "you can upgrade your launcher up to level 3";
+		private const poison_chance_descript:String				= "increases chance of poison by 10%";
+		private const memory_chance_descript:String				= "enemies drop memory more often";
+		private const poison_cloud_descript:String				= "poison cloud stays on attacking zone";
+		private const launcher_mastered_descript:String			= "launcher installation starts from level 3";
 		
-		private const freeze_III_descript:String				= "  you can upgrade your freeze up to level 3";
-		private const longer_stun_descript:String				= "  if freeze perform stun attack, it's x1,5 longer";
-		private const freeze_V_descript:String					= "  you can upgrade your freeze up to level 3";
-		private const stun_chance_descript:String				= "  increases chance of stun by 10%";
-		private const hack_protect_descript:String				= "  enemies have 20% less chance for hacking system";
-		private const multy_stun_descript:String				= "  stun multiple enemies";
-		private const freeze_mastered_descript:String			= "  freeze installation starts from level 3";
+		private const freeze_III_descript:String				= "you can upgrade your freeze up to level 3";
+		private const longer_stun_descript:String				= "if freeze perform stun attack, it's x1,5 longer";
+		private const freeze_V_descript:String					= "you can upgrade your freeze up to level 3";
+		private const stun_chance_descript:String				= "increases chance of stun by 10%";
+		private const hack_protect_descript:String				= "enemies have 20% less chance for hacking system";
+		private const multy_stun_descript:String				= "stun multiple enemies";
+		private const freeze_mastered_descript:String			= "freeze installation starts from level 3";
 		
 		public function UpgradesScreen()
 		{
@@ -75,12 +75,11 @@
 			undoBtn.addEventListener(MouseEvent.CLICK, undoChanges, false, 0, true);
 			addChild(undoBtn);
 			
-			txtSymbols.text = "Symbols: " + String(Variables.SYMBOLS);	
+			txtSymbols.text = String(Variables.SYMBOLS);	
 			
 			descript = new UpgradeDescription();
 			descript.visible = false;
 			descript.mouseEnabled = false;
-			descript.gotoAndStop("top_right");
 			addChild(descript);
 			
 			buttonsArray.push(gun_III, 		criticalX4, 	gun_V, 		critChance, 	additionalTools, 	accumulateDamage,		gunMastered,
@@ -110,7 +109,6 @@
 					}
 				}
 			}
-			
 			checkBtns();
 		}
 		
@@ -197,11 +195,10 @@
 		
 		private function overBtn(e:MouseEvent):void
 		{
-			descript.visible = true;
-			if(stage.mouseX > stage.stageWidth * .7) descript.gotoAndStop("top_left"); 
-			else descript.gotoAndStop("top_right");
 			if(e.currentTarget.canBeAchieved == true) e.currentTarget.filters = [new GlowFilter(0x00FF00, 1, 10, 10)];
 			e.currentTarget.mouseIsOver = true;
+			
+			descript.visible = true;
 			
 			switch(e.currentTarget.name)
 			{
@@ -379,6 +376,9 @@
 					descript.txtDescription.text = freeze_mastered_descript;
 				break;
 			}
+			
+			descript.txtCost.x = descript.txtName.x + descript.txtName.width + 10;
+			descript.setBG(e.currentTarget.x);
 		}
 		
 		private function outBtn(e:MouseEvent):void
@@ -761,7 +761,7 @@
 				pressedUpgrades.splice(i, 1);
 			}
 			for each(var theBtn:UpgradeBtn in buttonsArray) theBtn.achieved = theBtn.canBeAchieved = false;
-			txtSymbols.text = "Symbols: " + String(Variables.SYMBOLS);
+			txtSymbols.text = String(Variables.SYMBOLS);
 			checkBtns();
 			stage.focus = this;
 		}

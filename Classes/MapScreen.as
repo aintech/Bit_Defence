@@ -10,6 +10,7 @@
 	import flash.filters.GlowFilter;
 	import flash.utils.Timer;
 	import flash.events.TimerEvent;
+	import flash.display.Sprite;
 
 	public class MapScreen extends MovieClip
 	{
@@ -36,6 +37,12 @@
 		
 		public function onAdd(e:Event):void
 		{
+			var Bg:Sprite = new Sprite;
+			Bg.graphics.beginFill(0x000000);
+			Bg.graphics.drawRect(0, 0, Main.STAGE_WIDTH, Main.STAGE_HEIGHT);
+			Bg.graphics.endFill();
+			addChildAt(Bg, 0);
+			
 			addEventListener(MouseEvent.CLICK, stageFocus, false, 0, true);
 			
 			blockFormat = new TextFormat("Digital-7", 60, 0xFFFFFF)
