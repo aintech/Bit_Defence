@@ -12,7 +12,7 @@
 
 //FIX: если срабатывает спецтехника, вроде переноса турели, и при этом заканчивается гаудж, остальные техники все равно загораются синим, хоть и не работают(если применена спецтехника переноса туррели)
 package 
-{
+{Continium - перерисовать PlaceMarker AddMarkerCounter
 	import flash.display.MovieClip;
 	import flash.display.StageQuality;
 	import flash.geom.Point;
