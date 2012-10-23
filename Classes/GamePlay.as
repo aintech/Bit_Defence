@@ -11,8 +11,6 @@
 //BALANCE: разные типы врагов устойчивые к разным турелям заставять игрока применять разные тактики
 
 //FIX: если срабатывает спецтехника, вроде переноса турели, и при этом заканчивается гаудж, остальные техники все равно загораются синим, хоть и не работают(если применена спецтехника переноса туррели)
-//TODO: доработать checkForNextWave
-
 package 
 {
 	import flash.display.MovieClip;
@@ -119,7 +117,6 @@ package
 		public var particleArray:Array 				= [];
 		public var upgradingArray:Array				= [];
 		public var distEnemyArray:Array				= [];
-		public var hackingEnemies:Array				= [];
 		public var charIconsArray:Array				= [];
 		public var installingArray:Array			= [];
 		public var swarmBombsArray:Array			= [];
@@ -143,7 +140,7 @@ package
 		public var gameOver:Boolean = false;
 		public var gamePaused:Boolean = false;
 		
-		public var optionsBtn:Button;
+		public var optionsBtn:OptionsBtn;
 		
 		public var specialToolsGauge:int = Variables.SPECIAL_TOOL_GAUGE;
 		public var addingMarker:Boolean = false;
@@ -164,10 +161,6 @@ package
 		public var startWaveBtnArrow:MovieClip;
 		public var nextWaveTimer:Timer;
 		public var waveTimerInAction:Boolean = false;
-		
-		public var scoreMemoryPoint:Point;
-		public var scoreSymbolsPoint:Point;
-		public var scoreProtectPoint:Point;
 		
 		public var roadCounter:int = 2;
 		
@@ -195,6 +188,8 @@ package
 		private var launcherAvailable:Boolean;
 		private var freezeAvailable:Boolean;
 		private var swarmAvailable:Boolean;
+		
+		private var scoreBoard:ScoreBoard;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -227,7 +222,7 @@ package
 			//groundHolder.alpha = 0;
 			addChild(markerHolder);
 			addChild(enemyHolder);
-			enemyFinalTarget = new EnemyFinalTarget(); addChild(enemyFinalTarget);
+			enemyFinalTarget = new EnemyFinalTarget(); enemyFinalTarget.filters = [new GlowFilter(0xFF0000)]; addChild(enemyFinalTarget);
 			addChild(turretHolder);
 			addChild(bulletHolder);
 			userInterface.y = Main.STAGE_HEIGHT; addChild(userInterface);
@@ -240,7 +235,6 @@ package
 			
 			road = new LevelRoads();
 			road.gotoAndStop(currentLevel);
-			road.filters = [new DropShadowFilter()];
 			roadHolder.addChild(road);
 			
 			charScreen = new CharScreen();
@@ -397,13 +391,9 @@ package
 				toolGauge.gotoAndStop(toolGauge.totalFrames);
 				specialToolsGaugeArray.push(toolGauge);
 			}
-			toolsScreen.addChild(toolGaugeScreen);
-			toolGaugeScreen.x = toolsScreen.width * .5 - toolGaugeScreen.width * .5;
-			toolGaugeScreen.y = -toolsScreen.height;
-			
-			scoreSymbolsPoint = new Point(0, 0); 
-			scoreMemoryPoint = new Point(0, 0); 
-			scoreProtectPoint = new Point(0, 0);
+			userInterface.addChild(toolGaugeScreen);
+			toolGaugeScreen.x = 393 - toolGaugeScreen.width * .5;
+			toolGaugeScreen.y = -60 - toolGaugeScreen.height * .9;
 			
 			startWave();
 			makeLevel();
@@ -416,7 +406,6 @@ package
 			nextWaveTimer.addEventListener(TimerEvent.TIMER, countWaveDelay, false, 0, true);
 			nextWaveTimer.addEventListener(TimerEvent.TIMER_COMPLETE, waveDelayComplete, false, 0, true);
 			
-			//userMonitors = new Bitmap(new UserMonitors(0, 0));
 			userMonitors = new UserMonitors();
 			userMonitors.y = -userMonitors.height;
 			userMonitors.filters = [new GlowFilter(0x0000FF)];
@@ -428,20 +417,30 @@ package
 			infoScreen.startLevelBtn.addEventListener(MouseEvent.CLICK, startLevel, false, 0, true);
 			infoScreen.startLevelBtn.buttonMode = true;
 			infoScreen.startLevelBtn.mouseChildren = false;
-						
-			optionsBtn = new Button("OPTIONS", true);
+			
+			optionsBtn = new OptionsBtn();
 			userInterface.addChild(optionsBtn);
-			optionsBtn.x = Main.STAGE_WIDTH - optionsBtn.width - optionsBtn.offset;
-			optionsBtn.y = -Main.STAGE_HEIGHT + optionsBtn.offset;
-			optionsBtn.addEventListener(MouseEvent.CLICK, showOptions, false, 0, true);
+			optionsBtn.x = Main.STAGE_WIDTH - optionsBtn.width - 10;
+			optionsBtn.y = -optionsBtn.height - 10;
+			optionsBtn.addEventListener(MouseEvent.CLICK, showOptions, false, 0, true)
 			
 			rangeCircle = new Shape();
+			
+			scoreBoard = new ScoreBoard();
+			userInterface.addChild(scoreBoard);
+			scoreBoard.x = Main.STAGE_WIDTH * .5 - scoreBoard.width * .5;
+			scoreBoard.y = -Main.STAGE_HEIGHT;
+			
+			scoreBoard.update(ScoreBoard.UPD_SYSTEM, String(systemProtection));
+			scoreBoard.update(ScoreBoard.UPD_WAVE, ("1/" + enemyWaves.length));
+			scoreBoard.update(ScoreBoard.UPD_ENEMIES, String(enemyWaves[0].length));
+			scoreBoard.update(ScoreBoard.UPD_MEMORY, (memoryUsed + "/" + memoryTotal));
+			scoreBoard.update(ScoreBoard.UPD_SYMBOLS, String(Variables.SYMBOLS));
 		}
 		
 		public function startLevel(e:MouseEvent):void
 		{
 			infoScreen.startLevelBtn.removeEventListener(MouseEvent.CLICK, startLevel);
-			infoScreen.gotoAndStop("base");
 			levelStarted = true;
 			
 			setTurretCharStatus(true);
@@ -726,7 +725,8 @@ package
 			if(enemiesLeft == 0 && !waveTimerInAction && currentWave < enemyWaves.length)	checkForNextWave();
 			if(dropArray.length > 0) 														checkDrop();
 			if(placingFalseTarget) 															checkRoadForFalseTarget();
-			showInfoScreen();
+			if(infoScreen.target || infoScreen.previusTarget || !levelStarted)				showInfoScreen();
+			else infoScreen.gotoAndStop("empty");
 			if(dragging)																	checkDrag();
 		}
 		
@@ -779,7 +779,6 @@ package
 			{
 				infoScreen.gotoAndStop("tool");
 				infoScreen.txtName.text 		= String(infoScreen.target.type);
-				infoScreen.txtReloadTime.text 	= String(infoScreen.target.cooltime);
 				infoScreen.txtDescription.text 	= infoScreen.target.toolDescription();
 			}
 			else if(infoScreen.target is Enemy)
@@ -789,7 +788,6 @@ package
 				infoScreen.txtLife.text			= String(infoScreen.target.health);
 				infoScreen.txtSpeed.text		= String(infoScreen.target.baseSpeed);
 				infoScreen.txtSystemDamage.text	= String(infoScreen.target.systemDamage);
-				infoScreen.txtHackChance.text	= String(infoScreen.target.hackChance);
 				if(!infoScreen.setPriorityBtn.hasEventListener(MouseEvent.CLICK)) infoScreen.setPriorityBtn.addEventListener(MouseEvent.CLICK, setPriorityEnemy, false, 0, true);
 			}
 			else if(infoScreen.target is Buy_Freeze_Turret || infoScreen.target is Buy_Gun_Turret || 
@@ -823,7 +821,6 @@ package
 				infoScreen.txtLife.text			= String(infoScreen.previusTarget.health);
 				infoScreen.txtSpeed.text		= String(infoScreen.previusTarget.baseSpeed);
 				infoScreen.txtSystemDamage.text	= String(infoScreen.previusTarget.systemDamage);
-				infoScreen.txtHackChance.text	= String(infoScreen.previusTarget.hackChance);
 				if(!infoScreen.setPriorityBtn.hasEventListener(MouseEvent.CLICK)) infoScreen.setPriorityBtn.addEventListener(MouseEvent.CLICK, setPriorityEnemy, false, 0, true);
 			}
 			else if(!levelStarted)
@@ -833,15 +830,6 @@ package
 				infoScreen.startLevelBtn.mouseChildren = false;
 				infoScreen.startLevelBtn.filters = [new GlowFilter(0x0000FF)];
 				if(!infoScreen.startLevelBtn.hasEventListener(MouseEvent.CLICK)) infoScreen.startLevelBtn.addEventListener(MouseEvent.CLICK, startLevel, false, 0, true);
-			}
-			else
-			{
-				infoScreen.gotoAndStop("base");
-				infoScreen.txtWave.text 		= "Wave: " + currentWave + "/" + int(enemyWaves.length);
-				infoScreen.txtMemory.text 		= "Memory: " + memoryUsed + "/" + memoryTotal;
-				infoScreen.txtEnemiesLeft.text 	= "Enemies Left: " + enemiesLeft;
-				infoScreen.txtSymbols.text 		= "Symbols: " + String(Variables.SYMBOLS);
-				infoScreen.txtSystem.text 		= "System: "+ String(Number(Math.round(systemProtection * 10) * .1).toFixed(1)) + " %";
 			}
 		}
 		
@@ -1205,6 +1193,7 @@ package
 					if(infoScreen.previusTarget == enemy) infoScreen.previusTarget = null;
 					removeObject(i, enemyArray);
 					enemiesLeft--;
+					scoreBoard.update(ScoreBoard.UPD_ENEMIES, String(enemiesLeft));
 					if(enemy is Enemy_Neirobot)
 					{
 						Variables.NUM_NEIROBOTS--;
@@ -1370,13 +1359,13 @@ package
 					if(systemProtection > 0)
 					{
 						systemProtection -= enemy.systemDamage;
-						if(systemProtection <= 0) systemProtection = 0;
+						scoreBoard.update(ScoreBoard.UPD_SYSTEM, String(systemProtection));
 						clip.gotoAndStop(clip.currentFrame);
-					}
-					else if(systemProtection <= 0)
-					{
-						systemProtection = 0;
-						checkForHack(enemy, i);
+						if(systemProtection <= 0)
+						{
+							systemProtection = 0;
+							gameOver = true;
+						}
 					}
 				}
 				if(falseTarget)
@@ -1455,6 +1444,7 @@ package
 						bug.updateDirection(enemy.direction);
 						enemy.bugsWaitTime = 0;
 						enemiesLeft++;
+						scoreBoard.update(ScoreBoard.UPD_ENEMIES, String(enemiesLeft));
 					}
 				}
 				
@@ -1474,13 +1464,6 @@ package
 					clip.gotoAndPlay(clip.currentFrame);
 					clip = null;
 				}
-			}
-			
-			for(var h:int = hackingEnemies.length; --h >= 0;)
-			{
-				enemy = hackingEnemies[h];
-				enemy.alpha -= .2;
-				if(enemy.alpha <= 0) removeObject(h, hackingEnemies);
 			}
 		}
 		
@@ -1864,6 +1847,7 @@ package
 			counter.passTime = 0;
 			
 			memoryUsed += turret.memoryUse;
+			scoreBoard.update(ScoreBoard.UPD_MEMORY, (memoryUsed + "/" + memoryTotal));
 			for each(var charIcon:CharIcon in charIconsArray)
 			{
 				if(memoryTotal < (charIcon.memoryUse + memoryUsed)) setTurretCharStatus(false, charIcon);
@@ -1929,6 +1913,7 @@ package
 			counter.y = turret.y;
 			
 			memoryUsed += turret.upgradeCost;
+			scoreBoard.update(ScoreBoard.UPD_MEMORY, (memoryUsed + "/" + memoryTotal));
 			for each(var charIcon:CharIcon in charIconsArray)
 			{
 				if(memoryTotal < (charIcon.memoryUse + memoryUsed)) setTurretCharStatus(false, charIcon);
@@ -1974,6 +1959,7 @@ package
 				if(turret.isRelocating)
 				{
 					memoryUsed -= turret.memoryUse;
+					scoreBoard.update(ScoreBoard.UPD_MEMORY, (memoryUsed + "/" + memoryTotal));
 					for each(var charIcon:CharIcon in charIconsArray)
 					{
 						if(memoryTotal >= (charIcon.memoryUse + memoryUsed)) setTurretCharStatus(true, charIcon);
@@ -2038,6 +2024,7 @@ package
 					if(!turret.isRelocating)
 					{
 						memoryUsed -= turret.memoryUse;
+						scoreBoard.update(ScoreBoard.UPD_MEMORY, (memoryUsed + "/" + memoryTotal));
 						for each(var charIcon:CharIcon in charIconsArray)
 						{
 							if(memoryTotal >= (charIcon.memoryUse + memoryUsed)) setTurretCharStatus(true, charIcon);
@@ -2641,44 +2628,49 @@ package
 			var drop:Drop = new Drop();
 			drop.x = drop.destX = xVal;
 			drop.y = drop.destY = yVal;
+			drop.x = xVal;
+			drop.y = yVal;
 			drop.destX += Math.round(Math.cos(Math.random() * 360) * Drop.DISTANCE);
 			drop.destY += Math.round(Math.sin(Math.random() * 360) * Drop.DISTANCE);
 			drop.dropType = dropType;
 			drop.dropAmaunt = dropAmaunt;
 			drop.addEventListener(MouseEvent.CLICK, pickUpDrop, false, 0, true);
 			dropArray.push(drop);
-			userInterface.addChild(drop);
+			addChild(drop);
 			
 			switch(drop.dropType)
 			{
 				case Drop.DROP_SYMBOLS:
-					drop.gotoScorePoint = scoreSymbolsPoint;
 					drop.gotoAndStop("symbols");
 				break;
 				
 				case Drop.DROP_MEMORY:
-					drop.gotoScorePoint = scoreMemoryPoint;
 					drop.gotoAndStop("memory");
 				break;
 				
 				case Drop.DROP_PROTECT:
-					drop.gotoScorePoint = scoreProtectPoint;
 					drop.gotoAndStop("protect");
 				break;
 			}
+		}
+		
+		private function pickUpDrop(e:MouseEvent):void
+		{
+			var drop:Drop = e.currentTarget as Drop;
+			drop.disapear();
 		}
 		
 		private function checkDrop():void
 		{
 			for each(var drop:Drop in dropArray)
 			{
-				var xDist:Number;
-				var yDist:Number;
-				var dist:Number;
-				var angle:Number;
-				
-				if(!drop.gotoScoreBoard)
+				if(!drop.inPosition)
 				{
+					var xDist:Number;
+					var yDist:Number;
+					var dist:Number;
+					var angle:Number;
+					
 					xDist = drop.destX - drop.x;
 					yDist = drop.destY - drop.y;
 					dist = Math.sqrt(xDist*xDist + yDist*yDist);
@@ -2691,45 +2683,39 @@ package
 						drop.x += drop.xSpeed;
 						drop.y += drop.ySpeed;
 					}
-					else drop.gotoScoreBoard = true;
+					else drop.inPosition = true;
 				}
-				if(drop.gotoScoreBoard && drop.waitCounter >= drop.waitTime)
-				{
-					xDist = drop.gotoScorePoint.x - drop.x;
-					yDist = drop.gotoScorePoint.y - drop.y;
-					dist = Math.sqrt(xDist*xDist + yDist*yDist);
-						
-					angle = Math.atan2(yDist, xDist);
-					drop.xSpeed = Math.cos(angle) * drop.gotoScoreSpeed;
-					drop.ySpeed = Math.sin(angle) * drop.gotoScoreSpeed;
 				
-					drop.x += drop.xSpeed;
-					drop.y += drop.ySpeed;
+				if(drop.dropReady)
+				{
+					if(drop.hasEventListener(MouseEvent.CLICK)) drop.removeEventListener(MouseEvent.CLICK, pickUpDrop);
+					drop.buttonMode = false;
+					var blur:int;
+					for each(var filter:* in drop.filters)
+					{
+						if(filter is BlurFilter)
+						{
+							blur = filter.blurX + 1;
+							drop.filters = [new GlowFilter(0x0000FF), new BlurFilter(blur, blur)];
+							if(blur > 10) getDrop(drop);
+						}
+					}
 				}
-				else if(drop.gotoScoreBoard && drop.waitCounter < drop.waitTime) drop.waitCounter++;
-				if(drop.y < 10 && drop.x < 10) getDrop(drop);
 			}
 		}
 		
-		private function pickUpDrop(e:MouseEvent):void
-		{
-			var drop:Drop = e.currentTarget as Drop;
-			drop.gotoScoreBoard = true;
-			drop.waitCounter = drop.waitTime;
-		}
-		
 		private function getDrop(drop:Drop):void
-		{
-			if(drop.hasEventListener(MouseEvent.CLICK)) drop.removeEventListener(MouseEvent.CLICK, pickUpDrop);
-			
+		{			
 			switch(drop.dropType)
 			{
 				case Drop.DROP_SYMBOLS:
 					Variables.SYMBOLS += drop.dropAmaunt;
+					scoreBoard.update(ScoreBoard.UPD_SYMBOLS, String(Variables.SYMBOLS));
 				break;
 				
 				case Drop.DROP_MEMORY:
 					memoryTotal += drop.dropAmaunt;
+					scoreBoard.update(ScoreBoard.UPD_MEMORY, (memoryUsed + "/" + memoryTotal));
 					for each(var charIcon:CharIcon in charIconsArray)
 					{
 						if(memoryTotal >= (charIcon.memoryUse + memoryUsed)) setTurretCharStatus(true, charIcon);
@@ -2748,7 +2734,8 @@ package
 				
 				case Drop.DROP_PROTECT:
 					systemProtection += drop.dropAmaunt;
-					if(systemProtection >= 100) systemProtection = 100;
+					if(systemProtection > 100) systemProtection = 100;
+					scoreBoard.update(ScoreBoard.UPD_SYSTEM, String(systemProtection));
 				break;
 			}
 			drop.parent.removeChild(drop);
@@ -2821,6 +2808,13 @@ package
 		
 		private function checkForNextWave():void
 		{
+			if(currentWave < enemyWaves.length)
+			{
+				scoreBoard.update(ScoreBoard.UPD_WAVE, ((currentWave + 1) + "/" + enemyWaves.length));
+				scoreBoard.update(ScoreBoard.UPD_ENEMIES, String(enemyWaves[currentWave].length));
+			}
+			
+			
 			startWaveBtn = new StartWaveBtn();
 			startWaveBtn.buttonMode = true;
 			startWaveBtn.timeCounter.mouseEnabled = false;
@@ -2830,7 +2824,7 @@ package
 			
 			startWaveBtnArrow = new StartWaveBtnArrow();
 			addChild(startWaveBtnArrow);
-			
+					
 			switch(Enemy.STARTING_DIRECTION)
 			{
 				case Enemy.DIR_RIGHT:
@@ -2838,18 +2832,25 @@ package
 					startWaveBtn.y = roadStart.y;
 					startWaveBtnArrow.x = startWaveBtn.x - startWaveBtn.width + 5;
 					startWaveBtnArrow.y = startWaveBtn.y;
+					startWaveBtnArrow.rotation = 0;
 				break;
 				
 				case Enemy.DIR_LEFT:
-				break;
-				
-				case Enemy.DIR_UP:
+					startWaveBtn.x = roadStart.x - startWaveBtn.width - 50;
+					startWaveBtn.y = roadStart.y;
+					startWaveBtnArrow.x = startWaveBtn.x + startWaveBtn.width;
+					startWaveBtnArrow.y = startWaveBtn.y;
+					startWaveBtnArrow.rotation = 180;
 				break;
 				
 				case Enemy.DIR_DOWN:
+					startWaveBtn.x = roadStart.x;
+					startWaveBtn.y = roadStart.y + scoreBoard.height + 50;
+					startWaveBtnArrow.x = startWaveBtn.x;
+					startWaveBtnArrow.y = startWaveBtn.y - startWaveBtn.height;
+					startWaveBtnArrow.rotation = 90;
 				break;
 			}
-		
 			waveTimerInAction = true;
 			nextWaveTimer.start();
 		}
@@ -2935,48 +2936,7 @@ package
 				dispatchEvent(new CustomEvents(CustomEvents.LEVEL_WIN));
 			}
 		}
-		
-		private function checkForHack(enemy:Enemy, i:int):void
-		{
-			enemiesLeft--;
-			enemy.removeEventListener(MouseEvent.CLICK, clickEnemy);
-			enemy.removeEventListener(MouseEvent.CLICK, showInfo);
-			if(infoScreen.target == enemy) infoScreen.target = null;
-			if(infoScreen.previusTarget == enemy) infoScreen.previusTarget = null;
-			if(enemy is Enemy_Neirobot)
-			{
-				Variables.NUM_NEIROBOTS--;
-				for each(var neiro:Enemy_Neirobot in enemyArray)
-				{
-					neiro.systemDamage = neiro.baseSystemDamage * Variables.NUM_NEIROBOTS * Variables.SPECIAL_SYS_DAMAGE_MULTIPLY;
-				}
-			}
-			if(enemy is Enemy_Protector)
-			{
-				var tempEnemy:Enemy;
-				for each(tempEnemy in enemyArray)
-				{
-					tempEnemy.health -= tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
-					tempEnemy.maxHealth -= tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
-				}
-				Variables.NUM_PROTECTORS--;
-				for each(tempEnemy in enemyArray)
-				{
-					tempEnemy.health += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
-					tempEnemy.maxHealth += tempEnemy.baseMaxHealth * Variables.NUM_PROTECTORS * .1;
-				}
-			}
-			enemyArray.splice(i, 1);
-			hackingEnemies.push(enemy);
-			var clip:MovieClip = enemy.getChildByName("clip") as MovieClip;
-			clip.gotoAndStop(currentFrame);
-			clip = null;
-			
-			var res:Number = Math.round(Math.random() * 100);
-			
-			if(res < enemy.hackChance) gameOver = true;
-		}
-		
+				
 		private function clickTool(e:MouseEvent):void
 		{
 			if(specialToolsGauge > 0 && levelStarted)
@@ -3521,28 +3481,17 @@ package
 		
 		private function removeObject(index:int, group:Array):void
 		{
-			var par:*;
-			var obj:* = group[index];
-			if(obj)
+			var obj:*;
+			if(group)
 			{
-				par = obj.parent;
-				par.removeChild(obj);
-				group.splice(index, 1);
-				obj = null;
+				obj = group[index];
+				if(obj)
+				{
+					obj.parent.removeChild(obj);
+					group.splice(index, 1);
+					obj = null;
+				}
 			}
 		}
 	}
 }
-
-/*
-
-СпецТехника:
-Дополнительный контур защиты - снижает systemDamage врагов
-Остановка потока - все враги на время замирают
-Перегрузка потока - наносятся повреждения всем врагам
-Переустановка - перестановка турели со всеми апгрейдами на другой маркер
-Подключение дополнительного маркера - можно создать новый маркер, на который можно установить турель
-Преграда - фальшивый enemyFinalTarget, который тот должен взломать, чтобы продолжить движение
-Мины - устанавливаются на дороге и взрывается при прикосновении противника
-
-*/

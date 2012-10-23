@@ -170,7 +170,7 @@
 		
 		public static function setToDefault():void
 		{
-			SYMBOLS					= 10000;
+			SYMBOLS					= 100;
 			SYMBOLS_DROP_CHANCE		= 15;
 			MEMORY_DROP_CHANCE		= 10;
 			PROTECT_DROP_CHANCE		= 15;
@@ -207,7 +207,7 @@
 		 	SWARM_SPLASH_CHANCE				= 10;
 		 	SWARM_SPLASH_DAMAGE				= 50;
 		
-		 	SPECIAL_TOOL_GAUGE						= 4;
+		 	SPECIAL_TOOL_GAUGE						= 2;
 		
 		 	SPECIAL_FLOW_OVERLOAD_DAMAGE			= 800;
 		 	SPECIAL_SYS_DAMAGE_MULTIPLY				= 1;

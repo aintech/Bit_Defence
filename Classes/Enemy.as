@@ -278,7 +278,7 @@
 		
 		public function updateLevel():void
 		{
-			glowFilter = new GlowFilter(levelColor);
+			glowFilter = new GlowFilter(LevelData.levelColors(level));
 			blurFilter = new BlurFilter(2, 2);
 		}
 	}

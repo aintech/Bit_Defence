@@ -187,19 +187,10 @@
 			}
 			else if(e == null) sourceScreen = "optionsScreen";
 			
-			settingsScreen = new SettingsScreen();
+			settingsScreen = new SettingsScreen(drawBG);
 			stage.focus = settingsScreen;
 			settingsScreen.addEventListener(CustomEvents.CLOSE_SETTINGS, closeSettings, false, 0, true);
 			settingsScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
-			
-			if(drawBG)
-			{
-				var Bg:Sprite = new Sprite;
-				Bg.graphics.beginFill(0x000000);
-				Bg.graphics.drawRect(0, 0, Main.STAGE_WIDTH, Main.STAGE_HEIGHT);
-				Bg.graphics.endFill();
-				addChild(Bg);
-			}
 			addChild(settingsScreen);
 		}
 		

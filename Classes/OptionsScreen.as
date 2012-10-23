@@ -7,6 +7,7 @@
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
 	import flash.filters.GlowFilter;
+	import flash.display.Shape;
 
 	public class OptionsScreen extends MovieClip
 	{
@@ -33,6 +34,11 @@
 		
 		private function init():void
 		{
+			var Bg:Shape = new Shape();
+			Bg.graphics.beginFill(0x000000, 0);
+			Bg.graphics.drawRect(0, 0, Main.STAGE_WIDTH, Main.STAGE_HEIGHT);
+			addChild(Bg);
+			
 			optionsFormat = new TextFormat("Digital-7", 60, 0xFFFFFF)
 			
 			optionsField = new TextField();
