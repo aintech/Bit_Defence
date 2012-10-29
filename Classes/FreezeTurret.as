@@ -7,9 +7,7 @@
 			super.init();
 			maxLevel = Variables.FREEZE_MAX_LEVEL;
 			base = new TurretBase();
-			gun = new FreezeTurret_Gun();
 			addChild(base);	
-			addChild(gun);
 			
 			type = Turret.TURRET_FREEZE;
 			turretName = "Freeze";
@@ -20,6 +18,7 @@
 		
 		override public function updateLevel():void
 		{
+			var rot:int = 0;
 			switch(level)
 			{
 				case 1:
@@ -33,6 +32,19 @@
 				additionalDamage = 0;
 				additionalRange = 15;
 				additionalReloadTime = 1;
+				if(gun && gun is FreezeTurret_Gun_I) {}
+				else
+				{
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new FreezeTurret_Gun_I();
+					addChild(gun);
+					gun.rotation = rot;
+				}
 				break;
 				
 				case 2:
@@ -46,6 +58,19 @@
 				additionalDamage = 0;
 				additionalRange = 15;
 				additionalReloadTime = 1;
+				if(gun && gun is FreezeTurret_Gun_II) {}
+				else
+				{
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new FreezeTurret_Gun_II();
+					addChild(gun);
+					gun.rotation = rot;
+				}
 				break;
 				
 				case 3:
@@ -59,6 +84,19 @@
 				additionalDamage = 0;
 				additionalRange = 15;
 				additionalReloadTime = 1;
+				if(gun && gun is FreezeTurret_Gun_III) {}
+				else
+				{
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new FreezeTurret_Gun_III();
+					addChild(gun);
+					gun.rotation = rot;
+				}
 				break;
 				
 				case 4:
@@ -72,6 +110,19 @@
 				additionalDamage = 0;
 				additionalRange = 15;
 				additionalReloadTime = 2;
+				if(gun && gun is FreezeTurret_Gun_IV) {}
+				else
+				{
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new FreezeTurret_Gun_IV();
+					addChild(gun);
+					gun.rotation = rot;
+				}
 				break;
 				
 				case 5:
@@ -81,6 +132,19 @@
 				upgradeCost = 25;
 				installingTime = 180;
 				uninstallingTime = 180;
+				if(gun && gun is FreezeTurret_Gun_V) {}
+				else
+				{
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new FreezeTurret_Gun_V();
+					addChild(gun);
+					gun.rotation = rot;
+				}
 				break;
 			}
 		}

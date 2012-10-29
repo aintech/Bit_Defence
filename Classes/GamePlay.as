@@ -12,7 +12,7 @@
 
 //FIX: если срабатывает спецтехника, вроде переноса турели, и при этом заканчивается гаудж, остальные техники все равно загораются синим, хоть и не работают(если применена спецтехника переноса туррели)
 package 
-{Continium - перерисовать PlaceMarker AddMarkerCounter
+{
 	import flash.display.MovieClip;
 	import flash.display.StageQuality;
 	import flash.geom.Point;
@@ -35,6 +35,8 @@ package
 	import flash.display.SpreadMethod;
 	import flash.filters.BlurFilter;
 	import flash.filters.DropShadowFilter;
+	import flash.media.Sound;
+	import flash.media.SoundChannel;
 
 	public class GamePlay extends MovieClip
 	{
@@ -103,33 +105,32 @@ package
 		public var enemyLimit:int = Variables.ENEMY_DELAY;//Время задержки появления врагов
 		public var enemiesLeft:int;
 		
-		public var dropArray:Array					= [];
-		public var roadArray:Array					= [];
-		public var minesArray:Array					= [];
-		public var enemyArray:Array 				= [];
-		public var swarmArray:Array 				= [];
-		public var rocketArray:Array 				= [];
-		public var splashArray:Array 				= [];
-		public var groundArray:Array				= [];
-		public var directArray:Array 				= [];
-		public var markerArray:Array 				= [];
-		public var turretArray:Array 				= [];
-		public var particleArray:Array 				= [];
-		public var upgradingArray:Array				= [];
-		public var distEnemyArray:Array				= [];
-		public var charIconsArray:Array				= [];
-		public var installingArray:Array			= [];
-		public var swarmBombsArray:Array			= [];
-		public var bombSplashArray:Array			= [];
-		public var swarmSplashArray:Array			= [];
-		public var poisonCloudsArray:Array			= [];
-		public var uninstallingArray:Array			= [];
-		public var specialToolsArray:Array			= [];
-		public var introScreensArray:Array			= [];
-		public var addMarkerCounterArray:Array		= [];
-		public var specialToolsGaugeArray:Array		= [];
-		public var availableActionFlagsArray:Array	= [];
-		public var specialToolsCooldownsArray:Array	= [];
+		public var dropArray:Vector.<Drop>									= new Vector.<Drop>;
+		public var roadArray:Vector.<RoadTile>								= new Vector.<RoadTile>;
+		public var minesArray:Vector.<Mine>									= new Vector.<Mine>;
+		public var enemyArray:Vector.<Enemy> 								= new Vector.<Enemy>;
+		public var swarmArray:Vector.<Swarm>								= new Vector.<Swarm>;
+		public var rocketArray:Vector.<Rocket>								= new Vector.<Rocket>;
+		public var splashArray:Vector.<LauncherSplash>						= new Vector.<LauncherSplash>;
+		public var groundArray:Vector.<GroundTile>							= new Vector.<GroundTile>;
+		public var directArray:Vector.<RoadTile>							= new Vector.<RoadTile>;
+		public var markerArray:Vector.<PlaceMarker>							= new Vector.<PlaceMarker>;
+		public var turretArray:Vector.<Turret>								= new Vector.<Turret>;
+		public var particleArray:Vector.<Particle>							= new Vector.<Particle>;
+		public var upgradingArray:Vector.<InstallingCounter>				= new Vector.<InstallingCounter>;
+		public var charIconsArray:Vector.<CharIcon>							= new Vector.<CharIcon>;
+		public var installingArray:Vector.<InstallingCounter>				= new Vector.<InstallingCounter>;
+		public var swarmBombsArray:Vector.<SwarmBomb>						= new Vector.<SwarmBomb>;
+		public var swarmSplashArray:Vector.<SwarmSplash>					= new Vector.<SwarmSplash>;
+		public var poisonCloudsArray:Vector.<PoisonCloud>					= new Vector.<PoisonCloud>;
+		public var uninstallingArray:Vector.<InstallingCounter>				= new Vector.<InstallingCounter>;
+		public var specialToolsArray:Vector.<SpecialTools>					= new Vector.<SpecialTools>;
+		public var introScreensArray:Vector.<IntroduceScreen>				= new Vector.<IntroduceScreen>;
+		public var addMarkerCounterArray:Vector.<AddMarkerCounter>			= new Vector.<AddMarkerCounter>;
+		public var specialToolsGaugeArray:Vector.<SpecialToolsGauge>		= new Vector.<SpecialToolsGauge>;
+		public var availableActionFlagsArray:Vector.<AvailableActionFlag>	= new Vector.<AvailableActionFlag>;
+		public var specialToolsCooldownsArray:Vector.<SpecialToolsCooldown>	= new Vector.<SpecialToolsCooldown>;
+		public var distEnemyArray:Array	= [];
 		
 		public var mapCols:int = 15;
 		public var mapRows:int = 9;
@@ -190,6 +191,13 @@ package
 		private var swarmAvailable:Boolean;
 		
 		private var scoreBoard:ScoreBoard;
+		
+		private var sound:Sound;
+		private var soundChannel:SoundChannel;
+		
+		public static var numTurretsForSound:int;
+		
+		private var tutor:TutorScreen;
 				
 		public function GamePlay(level:int, gameWidth:int, gameHeight:int)
 		{
@@ -304,7 +312,6 @@ package
 				charIcon.damage = character.damage;
 				if(character.numMissiles) charIcon.numMissiles = character.numMissiles;
 				charIcon.reloadTime = character.reloadTime;
-				charIcon.setDisable();
 				character = null;
 				charIcon.addEventListener(MouseEvent.MOUSE_OVER, showInfo, false, 0, true);
 				charIcon.addEventListener(MouseEvent.MOUSE_OUT, hideInfo, false, 0, true);
@@ -436,14 +443,14 @@ package
 			scoreBoard.update(ScoreBoard.UPD_ENEMIES, String(enemyWaves[0].length));
 			scoreBoard.update(ScoreBoard.UPD_MEMORY, (memoryUsed + "/" + memoryTotal));
 			scoreBoard.update(ScoreBoard.UPD_SYMBOLS, String(Variables.SYMBOLS));
+			
+			setTurretCharStatus(true);
 		}
 		
 		public function startLevel(e:MouseEvent):void
 		{
 			infoScreen.startLevelBtn.removeEventListener(MouseEvent.CLICK, startLevel);
 			levelStarted = true;
-			
-			setTurretCharStatus(true);
 			setToolStatus(true);
 		}
 		
@@ -898,27 +905,27 @@ package
 			switch(pauseGame)
 			{
 				case true:
-				gameTimer.stop();
-				for each(enemy in enemyArray)
-				{
-					clip = enemy.getChildByName("clip") as MovieClip;
-					clip.gotoAndStop(clip.currentFrame);
-				}
+					gameTimer.stop();
+					for each(enemy in enemyArray)
+					{
+						clip = enemy.getChildByName("clip") as MovieClip;
+						clip.gotoAndStop(clip.currentFrame);
+					}
 				break;
 				
 				case false:
-				if(!introduceInWork)
-				{
-					gameTimer.start();
-					for each(enemy in enemyArray)
+					if(!introduceInWork)
 					{
-						if(!enemy.isStuned)
+						gameTimer.start();
+						for each(enemy in enemyArray)
 						{
-							clip = enemy.getChildByName("clip") as MovieClip;
-							clip.gotoAndPlay(clip.currentFrame);
+							if(!enemy.isStuned)
+							{
+								clip = enemy.getChildByName("clip") as MovieClip;
+								clip.gotoAndPlay(clip.currentFrame);
+							}
 						}
 					}
-				}
 				break;
 			}
 		}
@@ -1193,6 +1200,16 @@ package
 					if(infoScreen.previusTarget == enemy) infoScreen.previusTarget = null;
 					removeObject(i, enemyArray);
 					enemiesLeft--;
+					
+					if(numTurretsForSound > 0 && Settings.SOUND_ON)
+					{
+						sound = SoundCreator.createSound(SoundCreator.DESTROYED);
+						soundChannel = new SoundChannel();
+						soundChannel = sound.play();
+						soundChannel.addEventListener(Event.SOUND_COMPLETE, onSpeechComplete, false, 0, true);
+						numTurretsForSound--;
+					}
+					
 					scoreBoard.update(ScoreBoard.UPD_ENEMIES, String(enemiesLeft));
 					if(enemy is Enemy_Neirobot)
 					{
@@ -1465,6 +1482,12 @@ package
 					clip = null;
 				}
 			}
+		}
+		
+		private function onSpeechComplete(e:Event):void
+		{
+			e.currentTarget.removeEventListener(Event.SOUND_COMPLETE, onSpeechComplete);
+			numTurretsForSound++;
 		}
 		
 		private function mineExplosion(m:int):void
@@ -1883,6 +1906,13 @@ package
 					turret.addEventListener(MouseEvent.CLICK, showInfo, false, 0, true);
 					turretArray.push(turret);
 					removeObject(i, installingArray);
+					numTurretsForSound++;
+					
+					if(Settings.SOUND_ON)
+					{
+						sound = SoundCreator.createSound(SoundCreator.INSTALLED);
+						sound.play();
+					}
 				}
 			}
 		}
@@ -1944,6 +1974,12 @@ package
 					
 					turret.level++;
 					turret.updateLevel();
+					
+					if(Settings.SOUND_ON)
+					{
+						sound = SoundCreator.createSound(SoundCreator.INSTALLED);
+						sound.play();
+					}
 				}
 			}
 		}
@@ -2004,6 +2040,7 @@ package
 			uninstallingArray.push(counter);
 			turretHolder.addChild(counter);
 			
+			numTurretsForSound--;
 		}
 		
 		private function uninstallTurrets():void
@@ -2328,7 +2365,8 @@ package
 				rocket.x += rocket.xSpeed;
 				rocket.y += rocket.ySpeed;
 				
-				if(rocket.hitTestPoint(rocket.destX, rocket.destY))	createRocketSplash(i, rocket.damage, rocket.turretLevel, rocket.destX, rocket.destY);
+				if(rocket.x > rocket.destX - 10 && rocket.x < rocket.destX + 10 &&
+				   rocket.y > rocket.destY - 10 && rocket.y < rocket.destY + 10) createRocketSplash(i, rocket.damage, rocket.turretLevel, rocket.destX, rocket.destY);
 			}
 			
 			for(var s:int = splashArray.length; --s >= 0;)
@@ -2830,7 +2868,7 @@ package
 				case Enemy.DIR_RIGHT:
 					startWaveBtn.x = roadStart.x + 50;
 					startWaveBtn.y = roadStart.y;
-					startWaveBtnArrow.x = startWaveBtn.x - startWaveBtn.width + 5;
+					startWaveBtnArrow.x = startWaveBtn.x - startWaveBtn.width;
 					startWaveBtnArrow.y = startWaveBtn.y;
 					startWaveBtnArrow.rotation = 0;
 				break;
@@ -3325,7 +3363,6 @@ package
 			if(addingMarker && ground.nearRoad)
 			{
 				var counter:MovieClip = new AddMarkerCounter();
-				counter.gotoAndStop(1);
 				counter.x = ground.x + ground.width * .5;
 				counter.y = ground.y + ground.height * .5;
 				counter.txtCount.text = "0 %";
@@ -3388,8 +3425,8 @@ package
 				counter.passTime++;
 				var cTime:int = Math.floor(counter.passTime / counter.addingTime * 100)
 				counter.txtCount.text = String(cTime) + " %";
-				counter.gotoAndStop(cTime);
-				if(counter.currentFrame > 99)
+				counter.bar.gotoAndStop(cTime);
+				if(counter.passTime >= counter.addingTime)
 				{
 					addMarker(counter.groundInAction);
 					removeObject(i, addMarkerCounterArray);
@@ -3459,7 +3496,7 @@ package
 					else if(!tool.inAction && (specialToolsGauge >= 1)) setToolStatus(true, tool);
 				}
 			}
-			else if(levelStarted) showBuyTurretInfo(e);
+			else showBuyTurretInfo(e);
 		}
 		
 		private function drawRange(xVal:int, yVal:int, radius:int):void
@@ -3479,7 +3516,7 @@ package
 			rangeCircle.graphics.clear();
 		}
 		
-		private function removeObject(index:int, group:Array):void
+		private function removeObject(index:int, group:*):void
 		{
 			var obj:*;
 			if(group)

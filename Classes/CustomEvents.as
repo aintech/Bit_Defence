@@ -13,6 +13,7 @@
 		public static const CLOSE_UPGRADES:String	= "Close Upgrades";
 		public static const NEW_LEVEL:String 		= "New Level";
 		public static const LEVEL_WIN:String		= "Level Win";
+		public static const CLOSE_LEVEL_WIN:String	= "Close Level Win"
 		public static const LEVEL_LOSE:String 		= "Level Lose";
 		public static const GAME_WIN:String 		= "Game Win";
 		

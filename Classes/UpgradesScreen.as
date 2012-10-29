@@ -13,6 +13,7 @@
 		public var descript:MovieClip;
 		public var pressedUpgrades:Array = [];
 		
+		private var cheatBtn:Button;
 		private var undoBtn:Button;
 		private var doneBtn:Button;
 		
@@ -61,15 +62,19 @@
 		
 		private function init():void
 		{
-			doneBtn = new Button("DONE");
-			doneBtn.scaleX = doneBtn.scaleY = .6;
+			cheatBtn = new Button("CHEAT", true);
+			cheatBtn.x = cheatBtn.offset;
+			cheatBtn.y = cheatBtn.offset;
+			cheatBtn.addEventListener(MouseEvent.CLICK, cheat, false, 0, true);
+			addChild(cheatBtn);
+			
+			doneBtn = new Button("DONE", true);
 			doneBtn.x = Main.STAGE_WIDTH - doneBtn.width - doneBtn.offset;
 			doneBtn.y = doneBtn.offset;
 			doneBtn.addEventListener(MouseEvent.CLICK, closeUpgrades, false, 0, true);
 			addChild(doneBtn);
 			
-			undoBtn = new Button("UNDO");
-			undoBtn.scaleX = undoBtn.scaleY = .6;
+			undoBtn = new Button("UNDO", true);
 			undoBtn.x = doneBtn.x - undoBtn.width - undoBtn.offset;
 			undoBtn.y = undoBtn.offset;
 			undoBtn.addEventListener(MouseEvent.CLICK, undoChanges, false, 0, true);
@@ -109,6 +114,13 @@
 					}
 				}
 			}
+			checkBtns();
+		}
+		
+		private function cheat(e:MouseEvent):void
+		{
+			Variables.SYMBOLS += 1000;
+			txtSymbols.text = String(Variables.SYMBOLS);
 			checkBtns();
 		}
 		
@@ -390,8 +402,8 @@
 		
 		private function moveOnBtn(e:MouseEvent):void
 		{
-			descript.x = e.stageX;
-			descript.y = e.stageY;
+			descript.x = mouseX;
+			descript.y = mouseY;
 			e.updateAfterEvent();
 		}
 		

@@ -7,9 +7,7 @@
 			super.init();
 			maxLevel = Variables.SWARM_MAX_LEVEL;
 			base = new TurretBase();
-			gun = new SwarmTurret_Gun();
 			addChild(base);
-			addChild(gun);
 			
 			numSwarmBombs = 6;
 			
@@ -21,6 +19,7 @@
 		
 		override public function updateLevel():void
 		{
+			var rot:int = 0;
 			switch(level)
 			{
 				case 1:
@@ -37,6 +36,19 @@
 				additionalRange = 0;
 				additionalReloadTime = 0;
 				additionalMissiles = 1;
+				if(gun && gun is SwarmTurret_Gun_I) {}
+				else
+				{
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new SwarmTurret_Gun_I();
+					addChild(gun);
+					gun.rotation = rot;
+				}
 				break;
 				
 				case 2:
@@ -53,6 +65,19 @@
 				additionalRange = 0;
 				additionalReloadTime = 0;
 				additionalMissiles = 1;
+				if(gun && gun is SwarmTurret_Gun_II) {}
+				else
+				{
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new SwarmTurret_Gun_II();
+					addChild(gun);
+					gun.rotation = rot;
+				}
 				break;
 				
 				case 3:
@@ -69,6 +94,19 @@
 				additionalRange = 0;
 				additionalReloadTime = 4;
 				additionalMissiles = 1;
+				if(gun && gun is SwarmTurret_Gun_III) {}
+				else
+				{
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new SwarmTurret_Gun_III();
+					addChild(gun);
+					gun.rotation = rot;
+				}
 				break;
 				
 				case 4:
@@ -85,6 +123,19 @@
 				additionalRange = 0;
 				additionalReloadTime = 0;
 				additionalMissiles = 1;
+				if(gun && gun is SwarmTurret_Gun_IV) {}
+				else
+				{
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new SwarmTurret_Gun_IV();
+					addChild(gun);
+					gun.rotation = rot;
+				}
 				break;
 				
 				case 5:
@@ -96,6 +147,19 @@
 				numMissiles = 7;
 				installingTime = 180;
 				uninstallingTime = 180;
+				if(gun && gun is SwarmTurret_Gun_V) {}
+				else
+				{
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new SwarmTurret_Gun_V();
+					addChild(gun);
+					gun.rotation = rot;
+				}
 				break;
 			}
 		}

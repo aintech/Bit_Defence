@@ -15,9 +15,11 @@
 		private var nameFormat:TextFormat;
 		
 		private var lifeBarSwitch:TextField;
+		private var soundSwitch:TextField;
 		private var switchFormat:TextFormat;
 		
 		private var lifeBarBtn:Button;
+		private var soundBtn:Button;
 		private var backBtn:Button;
 		
 		private var BG:Sprite;
@@ -58,6 +60,17 @@
 			
 			switchFormat = new TextFormat("Digital-7", 50, 0xFFFFFF)
 			
+			lifeBarBtn = new Button("LIFEBAR");
+			lifeBarBtn.x = Main.STAGE_WIDTH * .5 - lifeBarBtn.width * .5;
+			lifeBarBtn.y = 300;
+			addChild(lifeBarBtn);
+			
+			soundBtn = new Button("SOUND");
+			soundBtn.x = lifeBarBtn.x;
+			soundBtn.y = lifeBarBtn.y + lifeBarBtn.height + soundBtn.offset;
+			addChild(soundBtn);
+			
+			
 			lifeBarSwitch = new TextField();
 			lifeBarSwitch.defaultTextFormat = switchFormat;
 			lifeBarSwitch.embedFonts = true;
@@ -65,34 +78,41 @@
 			lifeBarSwitch.text = "ON";
 			lifeBarSwitch.selectable = false;
 			lifeBarSwitch.filters = [new GlowFilter(0xFF0000)];
-			addChild(lifeBarSwitch);
-			
-			lifeBarBtn = new Button("LIFEBAR");
-			lifeBarBtn.x = Main.STAGE_WIDTH * .5 - lifeBarBtn.width * .5;
-			lifeBarBtn.y = 300;
-			addChild(lifeBarBtn);
-			
 			lifeBarSwitch.x = lifeBarBtn.x + lifeBarBtn.width + lifeBarBtn.offset;
 			lifeBarSwitch.y = lifeBarBtn.y;
+			addChild(lifeBarSwitch);
+			
+			soundSwitch = new TextField();
+			soundSwitch.defaultTextFormat = switchFormat;
+			soundSwitch.embedFonts = true;
+			soundSwitch.autoSize = TextFieldAutoSize.LEFT;
+			soundSwitch.text = "ON";
+			soundSwitch.selectable = false;
+			soundSwitch.filters = [new GlowFilter(0xFF0000)];
+			soundSwitch.x = soundBtn.x + soundBtn.width + soundBtn.offset;
+			soundSwitch.y = soundBtn.y;
+			addChild(soundSwitch);
 			
 			backBtn = new Button("BACK");
 			backBtn.x = Main.STAGE_WIDTH * .5 - backBtn.width * .5;
 			backBtn.y = lifeBarBtn.y + lifeBarBtn.height + backBtn.offset + 60;
 			addChild(backBtn);
 			
-			//soundBtn.addEventListener(MouseEvent.CLICK, clickSound, false, 0, true);
 			//musicBtn.addEventListener(MouseEvent.CLICK, clickMusic, false, 0, true);
 			lifeBarBtn.addEventListener(MouseEvent.CLICK, clickLifeBar, false, 0, true);
+			soundBtn.addEventListener(MouseEvent.CLICK, clickSound, false, 0, true);
 			backBtn.addEventListener(MouseEvent.CLICK, backToMenu, false, 0, true);
 			
-			/*if(Settings.SOUND_ON) soundSwitch.text = "ON";
-			else if(!Settings.SOUND_ON) soundSwitch.text = "OFF";
 			
-			if(Settings.MUSIC_ON) musicSwitch.text = "ON";
+			
+			/*if(Settings.MUSIC_ON) musicSwitch.text = "ON";
 			else if(!Settings.MUSIC_ON) musicSwitch.text = "OFF";*/
 			
 			if(Settings.LIFEBAR_VISIBLE) lifeBarSwitch.text = "ON";
 			else if(!Settings.LIFEBAR_VISIBLE) lifeBarSwitch.text = "OFF";
+			
+			if(Settings.SOUND_ON) soundSwitch.text = "ON";
+			else if(!Settings.SOUND_ON) soundSwitch.text = "OFF";
 			
 			BG = new Sprite;
 			BG.graphics.beginFill(0x000000);
@@ -101,17 +121,8 @@
 			addChildAt(BG, 0);
 			if(!opaqueBG) BG.alpha = 0; 
 		}
-		
-		/*private function clickSound(e:MouseEvent):void
-		{
-			Settings.SOUND_ON = !Settings.SOUND_ON;
-			if(Settings.SOUND_ON) soundSwitch.text = "ON";
-			else if(!Settings.SOUND_ON) soundSwitch.text = "OFF";
-			Settings.SETTINGS_CHANGED = true;
-			stage.focus = this;
-		}
-		
-		private function clickMusic(e:MouseEvent):void
+				
+		/*private function clickMusic(e:MouseEvent):void
 		{
 			Settings.MUSIC_ON = !Settings.MUSIC_ON;
 			if(Settings.MUSIC_ON) musicSwitch.text = "ON";
@@ -129,12 +140,21 @@
 			stage.focus = this;
 		}
 		
+		private function clickSound(e:MouseEvent):void
+		{
+			Settings.SOUND_ON = !Settings.SOUND_ON;
+			if(Settings.SOUND_ON) soundSwitch.text = "ON";
+			else if(!Settings.SOUND_ON) soundSwitch.text = "OFF";
+			Settings.SETTINGS_CHANGED = true;
+			stage.focus = this;
+		}
+		
 		private function backToMenu(e:MouseEvent):void
 		{
 			e.stopPropagation();
-			/*soundBtn.removeEventListener(MouseEvent.CLICK, clickSound);
-			musicBtn.removeEventListener(MouseEvent.CLICK, clickMusic);*/
+			/*musicBtn.removeEventListener(MouseEvent.CLICK, clickMusic);*/
 			lifeBarBtn.removeEventListener(MouseEvent.CLICK, clickLifeBar);
+			soundBtn.removeEventListener(MouseEvent.CLICK, clickSound);
 			backBtn.removeEventListener(MouseEvent.CLICK, backToMenu);
 			dispatchEvent(new CustomEvents(CustomEvents.CLOSE_SETTINGS));
 		}

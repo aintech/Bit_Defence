@@ -1,7 +1,5 @@
 ﻿package 
 {
-	import flash.display.MovieClip;
-
 	public class GunTurret extends Turret
 	{
 		override protected function init():void
@@ -38,15 +36,19 @@
 				additionalDamage = 50;
 				additionalRange = 10;
 				additionalReloadTime = 0;
-				if(gun)
+				if(gun && gun is GunTurret_Gun_I) {}
+				else
 				{
-					rot = gun.rotation;
-					removeChild(gun);
-					gun = null;
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new GunTurret_Gun_I();
+					addChild(gun);
+					gun.rotation = rot;
 				}
-				gun = new GunTurret_Gun_I();
-				addChild(gun);
-				gun.rotation = rot;
 				break;
 				
 				case 2:
@@ -61,15 +63,19 @@
 				additionalDamage = 50;
 				additionalRange = 10;
 				additionalReloadTime = 1;
-				if(gun)
+				if(gun && gun is GunTurret_Gun_II) {}
+				else
 				{
-					rot = gun.rotation;
-					removeChild(gun);
-					gun = null;
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new GunTurret_Gun_II();
+					addChild(gun);
+					gun.rotation = rot;
 				}
-				gun = new GunTurret_Gun_II();
-				addChild(gun);
-				gun.rotation = rot;
 				break;
 				
 				case 3:
@@ -84,15 +90,19 @@
 				additionalDamage = 50;
 				additionalRange = 10;
 				additionalReloadTime = 2;
-				if(gun)
+				if(gun && gun is GunTurret_Gun_III) {}
+				else
 				{
-					rot = gun.rotation;
-					removeChild(gun);
-					gun = null;
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new GunTurret_Gun_III();
+					addChild(gun);
+					gun.rotation = rot;
 				}
-				gun = new GunTurret_Gun_III();
-				addChild(gun);
-				gun.rotation = rot;
 				break;
 				
 				case 4:
@@ -107,15 +117,19 @@
 				additionalDamage = 50;
 				additionalRange = 10;
 				additionalReloadTime = 2;
-				if(gun)
+				if(gun && gun is GunTurret_Gun_IV) {}
+				else
 				{
-					rot = gun.rotation;
-					removeChild(gun);
-					gun = null;
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new GunTurret_Gun_IV();
+					addChild(gun);
+					gun.rotation = rot;
 				}
-				gun = new GunTurret_Gun_IV();
-				addChild(gun);
-				gun.rotation = rot;
 				break;
 				
 				case 5:
@@ -126,15 +140,19 @@
 				upgradeCost = 25;
 				installingTime = 180;
 				uninstallingTime = 180;
-				if(gun)
+				if(gun && gun is GunTurret_Gun_V) {}
+				else
 				{
-					rot = gun.rotation;
-					removeChild(gun);
-					gun = null;
+					if(gun)
+					{
+						rot = gun.rotation;
+						removeChild(gun);
+						gun = null;
+					}
+					gun = new GunTurret_Gun_V();
+					addChild(gun);
+					gun.rotation = rot;
 				}
-				gun = new GunTurret_Gun_V();
-				addChild(gun);
-				gun.rotation = rot;
 				break;
 			}
 		}

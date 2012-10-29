@@ -3,7 +3,7 @@
 	import flash.display.MovieClip;
 	import flash.events.Event;
 
-	public class BitDefenceMain extends MovieClip
+	dynamic public class BitDefenceMain extends MovieClip
 	{
 		public var preloader:Preloader;
 

@@ -19,6 +19,7 @@
 		public var levelWinScreen:MovieClip;
 		public var levelLoseScreen:MovieClip;
 		public var gameWinScreen:MovieClip;
+		private var tutor:TutorScreen;
 		public var sourceScreen:String;
 		
 		public static const STAGE_WIDTH:int 	= 900;
@@ -285,6 +286,27 @@
 			playScreen.addEventListener(CustomEvents.SHOW_OPTIONS, showOptions, false, 0, true);
 			playScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
 			addChild(playScreen);
+			
+			if(level == 1)
+			{
+				playScreen.pauseGame();
+				playScreen.filters = [new BlurFilter(10, 10)];
+				tutor = new TutorScreen();
+				tutor.x = Main.STAGE_WIDTH *.5;
+				tutor.y = Main.STAGE_HEIGHT * .5;
+				addChild(tutor);
+				tutor.addEventListener(MouseEvent.CLICK, scipTutor, false, 0, true);
+			}
+		}
+		
+		private function scipTutor(e:MouseEvent):void
+		{
+			tutor.removeEventListener(MouseEvent.CLICK, scipTutor);
+			removeChild(tutor);
+			tutor = null;
+			
+			playScreen.filters = [];
+			playScreen.pauseGame(false);
 		}
 		
 		public function onPressEsc(e:KeyboardEvent):void
@@ -608,30 +630,30 @@
 			removeChild(playScreen);
 			playScreen = null;
 				
-			levelWinScreen = new LevelWinScreen();
+			levelWinScreen = new LevelWinScreen(level);
 			stage.focus = levelWinScreen;
-			levelWinScreen.txtLevel.text = level.toString();
+			levelWinScreen.addEventListener(CustomEvents.CLOSE_LEVEL_WIN, levelWinScreenClicked, false, 0, true);
 			addChild(levelWinScreen);
-			
-			if(level == maxLevels) levelWinScreen.addEventListener(MouseEvent.CLICK, gameWin, false, 0, true);
-			else levelWinScreen.addEventListener(MouseEvent.CLICK, levelWinScreenClicked, false, 0, true);
-			
 		}
 		
-		private function levelWinScreenClicked(e:MouseEvent):void
+		private function levelWinScreenClicked(e:CustomEvents):void
 		{
-			levelWinScreen.removeEventListener(MouseEvent.CLICK, levelWinScreenClicked);
-			levelWinScreen.txtLevel.text = "";
-			removeChild(levelWinScreen);
-			levelWinScreen = null;
+			if(level == maxLevels) gameWin();
+			else
+			{
+				levelWinScreen.removeEventListener(CustomEvents.CLOSE_LEVEL_WIN, levelWinScreenClicked);
+				levelWinScreen.txtLevel.text = "";
+				removeChild(levelWinScreen);
+				levelWinScreen = null;
 			
-			mapScreen = new MapScreen(availableLevel);
-			stage.focus = mapScreen;
-			mapScreen.addEventListener(CustomEvents.NEW_LEVEL, onChooseLevel, false, 0, true);
-			mapScreen.addEventListener(CustomEvents.SHOW_OPTIONS, showOptions, false, 0, true);
-			mapScreen.addEventListener(CustomEvents.SHOW_UPGRADES, onShowUpgrades, false, 0, true);
-			mapScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
-			addChild(mapScreen);
+				mapScreen = new MapScreen(availableLevel);
+				stage.focus = mapScreen;
+				mapScreen.addEventListener(CustomEvents.NEW_LEVEL, onChooseLevel, false, 0, true);
+				mapScreen.addEventListener(CustomEvents.SHOW_OPTIONS, showOptions, false, 0, true);
+				mapScreen.addEventListener(CustomEvents.SHOW_UPGRADES, onShowUpgrades, false, 0, true);
+				mapScreen.addEventListener(KeyboardEvent.KEY_DOWN, onPressEsc, false, 0, true);
+				addChild(mapScreen);
+			}
 		}
 		
 		private function onLevelLose(e:CustomEvents):void
@@ -664,9 +686,9 @@
 			addChild(mapScreen);
 		}
 		
-		private function gameWin(e:MouseEvent):void
+		private function gameWin(e:MouseEvent = null):void
 		{
-			levelWinScreen.removeEventListener(MouseEvent.CLICK, gameWin);
+			levelWinScreen.removeEventListener(CustomEvents.CLOSE_LEVEL_WIN, levelWinScreenClicked);
 			levelWinScreen.txtLevel.text = "";
 			removeChild(levelWinScreen);
 			levelWinScreen = null;

@@ -71,37 +71,37 @@
 		public static const WAVE_DELAY:int	= 20;//Wave delay in sec
 		public static const ENEMY_DELAY:int	= 12;//enemy appear delay
 		
-		public static const UPGRADE_COST_GUN_III:int		= 50;
-		public static const UPGRADE_COST_CRIT_X4:int		= 100;
-		public static const UPGRADE_COST_GUN_V:int			= 150;
-		public static const UPGRADE_COST_CRIT_CHANCE:int	= 200;
-		public static const UPGRADE_COST_ADD_TOOLS:int		= 300;
-		public static const UPGRADE_COST_ACC_DAM:int		= 400;
-		public static const UPGRADE_COST_GUN_MASTER:int		= 500;
+		public static const UPGRADE_COST_GUN_III:int		= 100;
+		public static const UPGRADE_COST_CRIT_X4:int		= 150;
+		public static const UPGRADE_COST_GUN_V:int			= 200;
+		public static const UPGRADE_COST_CRIT_CHANCE:int	= 300;
+		public static const UPGRADE_COST_ADD_TOOLS:int		= 500;
+		public static const UPGRADE_COST_ACC_DAM:int		= 700;
+		public static const UPGRADE_COST_GUN_MASTER:int		= 1000;
 		
-		public static const UPGRADE_COST_SWARM_III:int		= 50;
-		public static const UPGRADE_COST_WIDE_SPLASH:int	= 100;
-		public static const UPGRADE_COST_SWARM_V:int		= 150;
-		public static const UPGRADE_COST_SPLASH_CHANCE:int 	= 200;
-		public static const UPGRADE_COST_MORE_SYMBOLS:int	= 300;
-		public static const UPGRADE_COST_BOMB_CASCADE:int	= 400;
-		public static const UPGRADE_COST_SWARM_MASTER:int	= 500;
+		public static const UPGRADE_COST_SWARM_III:int		= 100;
+		public static const UPGRADE_COST_WIDE_SPLASH:int	= 150;
+		public static const UPGRADE_COST_SWARM_V:int		= 200;
+		public static const UPGRADE_COST_SPLASH_CHANCE:int 	= 300;
+		public static const UPGRADE_COST_MORE_SYMBOLS:int	= 500;
+		public static const UPGRADE_COST_BOMB_CASCADE:int	= 700;
+		public static const UPGRADE_COST_SWARM_MASTER:int	= 1000;
 		
-		public static const UPGRADE_COST_LAUNCHER_III:int	= 50;
-		public static const UPGRADE_COST_POISON_DAMAGE:int	= 100;
-		public static const UPGRADE_COST_LAUNCHER_V:int		= 150;
-		public static const UPGRADE_COST_POISON_CHANCE:int	= 200;
-		public static const UPGRADE_COST_MEMORY_CHANCE:int	= 300;
-		public static const UPGRADE_COST_POISON_CLOUD:int	= 400;
-		public static const UPGRADE_COST_LAUNCHER_MASTER:int= 500;
+		public static const UPGRADE_COST_LAUNCHER_III:int	= 100;
+		public static const UPGRADE_COST_POISON_DAMAGE:int	= 150;
+		public static const UPGRADE_COST_LAUNCHER_V:int		= 200;
+		public static const UPGRADE_COST_POISON_CHANCE:int	= 300;
+		public static const UPGRADE_COST_MEMORY_CHANCE:int	= 500;
+		public static const UPGRADE_COST_POISON_CLOUD:int	= 700;
+		public static const UPGRADE_COST_LAUNCHER_MASTER:int= 1000;
 		
-		public static const UPGRADE_COST_FREEZE_III:int		= 50;
-		public static const UPGRADE_COST_LONGER_STUN:int	= 100;
-		public static const UPGRADE_COST_FREEZE_V:int		= 150;
-		public static const UPGRADE_COST_STUN_CHANCE:int	= 200;
-		public static const UPGRADE_COST_HACK_PROTECT:int	= 300;
-		public static const UPGRADE_COST_MULTY_STUN:int		= 400;
-		public static const UPGRADE_COST_FREEZE_MASTER:int	= 500;
+		public static const UPGRADE_COST_FREEZE_III:int		= 100;
+		public static const UPGRADE_COST_LONGER_STUN:int	= 150;
+		public static const UPGRADE_COST_FREEZE_V:int		= 200;
+		public static const UPGRADE_COST_STUN_CHANCE:int	= 300;
+		public static const UPGRADE_COST_HACK_PROTECT:int	= 500;
+		public static const UPGRADE_COST_MULTY_STUN:int		= 700;
+		public static const UPGRADE_COST_FREEZE_MASTER:int	= 1000;
 		
 		public static const GRAY_MATRIX:Array = [
 												0.3086, 0.6094, 0.082, 0, 0,
