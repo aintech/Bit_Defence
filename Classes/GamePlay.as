@@ -1200,14 +1200,18 @@ package
 					if(infoScreen.previusTarget == enemy) infoScreen.previusTarget = null;
 					removeObject(i, enemyArray);
 					enemiesLeft--;
-					
-					if(numTurretsForSound > 0 && Settings.SOUND_ON)
+					if(Settings.SOUND_ON)
 					{
-						sound = SoundCreator.createSound(SoundCreator.DESTROYED);
-						soundChannel = new SoundChannel();
-						soundChannel = sound.play();
-						soundChannel.addEventListener(Event.SOUND_COMPLETE, onSpeechComplete, false, 0, true);
-						numTurretsForSound--;
+						var explosion:Sound = new ExplosionSound();
+						explosion.play();
+						if(numTurretsForSound > 0)
+						{
+							sound = SoundCreator.createSound(SoundCreator.DESTROYED);
+							soundChannel = new SoundChannel();
+							soundChannel = sound.play();
+							soundChannel.addEventListener(Event.SOUND_COMPLETE, onSpeechComplete, false, 0, true);
+							numTurretsForSound--;
+						}
 					}
 					
 					scoreBoard.update(ScoreBoard.UPD_ENEMIES, String(enemiesLeft));
@@ -1516,6 +1520,11 @@ package
 			minesArray.splice(m, 1);
 			mine.parent.removeChild(mine);
 			mine = null;
+			if(Settings.SOUND_ON)
+			{
+				var explosion:Sound = new ExplosionSound();
+				explosion.play();
+			}
 		}
 		
 		private function introduce(target:String):void
@@ -1883,7 +1892,6 @@ package
 			counter.x = turret.x;
 			counter.y = turret.y;
 			installingArray.push(counter);
-			
 		}
 		
 		private function installTurrets():void
@@ -2245,10 +2253,16 @@ package
 					if(turret.loaded)
 					{
 						turret.loaded = false;
+						var sound:Sound;
 						
 						if(turret is GunTurret)
 						{
 							turret.gun.gotoAndPlay("shot");
+							if(Settings.SOUND_ON)
+							{
+								sound = new GunSound();
+								sound.play();
+							}
 							
 							if(Variables.UPGRADE_ACC_DAMAGE)
 							{
@@ -2273,6 +2287,12 @@ package
 						else if(turret is LauncherTurret)
 						{
 							turret.gun.gotoAndPlay("shot");
+							if(Settings.SOUND_ON)
+							{
+								sound = new LauncherSound();
+								sound.play();
+							}
+							
 							var rocket:Rocket = new Rocket(targetEnemy.x, targetEnemy.y);
 							rocket.turretLevel = turret.level;
 							rocket.damage = turret.damage;
@@ -2285,6 +2305,12 @@ package
 						else if(turret is SwarmTurret)
 						{
 							turret.gun.gotoAndPlay("shot");
+							if(Settings.SOUND_ON)
+							{
+								sound = new SwarmSound();
+								sound.play();
+							}
+														
 							for(var t:int = 0; t < turret.numMissiles; t++)
 							{
 								var swarm:Swarm = new Swarm();
@@ -2305,6 +2331,11 @@ package
 						{
 							turret.gun.gotoAndStop("shot");
 							turret.gun.rotation = 0;
+							if(Settings.SOUND_ON)
+							{
+								sound = new FreezeSound();
+								sound.play();
+							}
 							
 							turret.gun.graphics.clear();
 							turret.gun.graphics.lineStyle(2, 0xFF0000);
@@ -2455,7 +2486,15 @@ package
 						if(swarm.turretLevel >= 3 && (Math.random() * 100 < Variables.SWARM_SPLASH_CHANCE))
 						{
 							if(Variables.UPGRADE_BOMB_CASCADE) createCascadeBombs(swarm.x, swarm.y, swarm.rotation, swarm.numBombs);
-							else createSwarmSplash(swarm.x, swarm.y, "swarmSplash", Variables.SWARM_SPLASH_DAMAGE);
+							else
+							{
+								createSwarmSplash(swarm.x, swarm.y, "swarmSplash", Variables.SWARM_SPLASH_DAMAGE);
+								if(Settings.SOUND_ON)
+								{
+									var sound:Sound = new SplashSound();
+									sound.play();
+								}
+							}
 						}
 						else
 						{
@@ -2659,6 +2698,12 @@ package
 			splashArray.push(splash);
 			addChild(splash);
 			removeObject(index, rocketArray);
+			
+			if(Settings.SOUND_ON)
+			{
+				var sound:Sound = new SplashSound();
+				sound.play();
+			}
 		}
 				
 		private function drop(xVal:int, yVal:int, dropAmaunt:int, dropType:String):void
@@ -2781,6 +2826,11 @@ package
 			{
 				var disposeDrop:Drop = dropArray[d];
 				if(disposeDrop == drop) dropArray.splice(d, 1);
+			}
+			if(Settings.SOUND_ON)
+			{
+				var bonus:Sound = new BonusSound();
+				bonus.play();
 			}
 		}
 		
@@ -2942,11 +2992,14 @@ package
 			if(gameOver)
 			{
 				gameTimer.stop();
-				
-				for(var a:int = enemyArray.length; --a >= 0;) removeObject(a, enemyArray);
-				for(var b:int = turretArray.length; --b >= 0;) removeObject(b, turretArray);
-				for(var c:int = rocketArray.length; --c >= 0;) removeObject(c, rocketArray);
-				for(var d:int = splashArray.length; --d >= 0;) removeObject(d, splashArray);
+				try
+				{
+					for(var a:int = enemyArray.length; --a >= 0;) removeObject(a, enemyArray);
+					for(var b:int = turretArray.length; --b >= 0;) removeObject(b, turretArray);
+					for(var c:int = rocketArray.length; --c >= 0;) removeObject(c, rocketArray);
+					for(var d:int = splashArray.length; --d >= 0;) removeObject(d, splashArray);
+				}
+				catch(error:Error){ trace(error + " 1");}
 				
 				dispatchEvent(new CustomEvents(CustomEvents.LEVEL_LOSE));
 			}
@@ -2956,21 +3009,29 @@ package
 				if(dragging)
 				{
 					dragging = false
-					if(dragCharIcon)
+					try
 					{
-						stage.removeEventListener(MouseEvent.MOUSE_UP, dropIcon);
-						dragCharIcon.stopDrag();
-						dragCharIcon.parent.removeChild(dragCharIcon);
-						dragCharIcon = null;
+						if(dragCharIcon)
+						{
+							stage.removeEventListener(MouseEvent.MOUSE_UP, dropIcon);
+							dragCharIcon.stopDrag();
+							dragCharIcon.parent.removeChild(dragCharIcon);
+							dragCharIcon = null;
+						}
 					}
+					catch(error:Error){ trace(error + " 2");}
 				}
 				gameTimer.stop();
 				
-				for(var e:int = enemyArray.length; --e >= 0;) removeObject(e, enemyArray);
-				for(var t:int = turretArray.length; --t >= 0;) removeObject(t, turretArray);
-				for(var r:int = rocketArray.length; --r >= 0;) removeObject(r, rocketArray);
-				for(var s:int = splashArray.length; --s >= 0;) removeObject(s, splashArray);
-				
+				try
+				{
+					for(var e:int = enemyArray.length; --e >= 0;) removeObject(e, enemyArray);
+					for(var t:int = turretArray.length; --t >= 0;) removeObject(t, turretArray);
+					for(var r:int = rocketArray.length; --r >= 0;) removeObject(r, rocketArray);
+					for(var s:int = splashArray.length; --s >= 0;) removeObject(s, splashArray);
+				}
+				catch(error:Error){ trace(error + " 3");}
+								
 				dispatchEvent(new CustomEvents(CustomEvents.LEVEL_WIN));
 			}
 		}
@@ -3518,17 +3579,14 @@ package
 		
 		private function removeObject(index:int, group:*):void
 		{
-			var obj:*;
-			if(group)
+			try
 			{
-				obj = group[index];
-				if(obj)
-				{
-					obj.parent.removeChild(obj);
-					group.splice(index, 1);
-					obj = null;
-				}
+				var obj:* = group[index];
+				obj.parent.removeChild(obj);
+				group.splice(index, 1);
+				obj = null;
 			}
+			catch(error:Error){ trace(error + " 4");}
 		}
 	}
 }

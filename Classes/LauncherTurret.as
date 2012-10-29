@@ -110,7 +110,7 @@
 				installingTime = 150;
 				upgradingTime = 150;
 				uninstallingTime = 150;
-				additionalDamage = 100;
+				additionalDamage = 200;
 				additionalRange = 0;
 				additionalReloadTime = 0;
 				if(gun && gun is LauncherTurret_Gun_IV) {}
@@ -132,7 +132,7 @@
 				memoryUse = 210;
 				range = 200;
 				reloadTime = 16;
-				damage = 500;
+				damage = 600;
 				upgradeCost = 30;
 				installingTime = 180;
 				uninstallingTime = 180;
